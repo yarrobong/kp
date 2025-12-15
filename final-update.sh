@@ -26,6 +26,15 @@ if [ -f composer.json ] && command -v composer &> /dev/null; then
 fi
 
 echo ""
+echo "Создание директорий кеша..."
+mkdir -p bootstrap/cache
+mkdir -p storage/cache
+mkdir -p storage/logs
+mkdir -p storage/framework/cache
+mkdir -p storage/framework/views
+mkdir -p storage/framework/sessions
+
+echo ""
 echo "Настройка прав доступа..."
 chmod -R 755 storage bootstrap/cache
 chmod 644 .env 2>/dev/null || true
@@ -33,6 +42,10 @@ chmod 644 .env 2>/dev/null || true
 echo ""
 echo "Перезапуск PHP-FPM..."
 systemctl restart php8.1-fpm
+
+echo ""
+echo "Создание администратора..."
+php create-admin.php 2>&1
 
 echo ""
 echo "Тест работы..."

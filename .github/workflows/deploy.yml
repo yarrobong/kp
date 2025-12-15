@@ -1,34 +1,4 @@
-name: Deploy to Server
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Install sshpass
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y sshpass
-        
-    - nname: Setup SSH known hosts
-      run: |
-        mkdir -p ~/.ssh
-        if [ -z "${{ secrets.SERVER_HOST }}" ]; then
-          echo "ERROR: SERVER_HOST secret is not set!"
-          exit 1
-        fi
-        echo "Adding ${{ secrets.SERVER_HOST }} to known_hosts..."
-        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts || true
-        
-    -     - name: Deploy to server
+name: Deploy to server
       env:
         SSH_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
       run: |
@@ -70,7 +40,7 @@ jobs:
           
           echo "Starting deployment..."
           
-          # Если это не git репозиторий, клонируем
+          # ⚠️ ВАЖНО: Проверяем, является ли директория git репозиторием
           if [ ! -d .git ]; then
             echo "Not a git repository. Cloning..."
             git clone https://github.com/yarrobong/kp.git .

@@ -21,9 +21,11 @@ class VerifyCsrfToken
 
         if (!$token || $token !== $sessionToken) {
             if ($request->expectsJson()) {
-                return response()->json(['error' => 'CSRF token mismatch'], 403);
+                return \App\Http\Response::json(['error' => 'CSRF token mismatch'], 403);
             }
-            abort(403, 'CSRF token mismatch');
+            http_response_code(403);
+            echo 'CSRF token mismatch';
+            exit;
         }
 
         return $next($request);

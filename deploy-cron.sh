@@ -76,6 +76,11 @@ DEPLOY_SCRIPT_CONTENT
 
 chmod +x "$DEPLOY_SCRIPT"
 
+# Создаем директорию для логов если не существует
+mkdir -p /var/log
+touch /var/log/deploy-kp.log
+chmod 644 /var/log/deploy-kp.log
+
 # Добавляем задачу в crontab
 CRON_JOB="*/5 * * * * $DEPLOY_SCRIPT >> /var/log/deploy-kp.log 2>&1"
 

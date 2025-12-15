@@ -3,7 +3,6 @@
 require __DIR__ . '/bootstrap/app.php';
 
 use App\Models\User;
-use App\Support\Hash;
 
 try {
     echo "Создание администратора...\n";
@@ -11,7 +10,7 @@ try {
     $user = User::create([
         'name' => 'Admin',
         'email' => 'admin@example.com',
-        'password' => Hash::make('password'),
+        'password' => password_hash('password', PASSWORD_DEFAULT),
         'role' => 'admin'
     ]);
 

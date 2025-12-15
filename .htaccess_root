@@ -1,0 +1,27 @@
+# Если корень сайта - корень проекта, используйте этот .htaccess
+# Переименуйте его в .htaccess и поместите в корень проекта
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Перенаправление всех запросов в public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Защита .env файла
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Защита конфигурационных файлов
+<FilesMatch "^(composer\.(json|lock)|package\.json|\.git.*)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+
+

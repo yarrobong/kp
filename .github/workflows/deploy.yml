@@ -1,0 +1,67 @@
+yaml
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Install sshpass
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+        
+    - name: Setup SSH known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: Deploy to server
+      env:
+        SSH_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+      run: |
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} << 'ENDSSH'
+          set -e
+          
+          cd ${{ secrets.DEPLOY_PATH }}
+          
+          echo "Starting deployment..."
+          
+          # Сохраняем .env если существует
+          if [ -f .env ]; then
+            cp .env .env.backup
+          fi
+          
+          # Получаем последние изменения из GitHub
+          git fetch origin
+          git reset --hard origin/main
+          
+          # Восстанавливаем .env
+          if [ -f .env.backup ]; then
+            mv .env.backup .env
+          fi
+          
+          # Устанавливаем зависимости если нужно
+          if [ -f composer.json ] && command -v composer &> /dev/null; then
+            echo "Installing Composer dependencies..."
+            composer install --no-dev --optimize-autoloader --no-interaction || true
+          fi
+          
+          # Устанавливаем права доступа
+          echo "Setting permissions..."
+          chmod -R 755 storage bootstrap/cache 2>/dev/null || true
+          chmod 644 .env 2>/dev/null || true
+          
+          # Очищаем кеш если есть
+          rm -rf storage/framework/cache/* storage/framework/views/* 2>/dev/null || true
+          
+          echo "Deployment completed successfully!"
+        ENDSSH

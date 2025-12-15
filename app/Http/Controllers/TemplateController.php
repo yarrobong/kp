@@ -54,7 +54,10 @@ class TemplateController extends Controller
             if ($request->expectsJson()) {
                 return Response::json(['errors' => $validator->errors()], 422);
             }
-            return redirect()->back()->withErrors($validator)->withInput();
+            session('errors', $validator->errors());
+            session('_old_input', $request->input());
+            redirect_back();
+            return;
         }
 
         $data = $request->input();
@@ -74,7 +77,8 @@ class TemplateController extends Controller
             return Response::json($template, 201);
         }
 
-        return redirect('/templates')->with('success', 'Шаблон создан');
+        session('success', 'Шаблон создан');
+        redirect('/templates');
     }
 
     public function show(Request $request, $id)
@@ -132,7 +136,10 @@ class TemplateController extends Controller
             if ($request->expectsJson()) {
                 return Response::json(['errors' => $validator->errors()], 422);
             }
-            return redirect()->back()->withErrors($validator)->withInput();
+            session('errors', $validator->errors());
+            session('_old_input', $request->input());
+            redirect_back();
+            return;
         }
 
         $data = $request->input();
@@ -148,7 +155,8 @@ class TemplateController extends Controller
             return Response::json($template);
         }
 
-        return redirect('/templates')->with('success', 'Шаблон обновлен');
+        session('success', 'Шаблон обновлен');
+        redirect('/templates');
     }
 
     public function destroy(Request $request, $id)
@@ -168,7 +176,8 @@ class TemplateController extends Controller
             return Response::json(['message' => 'Deleted']);
         }
 
-        return redirect('/templates')->with('success', 'Шаблон удален');
+        session('success', 'Шаблон удален');
+        redirect('/templates');
     }
 }
 

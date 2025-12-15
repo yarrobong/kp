@@ -89,7 +89,9 @@ class ProposalController extends Controller
             if ($request->expectsJson()) {
                 return Response::json(['errors' => $validator->errors()], 422);
             }
-            return redirect()->back()->withErrors($validator)->withInput();
+            session('errors', $validator->errors());
+            session('_old_input', $request->input());
+            redirect_back();
         }
 
         $data = $request->input();
@@ -121,7 +123,8 @@ class ProposalController extends Controller
             return Response::json($proposal->load('items'), 201);
         }
 
-        return redirect('/proposals/' . $proposal->id)->with('success', 'КП создано');
+        session('success', 'КП создано');
+        redirect('/proposals/' . $proposal->id);
     }
 
     public function show(Request $request, $id)
@@ -192,7 +195,9 @@ class ProposalController extends Controller
             if ($request->expectsJson()) {
                 return Response::json(['errors' => $validator->errors()], 422);
             }
-            return redirect()->back()->withErrors($validator)->withInput();
+            session('errors', $validator->errors());
+            session('_old_input', $request->input());
+            redirect_back();
         }
 
         $data = $request->input();
@@ -226,7 +231,8 @@ class ProposalController extends Controller
             return Response::json($proposal->load('items'));
         }
 
-        return redirect('/proposals/' . $proposal->id)->with('success', 'КП обновлено');
+        session('success', 'КП обновлено');
+        redirect('/proposals/' . $proposal->id);
     }
 
     public function destroy(Request $request, $id)
@@ -247,7 +253,8 @@ class ProposalController extends Controller
             return Response::json(['message' => 'Deleted']);
         }
 
-        return redirect('/proposals')->with('success', 'КП удалено');
+        session('success', 'КП удалено');
+        redirect('/proposals');
     }
 
     public function publish(Request $request, $id)
@@ -259,7 +266,8 @@ class ProposalController extends Controller
             return Response::json($proposal);
         }
 
-        return redirect()->back()->with('success', 'КП опубликовано');
+        session('success', 'КП опубликовано');
+        redirect_back();
     }
 }
 

@@ -48,7 +48,8 @@ class AdminController extends Controller
             return Response::json($user);
         }
 
-        return redirect()->back()->with('success', 'Роль обновлена');
+        session('success', 'Роль обновлена');
+        redirect_back();
     }
 }
 

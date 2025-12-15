@@ -51,9 +51,13 @@ class Route
 
     protected static function addRoute($method, $uri, $action)
     {
+        // Добавляем префикс если есть
+        $prefix = RoutePrefix::getCurrentPrefix();
+        $fullUri = $prefix . $uri;
+        
         self::$routes[] = [
             'method' => $method,
-            'uri' => $uri,
+            'uri' => $fullUri,
             'action' => $action,
         ];
         return new static();
@@ -137,6 +141,7 @@ class RouteMiddleware
 
 class RoutePrefix
 {
+    protected static $currentPrefix = '';
     protected $prefix;
     protected $callback;
 
@@ -151,15 +156,22 @@ class RoutePrefix
         if ($callback) {
             $this->callback = $callback;
         }
+        $oldPrefix = self::$currentPrefix;
+        self::$currentPrefix = $oldPrefix . $this->prefix;
         $this->execute();
+        self::$currentPrefix = $oldPrefix;
     }
 
     protected function execute()
     {
-        // В реальности нужно модифицировать URI перед маршрутизацией
         if ($this->callback) {
             $this->callback();
         }
+    }
+    
+    public static function getCurrentPrefix()
+    {
+        return self::$currentPrefix;
     }
 }
 

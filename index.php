@@ -179,6 +179,7 @@ $uri = rtrim($uri, '/');
 // Простая демо-версия без аутентификации
 $userId = 1; // Фиксированный пользователь для демо
 
+
 switch ($uri) {
     case '':
     case '/':
@@ -224,7 +225,7 @@ switch ($uri) {
                         <div class="metric-value">' . $userProductsCount . '</div>
                         <div class="metric-label">Товаров</div>
                     </div>
-                </div>
+                    </div>
 
                 <div class="alert alert-success">
                     Демо-версия работает! Товары хранятся в JSON файле.
@@ -321,10 +322,10 @@ switch ($uri) {
                 try {
                     createProduct([
                         'user_id' => $userId,
-                        'name' => $name,
-                        'price' => $price,
-                        'category' => $category,
-                        'description' => $description,
+                            'name' => $name,
+                            'price' => $price,
+                            'category' => $category,
+                            'description' => $description,
                         'image' => '/css/placeholder-product.svg'
                     ]);
                     header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно добавлен!'));
@@ -404,6 +405,10 @@ switch ($uri) {
         </html>';
         break;
 
+    case '/logout':
+        header('Location: /products');
+        exit;
+
     default:
         // Проверяем, является ли это маршрутом редактирования товара /products/{id}/edit
         if (preg_match('#^/products/(\d+)/edit$#', $uri, $matches)) {
@@ -412,14 +417,42 @@ switch ($uri) {
 
             if (!$product) {
                 http_response_code(404);
-                echo '<h1>Товар не найден</h1><a href="/products">Назад</a>';
-                break;
-            }
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Товар не найден</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
 
-            $error = '';
+            <main class="container">
+                        <div style="text-align: center; margin-top: 100px;">
+                            <h1>Товар не найден</h1>
+                            <p>Запрашиваемый товар не существует.</p>
+                            <a href="/products" class="btn btn-primary">К товарам</a>
+                        </div>
+            </main>
+        </body>
+        </html>';
+        break;
+        }
+
+        $error = '';
             $success = '';
 
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = trim($_POST['name'] ?? '');
                 $price = floatval($_POST['price'] ?? 0);
                 $category = trim($_POST['category'] ?? '');
@@ -429,7 +462,7 @@ switch ($uri) {
                     $error = 'Название товара обязательно';
                 } elseif ($price <= 0) {
                     $error = 'Цена должна быть больше 0';
-                } else {
+            } else {
                     // Обновляем товар
                     try {
                         updateProduct($productId, [
@@ -444,51 +477,51 @@ switch ($uri) {
                     } catch (Exception $e) {
                         $error = 'Ошибка обновления товара: ' . $e->getMessage();
                     }
-                }
             }
+        }
 
-            echo '<!DOCTYPE html>
-            <html lang="ru">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Редактировать товар</title>
-                <link rel="stylesheet" href="/css/app.css">
-            </head>
-            <body>
-                <nav class="navbar">
-                    <div class="container">
-                        <a href="/" class="navbar-brand">КП Генератор</a>
-                        <div class="navbar-menu">
-                            <a href="/dashboard">Панель</a>
-                            <a href="/products">Товары</a>
-                            <a href="/logout">Выход</a>
-                        </div>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/logout">Выход</a>
                     </div>
-                </nav>
+                </div>
+            </nav>
 
-                <main class="container">
-                    <div class="page-header">
+            <main class="container">
+                <div class="page-header">
                         <h1>Редактировать товар</h1>
                         <a href="/products" class="btn btn-secondary">← Назад</a>
-                    </div>';
+                </div>';
 
-            if (!empty($error)) {
-                echo '<div class="alert alert-error">' . $error . '</div>';
-            }
+        if (!empty($error)) {
+            echo '<div class="alert alert-error">' . $error . '</div>';
+        }
 
             echo '<form method="POST" enctype="multipart/form-data">
-                        <div class="form-group">
+                    <div class="form-group">
                             <label>Название товара</label>
                             <input type="text" name="name" value="' . htmlspecialchars($product['name']) . '" required>
-                        </div>
+                    </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
+                    <div class="form-row">
+                        <div class="form-group">
                                 <label>Цена (₽)</label>
                                 <input type="number" name="price" step="0.01" value="' . htmlspecialchars($product['price']) . '" required>
-                            </div>
-                            <div class="form-group">
+                        </div>
+                        <div class="form-group">
                                 <label>Категория</label>
                                 <select name="category">
                                     <option value="">Без категории</option>
@@ -497,44 +530,54 @@ switch ($uri) {
                                     <option value="Программное обеспечение"' . ($product['category'] === 'Программное обеспечение' ? ' selected' : '') . '>Программное обеспечение</option>
                                     <option value="Услуги"' . ($product['category'] === 'Услуги' ? ' selected' : '') . '>Услуги</option>
                                 </select>
-                            </div>
                         </div>
+                    </div>
 
-                        <div class="form-group">
+                    <div class="form-group">
                             <label>Описание</label>
                             <textarea name="description" rows="4">' . htmlspecialchars($product['description'] ?? '') . '</textarea>
-                        </div>
+                    </div>
 
-                        <div class="form-actions">
+                    <div class="form-actions">
                             <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
                             <a href="/products" class="btn btn-secondary">Отмена</a>
-                        </div>
-                    </form>
-                </main>
-            </body>
-            </html>';
-            break;
+                    </div>
+                </form>
+            </main>
+        </body>
+        </html>';
+        break;
         }
 
-    case '/logout':
-        header('Location: /products');
-        exit;
-
-    default:
+        // 404 - Страница не найдена
         http_response_code(404);
         echo '<!DOCTYPE html>
         <html lang="ru">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>404</title>
+            <title>404 - Страница не найдена</title>
             <link rel="stylesheet" href="/css/app.css">
         </head>
         <body>
-            <div style="text-align: center; padding: 100px 20px;">
-                <h1>404 - Страница не найдена</h1>
-                <a href="/" class="btn btn-primary">На главную</a>
-            </div>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div style="text-align: center; margin-top: 100px;">
+                    <h1>404 - Страница не найдена</h1>
+                    <p>Запрашиваемая страница не существует.</p>
+                    <a href="/" class="btn btn-primary">На главную</a>
+                </div>
+            </main>
         </body>
         </html>';
         break;

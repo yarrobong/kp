@@ -402,22 +402,18 @@ switch ($uri) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
-        // Получить товары из сессии или файла
+        // Получить товары из файла (всегда свежие данные)
         $userProducts = [];
-        $allProducts = session('products', []);
         $userId = session('user_id');
+        $allProducts = [];
 
-        // Если в сессии нет товаров, попробуем загрузить из файла
-        if (empty($allProducts) || !is_array($allProducts)) {
-            $dataFile = __DIR__ . '/../storage/products.json';
-            if (file_exists($dataFile)) {
-                $fileData = json_decode(file_get_contents($dataFile), true);
-                if (is_array($fileData)) {
-                    // Загружаем все товары из файла
-                    $allProducts = $fileData;
-                    // Сохраняем в сессию для быстрого доступа
-                    session('products', $allProducts);
-                }
+        $dataFile = __DIR__ . '/../storage/products.json';
+        if (file_exists($dataFile)) {
+            $fileData = json_decode(file_get_contents($dataFile), true);
+            if (is_array($fileData)) {
+                $allProducts = $fileData;
+                // Сохраняем в сессию для быстрого доступа
+                session('products', $allProducts);
             }
         }
 
@@ -658,20 +654,17 @@ switch ($uri) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
-        // Получить предложения из сессии или файла
+        // Получить предложения из файла (всегда свежие данные)
         $userProposals = [];
-        $allProposals = session('proposals', []);
         $userId = session('user_id');
+        $allProposals = [];
 
-        // Если в сессии нет предложений, попробуем загрузить из файла
-        if (empty($allProposals) || !is_array($allProposals)) {
-            $dataFile = __DIR__ . '/../storage/proposals.json';
-            if (file_exists($dataFile)) {
-                $fileData = json_decode(file_get_contents($dataFile), true);
-                if (is_array($fileData)) {
-                    $allProposals = $fileData;
-                    session('proposals', $allProposals);
-                }
+        $dataFile = __DIR__ . '/../storage/proposals.json';
+        if (file_exists($dataFile)) {
+            $fileData = json_decode(file_get_contents($dataFile), true);
+            if (is_array($fileData)) {
+                $allProposals = $fileData;
+                session('proposals', $allProposals);
             }
         }
 

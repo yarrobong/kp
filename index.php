@@ -701,6 +701,85 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         </html>';
         break;
 
+    case '/debug':
+        echo '<pre>';
+        echo 'GET: ' . print_r($_GET, true) . PHP_EOL;
+        echo 'POST: ' . print_r($_POST, true) . PHP_EOL;
+        echo 'FILES: ' . print_r($_FILES, true) . PHP_EOL;
+        echo 'REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD'] . PHP_EOL;
+
+        // Попробуем создать предложение из POST данных
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $clientName = trim($_POST['client_name'] ?? '');
+            $proposalItems = $_POST['proposal_items'] ?? [];
+            $offerDate = $_POST['offer_date'] ?? date('Y-m-d');
+
+            echo PHP_EOL . '=== TESTING PROPOSAL CREATION ===' . PHP_EOL;
+            echo "Client name: $clientName" . PHP_EOL;
+            echo "Offer date: $offerDate" . PHP_EOL;
+            echo "Proposal items: " . print_r($proposalItems, true) . PHP_EOL;
+
+            if (!empty($proposalItems) && is_array($proposalItems)) {
+                $total = 0;
+                $proposalProducts = [];
+                $validItems = 0;
+
+                foreach ($proposalItems as $item) {
+                    $productId = $item['product_id'] ?? '';
+                    $quantity = floatval($item['quantity'] ?? 0);
+
+                    echo "Processing item: product_id=$productId, quantity=$quantity" . PHP_EOL;
+
+                    if (!empty($productId) && $quantity > 0) {
+                        $product = getProduct($productId);
+                        if ($product) {
+                            echo "Found product: " . $product['name'] . PHP_EOL;
+                            $product['quantity'] = $quantity;
+                            $product['line_total'] = $product['price'] * $quantity;
+                            $proposalProducts[] = $product;
+                            $total += $product['line_total'];
+                            $validItems++;
+                        } else {
+                            echo "Product not found: $productId" . PHP_EOL;
+                        }
+                    }
+                }
+
+                echo "Valid items: $validItems, Total: $total" . PHP_EOL;
+
+                if ($validItems > 0) {
+                    $proposalData = [
+                        'user_id' => 1,
+                        'title' => 'Коммерческое предложение для ' . $clientName,
+                        'offer_number' => generateOfferNumber(),
+                        'offer_date' => $offerDate,
+                        'client_info' => json_encode([
+                            'client_name' => $clientName,
+                            'products' => $proposalProducts
+                        ]),
+                        'status' => 'draft',
+                        'total' => $total
+                    ];
+
+                    echo "Proposal data: " . print_r($proposalData, true) . PHP_EOL;
+
+                    $proposalId = createProposal($proposalData);
+                    echo "CREATED PROPOSAL ID: $proposalId" . PHP_EOL;
+
+                    if ($proposalId) {
+                        echo "SUCCESS! Redirecting to /proposals/$proposalId" . PHP_EOL;
+                        header('Location: /proposals/' . $proposalId);
+                        exit;
+                    } else {
+                        echo "FAILED TO CREATE PROPOSAL" . PHP_EOL;
+                    }
+                }
+            }
+        }
+
+        echo '</pre>';
+        break;
+
     case '/proposals/create':
         $error = '';
         $success = '';
@@ -899,6 +978,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">📄 Сформировать КП</button>
+                        <button type="submit" formaction="/debug" class="btn btn-secondary" style="background: #ff6b35;">🐛 Debug</button>
                         <a href="/proposals" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
@@ -918,16 +998,16 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                         row.innerHTML = `
                             <td>
                                 <input type="text" class="product-search" placeholder="Начните вводить название товара..." autocomplete="off">
-                                <input type="hidden" name="proposal_items[' + rowCounter + '][product_id]" value="' + productId + '">
+                                <input type="hidden" name="proposal_items[${rowCounter}][product_id]" value="${productId}">
                                 <div class="autocomplete-results" style="display: none;"></div>
                             </td>
                             <td>
-                                <input type="number" name="proposal_items[' + rowCounter + '][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
+                                <input type="number" name="proposal_items[${rowCounter}][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
                             </td>
                             <td class="unit-price">₽ 0.00</td>
                             <td class="line-total">₽ 0.00</td>
                             <td>
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'' + rowId + '\')">🗑️</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'${rowId}\')">🗑️</button>
                             </td>
                         `;
 
@@ -971,12 +1051,12 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                             if (matches.length > 0) {
                                 resultsDiv.innerHTML = matches.map(product => `
-                                    <div class="autocomplete-item" data-product-id="' + product.id + '">
-                                        <img src="' + product.image + '" alt="' + product.name + '" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
+                                    <div class="autocomplete-item" data-product-id="${product.id}">
+                                        <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
                                         <div>
-                                            <div style="font-weight: bold;">' + product.name + '</div>
-                                            <div style="color: #666; font-size: 12px;">₽ ' + product.price.toLocaleString() + '</div>
-                                            ' + (product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : "") + '
+                                            <div style="font-weight: bold;">${product.name}</div>
+                                            <div style="color: #666; font-size: 12px;">₽ ${product.price.toLocaleString()}</div>
+                                            ${product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : ""}
                                         </div>
                                     </div>
                                 `).join("");
@@ -1047,30 +1127,21 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                             addProductRow();
                         });
 
-                        // Валидация формы перед отправкой
+                        // Отладка формы перед отправкой
                         document.getElementById("proposal-form").addEventListener("submit", function(e) {
-                            // Проверить что есть хотя бы один товар с данными
-                            const productRows = document.querySelectorAll("#products-tbody tr");
-                            let hasValidProduct = false;
+                            console.log("Form data before submit:");
+                            const formData = new FormData(this);
+                            for (let [key, value] of formData.entries()) {
+                                console.log(key + ": " + value);
+                            }
 
-                            productRows.forEach(row => {
-                                const productId = row.querySelector("input[type='hidden']").value;
-                                const quantity = parseFloat(row.querySelector(".quantity-input").value) || 0;
-                                if (productId && quantity > 0) {
-                                    hasValidProduct = true;
-                                }
-                            });
-
-                            if (!hasValidProduct) {
-                                alert("Пожалуйста, выберите хотя бы один товар и укажите количество!");
+                            // Проверить что есть хотя бы один товар
+                            const productInputs = formData.getAll("proposal_items[1][product_id]");
+                            if (productInputs.length === 0 || !productInputs[0]) {
+                                alert("Пожалуйста, выберите хотя бы один товар!");
                                 e.preventDefault();
                                 return false;
                             }
-
-                            // Показать что форма отправляется
-                            const submitBtn = this.querySelector("button[type='submit']");
-                            submitBtn.disabled = true;
-                            submitBtn.textContent = "⏳ Создание...";
                         });
                 </script>
         </main>
@@ -1791,12 +1862,12 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                                     <div class="autocomplete-results" style="display: none;"></div>
                                 </td>
                                 <td>
-                                    <input type="number" name="proposal_items[' + rowCounter + '][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
+                                    <input type="number" name="proposal_items[${rowCounter}][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
                                 </td>
                                 <td class="unit-price">₽ 0.00</td>
                                 <td class="line-total">₽ 0.00</td>
                                 <td>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'' + rowId + '\')">🗑️</button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'${rowId}\')">🗑️</button>
                                 </td>
                             `;
 
@@ -1840,12 +1911,12 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                                 if (matches.length > 0) {
                                     resultsDiv.innerHTML = matches.map(product => `
-                                        <div class="autocomplete-item" data-product-id="' + product.id + '">
-                                            <img src="' + product.image + '" alt="' + product.name + '" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
+                                        <div class="autocomplete-item" data-product-id="${product.id}">
+                                            <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
                                             <div>
-                                                <div style="font-weight: bold;">' + product.name + '</div>
-                                                <div style="color: #666; font-size: 12px;">₽ ' + product.price.toLocaleString() + '</div>
-                                                ' + (product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : "") + '
+                                                <div style="font-weight: bold;">${product.name}</div>
+                                                <div style="color: #666; font-size: 12px;">₽ ${product.price.toLocaleString()}</div>
+                                                ${product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : ""}
                                             </div>
                                         </div>
                                     `).join("");

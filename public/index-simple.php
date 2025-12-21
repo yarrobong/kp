@@ -598,16 +598,6 @@ switch ($uri) {
             }
         }
 
-        // Показать сообщения
-        $successMsg = '';
-        $errorMsg = '';
-        if (!empty($success)) {
-            $successMsg = $success;
-        }
-        if (!empty($error)) {
-            $errorMsg = $error;
-        }
-
         echo '<!DOCTYPE html>
         <html lang="ru">
         <head>
@@ -637,16 +627,16 @@ switch ($uri) {
                     <a href="/proposals" class="btn btn-secondary">← Назад</a>
                 </div>';
 
-        if (!empty($successMsg)) {
-            echo '<div class="alert alert-success">' . $successMsg . '</div>';
+        if (!empty($success)) {
+            echo '<div class="alert alert-success">' . $success . '</div>';
         }
-        if (!empty($errorMsg)) {
-            echo '<div class="alert alert-error">' . $errorMsg . '</div>';
+        if (!empty($error)) {
+            echo '<div class="alert alert-error">' . $error . '</div>';
         }
 
         echo '<div class="alert alert-info">
                     Мастер создания КП. Выберите шаблон и добавьте товары из каталога.
-                </div>';
+                </div>
 
                 <form method="POST">
                     <div class="form-group">

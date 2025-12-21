@@ -1,0 +1,8 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa"/>
+  <rect x="20" y="20" width="260" height="160" fill="#e9ecef" stroke="#dee2e6" stroke-width="2" stroke-dasharray="10,5"/>
+  <circle cx="150" cy="80" r="25" fill="#6c757d"/>
+  <path d="M135 95 L140 100 L165 75" stroke="#28a745" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="150" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6c757d">Изображение товара</text>
+  <text x="150" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#adb5bd">скоро будет добавлено</text>
+</svg>

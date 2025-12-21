@@ -28,6 +28,6 @@ class Product extends Model
         if ($this->photo) {
             return '/storage/' . $this->photo;
         }
-        return '/css/placeholder-product.png'; // Заглушка для фото
+        return '/css/placeholder-product.svg'; // Заглушка для фото
     }
 }

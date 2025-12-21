@@ -948,7 +948,7 @@ switch ($uri) {
                 <div class="products-grid">
                     <div class="product-card">
                         <div class="product-image">
-                            <img src="/css/placeholder-product.png" alt="Пример товара" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                            <img src="/css/placeholder-product.svg" alt="Пример товара" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
                         </div>
                         <div class="product-info">
                             <h3>Пример товара</h3>

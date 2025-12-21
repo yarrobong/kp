@@ -7,7 +7,7 @@ if (!defined('PROJECT_ROOT')) {
 
 // Функция для генерации PDF коммерческого предложения
 function generateProposalPDF($proposal) {
-    require_once __DIR__ . '/vendor/autoload.php';
+    require_once PROJECT_ROOT . '/vendor/autoload.php';
 
     // Создаем новый PDF документ
     $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -119,9 +119,14 @@ function generateProposalPDF($proposal) {
     $pdf->Cell(0, 10, 'Телефон: +7 (495) 123-45-67', 0, 1, 'L');
     $pdf->Cell(0, 10, 'Email: info@kpgenerator.ru', 0, 1, 'L');
 
-    // Выводим PDF
-    $filename = 'KP_' . $proposal['offer_number'] . '.pdf';
-    $pdf->Output($filename, 'D');
+    // Устанавливаем заголовки для скачивания
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="KP_' . $proposal['offer_number'] . '.pdf"');
+    header('Cache-Control: private, max-age=0, must-revalidate');
+    header('Pragma: public');
+
+    // Выводим PDF в браузер
+    $pdf->Output('KP_' . $proposal['offer_number'] . '.pdf', 'I');
 }
 
 // Функция для красивого отображения ошибок

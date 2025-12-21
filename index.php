@@ -313,17 +313,24 @@ function createProposal($data) {
                 $data['status'] ?? 'draft',
                 $data['total'] ?? 0
             ]);
-            return $db->lastInsertId();
+            $dbId = $db->lastInsertId();
+            if ($dbId) {
+                error_log("Proposal saved to DB with ID: $dbId");
+                return $dbId;
+            }
         } catch (Exception $e) {
-            // Fallback на JSON
+            error_log("DB save failed: " . $e->getMessage() . " - falling back to JSON");
         }
     }
 
     // Fallback на JSON файл
     $dataFile = PROJECT_ROOT . '/proposals.json';
+    error_log("Saving to JSON file: $dataFile");
+
     $proposals = [];
     if (file_exists($dataFile)) {
         $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
+        error_log("Loaded " . count($proposals) . " existing proposals from JSON");
     }
 
     $newId = 1;
@@ -332,7 +339,7 @@ function createProposal($data) {
         $newId = $maxId + 1;
     }
 
-    $proposals[] = [
+    $newProposal = [
         'id' => $newId,
         'user_id' => $data['user_id'],
         'template_id' => $data['template_id'] ?? null,
@@ -345,7 +352,12 @@ function createProposal($data) {
         'created_at' => date('Y-m-d H:i:s')
     ];
 
-    file_put_contents($dataFile, json_encode($proposals));
+    $proposals[] = $newProposal;
+    $jsonResult = file_put_contents($dataFile, json_encode($proposals, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+    error_log("JSON save result: " . ($jsonResult ? "SUCCESS" : "FAILED") . ", new ID: $newId");
+    error_log("New proposal data: " . json_encode($newProposal));
+
     return $newId;
 }
 
@@ -584,6 +596,22 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             foreach ($userProposals as $proposal) {
                 $clientInfo = json_decode($proposal['client_info'], true);
                 $clientName = $clientInfo['client_name'] ?? 'Без имени';
+                $products = $clientInfo['products'] ?? [];
+
+                // Формируем компактную информацию о товарах
+                $productsInfo = [];
+                $totalQuantity = 0;
+                foreach ($products as $product) {
+                    $quantity = $product['quantity'] ?? 1;
+                    $totalQuantity += $quantity;
+                    $productsInfo[] = htmlspecialchars(substr($product['name'], 0, 20)) . (strlen($product['name']) > 20 ? '...' : '');
+                }
+
+                $productsText = empty($productsInfo) ? 'Нет товаров' : implode(', ', array_slice($productsInfo, 0, 2));
+                if (count($productsInfo) > 2) {
+                    $productsText .= ' +' . (count($productsInfo) - 2) . ' ещё';
+                }
+
                 $statusClass = '';
                 $statusText = '';
 
@@ -607,21 +635,28 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 }
 
                 echo '<div class="proposal-card">
-                        <div class="proposal-header">
-                            <div class="proposal-title">' . htmlspecialchars($proposal['title']) . '</div>
-                            <div class="proposal-number">№ ' . htmlspecialchars($proposal['offer_number']) . '</div>
-                        </div>
-                        <div class="proposal-info">
-                            <div class="proposal-client">Клиент: ' . htmlspecialchars($clientName) . '</div>
-                            <div class="proposal-date">Дата: ' . date('d.m.Y', strtotime($proposal['offer_date'])) . '</div>
-                            <div class="proposal-total">Сумма: ₽ ' . number_format($proposal['total'], 2, ',', ' ') . '</div>
+                        <div class="proposal-compact-header">
+                            <div class="proposal-client-info">
+                                <strong>' . htmlspecialchars(substr($clientName, 0, 25)) . (strlen($clientName) > 25 ? '...' : '') . '</strong>
+                                <span class="proposal-date-small">' . date('d.m.Y', strtotime($proposal['offer_date'])) . '</span>
+                            </div>
                             <div class="proposal-status ' . $statusClass . '">' . $statusText . '</div>
                         </div>
-                        <div class="proposal-actions" style="margin-top: 16px; display: flex; gap: 8px;">
-                            <a href="/proposals/' . $proposal['id'] . '" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">👁️ Просмотр</a>
-                            <a href="/proposals/' . $proposal['id'] . '/edit" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">✏️ Редактировать</a>
-                            <form method="POST" action="/proposals/' . $proposal['id'] . '/delete" style="display: inline;" onsubmit="return confirm(\'Вы уверены, что хотите удалить это предложение?\')">
-                                <button type="submit" class="btn btn-danger" style="font-size: 12px; padding: 6px 12px;">🗑️ Удалить</button>
+                        <div class="proposal-compact-content">
+                            <div class="proposal-products-compact">
+                                <span class="products-label">Товары:</span>
+                                <span class="products-list">' . $productsText . '</span>
+                            </div>
+                            <div class="proposal-summary">
+                                <span class="quantity-info">' . $totalQuantity . ' шт.</span>
+                                <span class="total-amount">₽ ' . number_format($proposal['total'], 0, ',', ' ') . '</span>
+                            </div>
+                        </div>
+                        <div class="proposal-actions" style="margin-top: 12px; display: flex; gap: 6px;">
+                            <a href="/proposals/' . $proposal['id'] . '" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">👁️</a>
+                            <a href="/proposals/' . $proposal['id'] . '/edit" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</a>
+                            <form method="POST" action="/proposals/' . $proposal['id'] . '/delete" style="display: inline;" onsubmit="return confirm(\'Удалить предложение?\')">
+                                <button type="submit" class="btn btn-danger" style="font-size: 11px; padding: 4px 8px;">🗑️</button>
                             </form>
                         </div>
                     </div>';
@@ -766,8 +801,14 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                         $proposalId = createProposal($proposalData);
 
                         if ($proposalId) {
-                            header('Location: /proposals/' . $proposalId);
-                            exit;
+                            // Проверяем, что предложение действительно сохранено
+                            $savedProposal = getProposal($proposalId);
+                            if ($savedProposal) {
+                                header('Location: /proposals/' . $proposalId);
+                                exit;
+                            } else {
+                                $error = 'Предложение создано, но не найдено при проверке (ID: ' . $proposalId . ')';
+                            }
                         } else {
                             $error = 'Не удалось создать предложение - ошибка генерации ID';
                         }

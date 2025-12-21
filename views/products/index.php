@@ -1,6 +1,8 @@
 <div class="page-header">
     <h1>Каталог товаров</h1>
+    <?php if ($user): ?>
     <a href="/products/create" class="btn btn-primary">Добавить товар</a>
+    <?php endif; ?>
 </div>
 
 <!-- Поиск и фильтры -->
@@ -51,9 +53,11 @@
         </div>
         <div class="product-actions">
             <a href="/products/<?php echo $product['id']; ?>" class="btn btn-small">Просмотр</a>
+            <?php if ($user && ($user['role'] === 'admin' || $product['user_id'] == $user['id'])): ?>
             <a href="/products/<?php echo $product['id']; ?>/edit" class="btn btn-small btn-secondary">Редактировать</a>
             <a href="/products/<?php echo $product['id']; ?>/delete" class="btn btn-small btn-danger"
                onclick="return confirm('Вы уверены, что хотите удалить этот товар?')">Удалить</a>
+            <?php endif; ?>
         </div>
     </div>
     <?php endforeach; ?>

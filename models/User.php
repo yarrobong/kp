@@ -1,4 +1,6 @@
 <?php
+namespace Models;
+
 require_once __DIR__ . '/../core/Model.php';
 
 /**

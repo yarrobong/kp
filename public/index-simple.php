@@ -500,7 +500,7 @@ switch ($uri) {
                     'created_at' => date('Y-m-d H:i:s')
                 ];
 
-                session(['products' => $products]);
+                session('products', $products);
                 $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
 
                 // Очистить форму (редирект)
@@ -732,7 +732,7 @@ switch ($uri) {
                     'created_at' => date('Y-m-d H:i:s')
                 ];
 
-                session(['proposals' => $proposals]);
+                session('proposals', $proposals);
                 $success = 'Коммерческое предложение "' . htmlspecialchars($title) . '" успешно создано!';
 
                 // Очистить форму (редирект)

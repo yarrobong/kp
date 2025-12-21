@@ -365,7 +365,14 @@ switch ($uri) {
                 <div class="page-header">
                     <h1>Каталог товаров</h1>
                     <input type="text" placeholder="🔍 Поиск товаров..." style="padding: 12px 16px; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(10px);">
-                </div>
+                </div>';
+
+        // Показать сообщение успеха из URL параметра
+        if (isset($_GET['success'])) {
+            echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
+        }
+
+        echo '
 
                 <div class="products-grid">
                     <div class="product-card" style="text-align: center; padding: 60px 20px;">
@@ -379,6 +386,43 @@ switch ($uri) {
                 </div>
 
                 <a href="/products/create" class="fab" title="Добавить товар">➕</a>
+
+        <!-- Toast Notifications Container -->
+        <div id="toast-container"></div>
+
+        <script>
+        // Toast notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-title">${type === 'success' ? 'Успех' : type === 'error' ? 'Ошибка' : 'Информация'}</div>
+                <div class="toast-message">${message}</div>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        // Show toast for success messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+
+            if (success) {
+                showToast(success, 'success');
+            }
+            if (error) {
+                showToast(error, 'error');
+            }
+        });
+        </script>
             </main>
         </body>
         </html>';
@@ -387,6 +431,30 @@ switch ($uri) {
     case '/products/create':
         if (!session('user_id')) {
             redirect('/login');
+        }
+
+        $success = '';
+        $error = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $price = floatval($_POST['price'] ?? 0);
+            $category = trim($_POST['category'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+
+            // Валидация
+            if (empty($name)) {
+                $error = 'Название товара обязательно';
+            } elseif ($price <= 0) {
+                $error = 'Цена должна быть больше 0';
+            } else {
+                // В будущем: сохранить в базу данных
+                $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
+
+                // Очистить форму (редирект)
+                header('Location: /products?success=' . urlencode($success));
+                exit;
+            }
         }
 
         echo '<!DOCTYPE html>
@@ -416,11 +484,19 @@ switch ($uri) {
                 <div class="page-header">
                     <h1>Добавить товар</h1>
                     <a href="/products" class="btn btn-secondary">← Назад</a>
-                </div>
+                </div>';
 
-                <div class="alert alert-info">
-                    Форма добавления товаров. После настройки базы данных можно будет сохранять товары.
-                </div>
+        // Показать сообщения
+        if (!empty($success)) {
+            echo '<div class="alert alert-success">' . $success . '</div>';
+        }
+        if (!empty($error)) {
+            echo '<div class="alert alert-error">' . $error . '</div>';
+        }
+
+        echo '<div class="alert alert-info">
+                    Форма добавления товаров. После настройки базы данных товары будут сохраняться.
+                </div>';
 
                 <form method="POST" enctype="multipart/form-data">
                     <div class="form-group">
@@ -496,7 +572,14 @@ switch ($uri) {
                 <div class="page-header">
                     <h1>Коммерческие предложения</h1>
                     <a href="/proposals/create" class="btn btn-primary">📄 Создать КП</a>
-                </div>
+                </div>';
+
+        // Показать сообщение успеха из URL параметра
+        if (isset($_GET['success'])) {
+            echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
+        }
+
+        echo '
 
                 <div class="proposals-list">
                     <div class="proposal-card" style="text-align: center; padding: 60px 20px;">
@@ -512,6 +595,43 @@ switch ($uri) {
                         </div>
                     </div>
                 </div>
+
+                <!-- Toast Notifications Container -->
+                <div id="toast-container"></div>
+
+                <script>
+                // Toast notifications
+                function showToast(message, type = 'success') {
+                    const container = document.getElementById('toast-container');
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.innerHTML = `
+                        <div class="toast-title">${type === 'success' ? 'Успех' : type === 'error' ? 'Ошибка' : 'Информация'}</div>
+                        <div class="toast-message">${message}</div>
+                    `;
+
+                    container.appendChild(toast);
+
+                    // Auto remove after 5 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 5000);
+                }
+
+                // Show toast for success messages
+                document.addEventListener('DOMContentLoaded', function() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const success = urlParams.get('success');
+                    const error = urlParams.get('error');
+
+                    if (success) {
+                        showToast(success, 'success');
+                    }
+                    if (error) {
+                        showToast(error, 'error');
+                    }
+                });
+                </script>
             </main>
         </body>
         </html>';
@@ -520,6 +640,32 @@ switch ($uri) {
     case '/proposals/create':
         if (!session('user_id')) {
             redirect('/login');
+        }
+
+        $success = '';
+        $error = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $title = trim($_POST['title'] ?? '');
+            $template = trim($_POST['template_id'] ?? '');
+            $date = trim($_POST['date'] ?? '');
+            $clientInfo = trim($_POST['client_info'] ?? '');
+
+            // Валидация
+            if (empty($title)) {
+                $error = 'Название КП обязательно';
+            } elseif (empty($template)) {
+                $error = 'Выберите шаблон';
+            } elseif (empty($date)) {
+                $error = 'Укажите дату';
+            } else {
+                // В будущем: сохранить в базу данных
+                $success = 'Коммерческое предложение "' . htmlspecialchars($title) . '" успешно создано!';
+
+                // Очистить форму (редирект)
+                header('Location: /proposals?success=' . urlencode($success));
+                exit;
+            }
         }
 
         echo '<!DOCTYPE html>
@@ -549,11 +695,19 @@ switch ($uri) {
                 <div class="page-header">
                     <h1>Создать коммерческое предложение</h1>
                     <a href="/proposals" class="btn btn-secondary">← Назад</a>
-                </div>
+                </div>';
 
-                <div class="alert alert-info">
+        // Показать сообщения
+        if (!empty($success)) {
+            echo '<div class="alert alert-success">' . $success . '</div>';
+        }
+        if (!empty($error)) {
+            echo '<div class="alert alert-error">' . $error . '</div>';
+        }
+
+        echo '<div class="alert alert-info">
                     Мастер создания КП. Выберите шаблон и добавьте товары из каталога.
-                </div>
+                </div>';
 
                 <form method="POST">
                     <div class="form-group">

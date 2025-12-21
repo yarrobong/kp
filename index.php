@@ -950,7 +950,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             ];
         }, $allProducts));
 
-        echo '<form method="POST" action="/debug" id="proposal-form">
+        echo '<form method="POST" id="proposal-form">
                     <div class="form-group">
                         <label>Имя клиента</label>
                         <input type="text" name="client_name" placeholder="ООО \"Ромашка\"" required>

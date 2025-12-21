@@ -864,9 +864,9 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 <div class="container">
                     <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard" class="<?php echo isActivePage('/dashboard'); ?>">Панель</a>
-                        <a href="/products" class="<?php echo isActivePage('/products'); ?>">Товары</a>
-                        <a href="/proposals" class="<?php echo isActivePage('/proposals'); ?>">КП</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
                         <a href="/logout">Выход</a>
                     </div>
                 </div>
@@ -1087,9 +1087,9 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 <div class="container">
                     <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard" class="<?php echo isActivePage('/dashboard'); ?>">Панель</a>
-                        <a href="/products" class="<?php echo isActivePage('/products'); ?>">Товары</a>
-                        <a href="/proposals" class="<?php echo isActivePage('/proposals'); ?>">КП</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
                         <a href="/logout">Выход</a>
                     </div>
                 </div>

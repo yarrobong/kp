@@ -563,6 +563,8 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         // Получить коммерческие предложения пользователя
         $userId = $userId ?? 1; // Fallback для демо
         $userProposals = getProposals($userId);
+        // Отладка
+        echo "<!-- USERID: $userId, PROPOSALS: " . count($userProposals) . " -->";
 
         echo '<!DOCTYPE html>
         <html lang="ru">

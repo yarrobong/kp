@@ -561,6 +561,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
     case '/proposals':
         // Получить коммерческие предложения пользователя
+        $userId = $userId ?? 1; // Fallback для демо
         $userProposals = getProposals($userId);
 
         echo '<!DOCTYPE html>

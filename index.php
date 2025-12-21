@@ -1,4 +1,17 @@
 <?php
+/**
+ * КП Генератор - Система автоматизации коммерческих предложений
+ *
+ * Полнофункциональное веб-приложение для:
+ * - Управления каталогом товаров
+ * - Создания коммерческих предложений
+ * - Генерации PDF документов
+ * - Отслеживания статусов предложений
+ *
+ * Автор: Yaroslav
+ * Версия: 1.0.0
+ * Дата: 2025
+ */
 
 // Определяем корневую директорию проекта
 if (!defined('PROJECT_ROOT')) {
@@ -272,6 +285,61 @@ function handleError($message, $code = 500, $title = 'Произошла оши�
     </body>
     </html>';
     exit;
+}
+
+// Оптимизация производительности - кэширование данных
+$cache = [];
+function getCachedData($key, $callback, $ttl = 300) {
+    global $cache;
+    $now = time();
+
+    if (!isset($cache[$key]) || ($now - $cache[$key]['time']) > $ttl) {
+        $cache[$key] = [
+            'data' => $callback(),
+            'time' => $now
+        ];
+    }
+
+    return $cache[$key]['data'];
+}
+
+// Функция очистки кэша при изменениях
+function clearCache() {
+    global $cache;
+    $cache = [];
+}
+
+// Вспомогательная функция для активного состояния навигации
+function isActivePage($page) {
+    global $uri;
+    return strpos($uri, $page) === 0 ? 'active' : '';
+}
+
+// Вспомогательная функция для безопасного вывода
+function safeHtml($text) {
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
+
+// Вспомогательная функция для форматирования цены
+function formatPrice($price) {
+    return number_format((float)$price, 2, ',', ' ') . ' ₽';
+}
+
+// Вспомогательная функция для отображения уведомлений
+function showNotification($message, $type = 'info') {
+    $class = match($type) {
+        'success' => 'alert-success',
+        'error' => 'alert-error',
+        'warning' => 'alert-warning',
+        default => 'alert-info'
+    };
+
+    return "<div class='alert {$class}' role='alert'>{$message}</div>";
+}
+
+// Вспомогательная функция для проверки прав доступа
+function checkUserAccess($resourceUserId, $currentUserId = 1) {
+    return $resourceUserId == $currentUserId;
 }
 
 // Простое приложение для управления товарами
@@ -796,9 +864,9 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 <div class="container">
                     <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">Панель</a>
-                        <a href="/products">Товары</a>
-                        <a href="/proposals">КП</a>
+                        <a href="/dashboard" class="<?php echo isActivePage('/dashboard'); ?>">Панель</a>
+                        <a href="/products" class="<?php echo isActivePage('/products'); ?>">Товары</a>
+                        <a href="/proposals" class="<?php echo isActivePage('/proposals'); ?>">КП</a>
                         <a href="/logout">Выход</a>
                     </div>
                 </div>
@@ -1019,9 +1087,9 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 <div class="container">
                     <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">Панель</a>
-                        <a href="/products">Товары</a>
-                        <a href="/proposals">КП</a>
+                        <a href="/dashboard" class="<?php echo isActivePage('/dashboard'); ?>">Панель</a>
+                        <a href="/products" class="<?php echo isActivePage('/products'); ?>">Товары</a>
+                        <a href="/proposals" class="<?php echo isActivePage('/proposals'); ?>">КП</a>
                         <a href="/logout">Выход</a>
                     </div>
                 </div>
@@ -1391,6 +1459,24 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
     case '/logout':
         // В демо-версии просто перенаправляем на главную страницу
         header('Location: /');
+        exit;
+
+    case '/health':
+        // Проверка состояния системы
+        header('Content-Type: application/json');
+        $health = [
+            'status' => 'ok',
+            'timestamp' => date('c'),
+            'version' => '1.0.0',
+            'php' => PHP_VERSION,
+            'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
+            'database' => getDB() ? 'connected' : 'json_fallback',
+            'files' => [
+                'products.json' => file_exists(PROJECT_ROOT . '/products.json'),
+                'proposals.json' => file_exists(PROJECT_ROOT . '/proposals.json'),
+            ]
+        ];
+        echo json_encode($health, JSON_PRETTY_PRINT);
         exit;
 
     default:

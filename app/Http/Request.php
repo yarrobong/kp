@@ -71,11 +71,6 @@ class Request
         return $this->method() === strtoupper($method);
     }
 
-    public function expectsJson()
-    {
-        $accept = $this->header('Accept', '');
-        return str_contains($accept, 'application/json');
-    }
 
     public function header($key, $default = null)
     {

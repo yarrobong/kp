@@ -17,8 +17,26 @@
         <div class="container">
             <a href="/" class="navbar-brand">КП Генератор</a>
             <div class="navbar-menu">
-                <a href="/products" class="<?php echo isActivePage('/products'); ?>">Товары</a>
-                <a href="/proposals" class="<?php echo isActivePage('/proposals'); ?>">КП</a>
+                <?php
+                $user = \AuthController::getCurrentUser();
+                if ($user) {
+                    echo '<a href="/products" class="' . isActivePage('/products') . '">Товары</a>';
+                    echo '<a href="/proposals" class="' . isActivePage('/proposals') . '">КП</a>';
+                    echo '<a href="/user" class="' . isActivePage('/user') . '">Кабинет</a>';
+
+                    if ($user['role'] === 'admin') {
+                        echo '<a href="/admin" class="' . isActivePage('/admin') . '">Админ</a>';
+                    }
+
+                    echo '<form method="POST" action="/logout" style="display: inline;">
+                            <button type="submit" style="background: none; border: none; color: #b0b0b0; cursor: pointer; padding: 0.5rem 1rem;">Выход</button>
+                          </form>';
+                } else {
+                    echo '<a href="/products" class="' . isActivePage('/products') . '">Товары</a>';
+                    echo '<a href="/login" class="' . isActivePage('/login') . '">Вход</a>';
+                    echo '<a href="/register" class="' . isActivePage('/register') . '">Регистрация</a>';
+                }
+                ?>
             </div>
         </div>
     </nav>

@@ -19,6 +19,33 @@ class Proposal extends Model {
     }
 
     /**
+     * Получить статистику предложений пользователя
+     */
+    public static function getUserStats($userId) {
+        $db = self::getDB();
+        if (!$db) return ['total' => 0, 'by_status' => []];
+
+        try {
+            // Общее количество предложений
+            $stmt = $db->prepare("SELECT COUNT(*) as total FROM " . self::$table . " WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $total = $stmt->fetch()['total'];
+
+            // Статистика по статусам
+            $stmt = $db->prepare("SELECT status, COUNT(*) as count FROM " . self::$table . " WHERE user_id = ? GROUP BY status");
+            $stmt->execute([$userId]);
+            $byStatus = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            return [
+                'total' => $total,
+                'by_status' => $byStatus
+            ];
+        } catch (Exception $e) {
+            return ['total' => 0, 'by_status' => []];
+        }
+    }
+
+    /**
      * Получить предложения по статусу
      */
     public static function getByStatus($status, $userId = null) {

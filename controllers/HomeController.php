@@ -10,8 +10,11 @@ class HomeController extends Controller {
      * Главная страница
      */
     public function index() {
+        $user = AuthController::getCurrentUser();
+
         $this->render('home/index', [
-            'title' => 'КП Генератор - Создание коммерческих предложений'
+            'title' => 'КП Генератор - Создание коммерческих предложений',
+            'user' => $user
         ]);
     }
 

@@ -19,6 +19,33 @@ class Product extends Model {
     }
 
     /**
+     * Получить статистику товаров пользователя
+     */
+    public static function getUserStats($userId) {
+        $db = self::getDB();
+        if (!$db) return ['total' => 0, 'by_category' => []];
+
+        try {
+            // Общее количество товаров
+            $stmt = $db->prepare("SELECT COUNT(*) as total FROM " . self::$table . " WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $total = $stmt->fetch()['total'];
+
+            // Статистика по категориям
+            $stmt = $db->prepare("SELECT category, COUNT(*) as count FROM " . self::$table . " WHERE user_id = ? AND category IS NOT NULL AND category != '' GROUP BY category");
+            $stmt->execute([$userId]);
+            $byCategory = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            return [
+                'total' => $total,
+                'by_category' => $byCategory
+            ];
+        } catch (Exception $e) {
+            return ['total' => 0, 'by_category' => []];
+        }
+    }
+
+    /**
      * Поиск товаров
      */
     public static function search($query, $userId = null) {

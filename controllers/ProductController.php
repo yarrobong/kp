@@ -7,6 +7,15 @@ require_once __DIR__ . '/../models/Product.php';
  */
 class ProductController extends Controller {
 
+    public function __construct() {
+        // Проверяем авторизацию для создания/редактирования товаров
+        $action = $_SERVER['REQUEST_URI'] ?? '';
+        if (strpos($action, '/products/create') !== false ||
+            strpos($action, '/products/') !== false && strpos($action, '/edit') !== false) {
+            AuthController::requireAuth();
+        }
+    }
+
     /**
      * Список всех товаров
      */
@@ -14,20 +23,48 @@ class ProductController extends Controller {
         $search = $_GET['search'] ?? '';
         $category = $_GET['category'] ?? '';
 
-        if ($search) {
-            $products = Product::search($search);
-        } elseif ($category) {
-            $products = Product::getByCategory($category);
+        // Для авторизованных пользователей показываем их товары + товары админов
+        $user = AuthController::getCurrentUser();
+        if ($user) {
+            if ($search) {
+                $products = Product::search($search);
+            } elseif ($category) {
+                $products = Product::getByCategory($category);
+            } else {
+                $products = Product::getAll();
+            }
         } else {
-            $products = Product::getAll();
+            // Для неавторизованных показываем товары админов
+            $products = $this->getPublicProducts();
         }
 
         $this->render('products/index', [
             'title' => 'Товары',
             'products' => $products,
             'search' => $search,
-            'category' => $category
+            'category' => $category,
+            'user' => $user
         ]);
+    }
+
+    /**
+     * Получить публичные товары (админов)
+     */
+    private function getPublicProducts() {
+        $db = Product::getDB();
+        if (!$db) return [];
+
+        try {
+            $stmt = $db->query("
+                SELECT p.* FROM products p
+                JOIN users u ON p.user_id = u.id
+                WHERE u.role = 'admin'
+                ORDER BY p.created_at DESC
+            ");
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            return [];
+        }
     }
 
     /**
@@ -43,6 +80,7 @@ class ProductController extends Controller {
      * Сохранение нового товара
      */
     public function store() {
+        $user = AuthController::getCurrentUser();
         $data = $this->getPostData();
 
         // Валидация
@@ -50,6 +88,9 @@ class ProductController extends Controller {
             $this->redirect('/products/create', 'Название товара обязательно', 'error');
             return;
         }
+
+        // Добавляем ID пользователя
+        $data['user_id'] = $user['id'];
 
         // Обработка файла изображения
         $data['image'] = $this->handleImageUpload();
@@ -79,9 +120,17 @@ class ProductController extends Controller {
             return;
         }
 
+        // Проверяем права доступа (владелец или админ)
+        $user = AuthController::getCurrentUser();
+        if (!$this->canAccessProduct($product, $user)) {
+            $this->error403('Доступ к товару запрещен');
+            return;
+        }
+
         $this->render('products/show', [
             'title' => $product['name'],
-            'product' => $product
+            'product' => $product,
+            'user' => $user
         ]);
     }
 
@@ -101,6 +150,12 @@ class ProductController extends Controller {
             return;
         }
 
+        $user = AuthController::getCurrentUser();
+        if (!$this->canEditProduct($product, $user)) {
+            $this->error403('Доступ к редактированию товара запрещен');
+            return;
+        }
+
         $this->render('products/edit', [
             'title' => 'Редактировать товар',
             'product' => $product
@@ -114,6 +169,18 @@ class ProductController extends Controller {
         $id = $params['id'] ?? null;
         if (!$id) {
             $this->error404();
+            return;
+        }
+
+        $product = Product::findWithFallback($id);
+        if (!$product) {
+            $this->error404('Товар не найден');
+            return;
+        }
+
+        $user = AuthController::getCurrentUser();
+        if (!$this->canEditProduct($product, $user)) {
+            $this->error403('Доступ к редактированию товара запрещен');
             return;
         }
 
@@ -150,6 +217,18 @@ class ProductController extends Controller {
             return;
         }
 
+        $product = Product::findWithFallback($id);
+        if (!$product) {
+            $this->error404('Товар не найден');
+            return;
+        }
+
+        $user = AuthController::getCurrentUser();
+        if (!$this->canEditProduct($product, $user)) {
+            $this->error403('Доступ к удалению товара запрещен');
+            return;
+        }
+
         $success = Product::deleteProduct($id);
 
         if ($success) {
@@ -172,6 +251,36 @@ class ProductController extends Controller {
 
         $products = Product::search($query);
         $this->json($products);
+    }
+
+    /**
+     * Проверить права доступа к товару
+     */
+    private function canAccessProduct($product, $user) {
+        if (!$user) return false;
+
+        // Админ может видеть все товары
+        if ($user['role'] === 'admin') {
+            return true;
+        }
+
+        // Пользователь может видеть только свои товары
+        return $product['user_id'] == $user['id'];
+    }
+
+    /**
+     * Проверить права редактирования товара
+     */
+    private function canEditProduct($product, $user) {
+        if (!$user) return false;
+
+        // Админ может редактировать все товары
+        if ($user['role'] === 'admin') {
+            return true;
+        }
+
+        // Пользователь может редактировать только свои товары
+        return $product['user_id'] == $user['id'];
     }
 
     /**

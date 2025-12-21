@@ -1,10 +1,19 @@
 <div class="hero">
     <div class="container">
-        <h1>Добро пожаловать в КП Генератор</h1>
-        <p class="hero-subtitle">Профессиональный инструмент для создания коммерческих предложений</p>
+        <h1><?php echo $user ? 'Добро пожаловать, ' . htmlspecialchars($user['name']) . '!' : 'Добро пожаловать в КП Генератор'; ?></h1>
+        <p class="hero-subtitle">
+            <?php echo $user ? 'Управляйте своими товарами и предложениями' : 'Профессиональный инструмент для создания коммерческих предложений'; ?>
+        </p>
         <div class="hero-actions">
-            <a href="/products" class="btn btn-primary">Просмотреть товары</a>
-            <a href="/proposals" class="btn btn-secondary">Создать предложение</a>
+            <?php if ($user): ?>
+                <a href="/products" class="btn btn-primary">Мои товары</a>
+                <a href="/proposals/create" class="btn btn-secondary">Создать предложение</a>
+                <a href="/user" class="btn btn-secondary">Личный кабинет</a>
+            <?php else: ?>
+                <a href="/products" class="btn btn-primary">Просмотреть товары</a>
+                <a href="/register" class="btn btn-secondary">Регистрация</a>
+                <a href="/login" class="btn btn-secondary">Вход</a>
+            <?php endif; ?>
         </div>
     </div>
 </div>

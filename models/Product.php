@@ -53,13 +53,8 @@ class Product extends Model {
         if (!$db) return [];
 
         try {
-            $sql = "SELECT * FROM " . self::$table . " WHERE (name LIKE ? OR description LIKE ?)";
-            $params = ["%$query%", "%$query%"];
-
-            if ($userId) {
-                $sql .= " AND user_id = ?";
-                $params[] = $userId;
-            }
+            $sql = "SELECT * FROM " . self::$table . " WHERE user_id = ? AND (name LIKE ? OR description LIKE ?)";
+            $params = [$userId, "%$query%", "%$query%"];
 
             $sql .= " ORDER BY name ASC";
 
@@ -75,11 +70,16 @@ class Product extends Model {
      * Получить товары по категории
      */
     public static function getByCategory($category, $userId = null) {
-        $conditions = ['category' => $category];
-        if ($userId) {
-            $conditions['user_id'] = $userId;
+        $db = self::getDB();
+        if (!$db) return [];
+
+        try {
+            $stmt = $db->prepare("SELECT * FROM " . self::$table . " WHERE user_id = ? AND category = ? ORDER BY created_at DESC");
+            $stmt->execute([$userId, $category]);
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            return [];
         }
-        return self::all($conditions);
     }
 
     /**

@@ -54,7 +54,9 @@ class AuthController extends Controller {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
 
-        $this->redirect('/', 'Добро пожаловать, ' . $user['name'] . '!', 'success');
+        // Редирект на запрошенную страницу или на главную
+        $redirect = $_GET['redirect'] ?? '/';
+        $this->redirect($redirect, 'Добро пожаловать, ' . $user['name'] . '!', 'success');
     }
 
     /**

@@ -22,17 +22,22 @@
                 if ($user) {
                     echo '<a href="/products" class="' . isActivePage('/products') . '">Товары</a>';
                     echo '<a href="/proposals" class="' . isActivePage('/proposals') . '">КП</a>';
-                    echo '<a href="/user" class="' . isActivePage('/user') . '">Кабинет</a>';
 
+                    // Выпадающее меню пользователя
+                    echo '<div class="user-menu">';
+                    echo '<button class="user-menu-btn">' . htmlspecialchars($user['name']) . ' ▼</button>';
+                    echo '<div class="user-menu-dropdown">';
+                    echo '<a href="/user">Личный кабинет</a>';
                     if ($user['role'] === 'admin') {
-                        echo '<a href="/admin" class="' . isActivePage('/admin') . '">Админ</a>';
+                        echo '<a href="/admin">Админ панель</a>';
                     }
-
-                    echo '<form method="POST" action="/logout" style="display: inline;">
-                            <button type="submit" style="background: none; border: none; color: #b0b0b0; cursor: pointer; padding: 0.5rem 1rem;">Выход</button>
-                          </form>';
+                    echo '<hr>';
+                    echo '<form method="POST" action="/logout" style="margin: 0;">';
+                    echo '<button type="submit" class="logout-btn">Выход</button>';
+                    echo '</form>';
+                    echo '</div>';
+                    echo '</div>';
                 } else {
-                    echo '<a href="/products" class="' . isActivePage('/products') . '">Товары</a>';
                     echo '<a href="/login" class="' . isActivePage('/login') . '">Вход</a>';
                     echo '<a href="/register" class="' . isActivePage('/register') . '">Регистрация</a>';
                 }

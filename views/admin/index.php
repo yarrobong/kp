@@ -51,10 +51,20 @@
 </div>
 <?php endif; ?>
 
-<!-- Быстрые действия -->
+<!-- Управление пользователями -->
 <div class="user-section">
-    <h2>Управление</h2>
+    <h2>Управление пользователями</h2>
     <div class="admin-actions">
-        <a href="/admin/users" class="btn btn-primary">Управление пользователями</a>
+        <a href="/admin/users" class="btn btn-primary">Все пользователи</a>
+        <a href="/register" class="btn btn-secondary">Добавить пользователя</a>
+    </div>
+</div>
+
+<!-- Управление контентом -->
+<div class="user-section">
+    <h2>Управление контентом</h2>
+    <div class="admin-actions">
+        <a href="/products" class="btn btn-primary">Все товары</a>
+        <a href="/proposals" class="btn btn-secondary">Все предложения</a>
     </div>
 </div>

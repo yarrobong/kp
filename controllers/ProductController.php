@@ -23,19 +23,20 @@ class ProductController extends Controller {
         $search = $_GET['search'] ?? '';
         $category = $_GET['category'] ?? '';
 
-        // Для авторизованных пользователей показываем их товары + товары админов
+        // Только авторизованные пользователи могут видеть товары
         $user = AuthController::getCurrentUser();
-        if ($user) {
-            if ($search) {
-                $products = Product::search($search);
-            } elseif ($category) {
-                $products = Product::getByCategory($category);
-            } else {
-                $products = Product::getAll();
-            }
+        if (!$user) {
+            header('Location: /login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+            exit;
+        }
+
+        // Для авторизованных пользователей показываем их товары
+        if ($search) {
+            $products = Product::search($search, $user['id']);
+        } elseif ($category) {
+            $products = Product::getByCategory($category, $user['id']);
         } else {
-            // Для неавторизованных показываем товары админов
-            $products = $this->getPublicProducts();
+            $products = Product::getAll($user['id']);
         }
 
         $this->render('products/index', [

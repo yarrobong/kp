@@ -51,17 +51,19 @@ class ProductController extends Controller {
      * Получить публичные товары (админов)
      */
     private function getPublicProducts() {
-        $db = Product::getDB();
-        if (!$db) return [];
-
+        // Используем прямое подключение к БД для публичных товаров
         try {
+            $config = require __DIR__ . '/../config/database.php';
+            $dsn = "mysql:host={$config['host']};dbname={$config['database']};charset={$config['charset']}";
+            $db = new PDO($dsn, $config['username'], $config['password'], $config['options']);
+
             $stmt = $db->query("
                 SELECT p.* FROM products p
                 JOIN users u ON p.user_id = u.id
                 WHERE u.role = 'admin'
                 ORDER BY p.created_at DESC
             ");
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             return [];
         }

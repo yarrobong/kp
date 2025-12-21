@@ -164,6 +164,34 @@ function updateProduct($id, $data) {
     return false;
 }
 
+function deleteProduct($id) {
+    $db = getDB();
+    if ($db) {
+        try {
+            $stmt = $db->prepare("DELETE FROM products WHERE id = ?");
+            $stmt->execute([$id]);
+            return true;
+        } catch (Exception $e) {
+            // Fallback на JSON
+        }
+    }
+
+    // Fallback на JSON файл
+    $dataFile = __DIR__ . '/products.json';
+    if (file_exists($dataFile)) {
+        $products = json_decode(file_get_contents($dataFile), true) ?: [];
+        $newProducts = [];
+        foreach ($products as $product) {
+            if ($product['id'] != $id) {
+                $newProducts[] = $product;
+            }
+        }
+        file_put_contents($dataFile, json_encode($newProducts));
+        return true;
+    }
+    return false;
+}
+
 function uploadProductImage($file) {
     if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
         return null;
@@ -343,6 +371,9 @@ switch ($uri) {
                         </div>
                         <div class="product-actions" style="margin-top: 16px; display: flex; gap: 8px;">
                             <a href="/products/' . $product['id'] . '/edit" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">✏️ Редактировать</a>
+                            <form method="POST" action="/products/' . $product['id'] . '/delete" style="display: inline;" onsubmit="return confirm(\'Вы уверены, что хотите удалить этот товар?\')">
+                                <button type="submit" class="btn btn-danger" style="font-size: 12px; padding: 6px 12px;">🗑️ Удалить</button>
+                            </form>
                         </div>
                     </div>';
             }
@@ -483,6 +514,65 @@ switch ($uri) {
         exit;
 
     default:
+        // Проверяем, является ли это маршрутом удаления товара /products/{id}/delete
+        if (preg_match('#^/products/(\d+)/delete$#', $uri, $matches)) {
+            $productId = (int)$matches[1];
+            $product = getProduct($productId);
+
+            if (!$product) {
+                http_response_code(404);
+                echo '<!DOCTYPE html>
+                <html lang="ru">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Товар не найден</title>
+                    <link rel="stylesheet" href="/css/app.css">
+                </head>
+                <body>
+                    <nav class="navbar">
+                        <div class="container">
+                            <a href="/" class="navbar-brand">КП Генератор</a>
+                            <div class="navbar-menu">
+                                <a href="/dashboard">Панель</a>
+                                <a href="/products">Товары</a>
+                                <a href="/logout">Выход</a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <main class="container">
+                        <div style="text-align: center; margin-top: 100px;">
+                            <h1>Товар не найден</h1>
+                            <p>Запрашиваемый товар не существует.</p>
+                            <a href="/products" class="btn btn-primary">К товарам</a>
+                        </div>
+                    </main>
+                </body>
+                </html>';
+                break;
+            }
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                try {
+                    // Удаляем файл изображения, если он существует
+                    if ($product['image'] && $product['image'] !== '/css/placeholder-product.svg' && file_exists(__DIR__ . $product['image'])) {
+                        unlink(__DIR__ . $product['image']);
+                    }
+
+                    // Удаляем товар из базы данных
+                    deleteProduct($productId);
+
+                    header('Location: /products?success=' . urlencode('Товар "' . $product['name'] . '" успешно удален!'));
+                    exit;
+                } catch (Exception $e) {
+                    $error = 'Ошибка удаления товара: ' . $e->getMessage();
+                }
+            }
+            break;
+        }
+
+        // Проверяем, является ли это маршрутом редактирования товара /products/{id}/edit
         // Проверяем, является ли это маршрутом редактирования товара /products/{id}/edit
         if (preg_match('#^/products/(\d+)/edit$#', $uri, $matches)) {
             $productId = (int)$matches[1];

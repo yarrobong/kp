@@ -5,7 +5,7 @@
  */
 abstract class Model {
     protected static $db = null;
-    protected $table;
+    protected static $table;
 
     /**
      * Получение соединения с базой данных

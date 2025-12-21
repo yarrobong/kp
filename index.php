@@ -616,7 +616,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         }
 
         echo '</div>
-        </main>
+            </main>
         </body>
         </html>';
         break;
@@ -692,6 +692,15 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         </html>';
         break;
 
+    case '/debug':
+        echo '<pre>';
+        echo 'GET: ' . print_r($_GET, true) . PHP_EOL;
+        echo 'POST: ' . print_r($_POST, true) . PHP_EOL;
+        echo 'FILES: ' . print_r($_FILES, true) . PHP_EOL;
+        echo 'REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD'] . PHP_EOL;
+        echo '</pre>';
+        break;
+
     case '/proposals/create':
         $error = '';
         $success = '';
@@ -703,6 +712,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             $clientName = trim($_POST['client_name'] ?? '');
             $proposalItems = $_POST['proposal_items'] ?? [];
             $offerDate = $_POST['offer_date'] ?? date('Y-m-d');
+
 
             if (empty($clientName)) {
                 $error = 'Имя клиента обязательно';
@@ -749,8 +759,13 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                         ];
 
                         $proposalId = createProposal($proposalData);
-                        header('Location: /proposals/' . $proposalId);
-                        exit;
+
+                        if ($proposalId) {
+                            header('Location: /proposals/' . $proposalId);
+                            exit;
+                        } else {
+                            $error = 'Не удалось создать предложение - ошибка генерации ID';
+                        }
                     } catch (Exception $e) {
                         $error = 'Ошибка создания предложения: ' . $e->getMessage();
                     }
@@ -884,6 +899,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">📄 Сформировать КП</button>
+                        <button type="submit" formaction="/debug" class="btn btn-secondary" style="background: #ff6b35;">🐛 Debug</button>
                         <a href="/proposals" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
@@ -1022,17 +1038,34 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                         }
                     }
 
-                    // Инициализация
-                    document.getElementById("add-product-btn").addEventListener("click", function() {
-                        addProductRow();
-                    });
+                        // Инициализация
+                        document.getElementById("add-product-btn").addEventListener("click", function() {
+                            addProductRow();
+                        });
 
-                    // Добавить первую пустую строку при загрузке
-                    document.addEventListener("DOMContentLoaded", function() {
-                        addProductRow();
-                    });
+                        // Добавить первую пустую строку при загрузке
+                        document.addEventListener("DOMContentLoaded", function() {
+                            addProductRow();
+                        });
+
+                        // Отладка формы перед отправкой
+                        document.getElementById("proposal-form").addEventListener("submit", function(e) {
+                            console.log("Form data before submit:");
+                            const formData = new FormData(this);
+                            for (let [key, value] of formData.entries()) {
+                                console.log(key + ": " + value);
+                            }
+
+                            // Проверить что есть хотя бы один товар
+                            const productInputs = formData.getAll("proposal_items[1][product_id]");
+                            if (productInputs.length === 0 || !productInputs[0]) {
+                                alert("Пожалуйста, выберите хотя бы один товар!");
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
                 </script>
-            </main>
+        </main>
         </body>
         </html>';
         break;

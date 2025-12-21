@@ -777,7 +777,8 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
     switch ($uri) {
     case '':
     case '/':
-        echo '<!DOCTYPE html>
+        include 'home.php';
+        break;
         <html lang="ru">
         <head>
             <meta charset="UTF-8">

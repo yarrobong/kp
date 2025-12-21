@@ -51,8 +51,8 @@ class ProductController extends Controller {
             return;
         }
 
-        // Обработка файла изображения (можно добавить позже)
-        $data['image'] = '/css/placeholder-product.svg'; // Заглушка
+        // Обработка файла изображения
+        $data['image'] = $this->handleImageUpload();
 
         $productId = Product::createProduct($data);
 
@@ -125,6 +125,12 @@ class ProductController extends Controller {
             return;
         }
 
+        // Обработка файла изображения
+        $imagePath = $this->handleImageUpload();
+        if ($imagePath !== '/css/placeholder-product.svg') {
+            $data['image'] = $imagePath;
+        }
+
         $success = Product::updateProduct($id, $data);
 
         if ($success) {
@@ -166,5 +172,56 @@ class ProductController extends Controller {
 
         $products = Product::search($query);
         $this->json($products);
+    }
+
+    /**
+     * Обработка загрузки изображения товара
+     */
+    private function handleImageUpload() {
+        // Проверяем, был ли загружен файл
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] === UPLOAD_ERR_NO_FILE) {
+            return '/css/placeholder-product.svg'; // Возвращаем заглушку если файл не загружен
+        }
+
+        $file = $_FILES['image'];
+
+        // Проверяем на ошибки загрузки
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $this->redirect('/products/create', 'Ошибка при загрузке файла', 'error');
+            return '/css/placeholder-product.svg';
+        }
+
+        // Проверяем тип файла
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($file['type'], $allowedTypes)) {
+            $this->redirect('/products/create', 'Недопустимый тип файла. Разрешены: JPG, PNG, GIF, WebP', 'error');
+            return '/css/placeholder-product.svg';
+        }
+
+        // Проверяем размер файла (5MB)
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        if ($file['size'] > $maxSize) {
+            $this->redirect('/products/create', 'Файл слишком большой. Максимальный размер: 5MB', 'error');
+            return '/css/placeholder-product.svg';
+        }
+
+        // Создаем директорию для загрузок если не существует
+        $uploadDir = __DIR__ . '/../../public/uploads/products/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // Генерируем уникальное имя файла
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('product_', true) . '.' . $extension;
+        $filepath = $uploadDir . $filename;
+
+        // Перемещаем файл
+        if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            return '/uploads/products/' . $filename;
+        } else {
+            $this->redirect('/products/create', 'Ошибка при сохранении файла', 'error');
+            return '/css/placeholder-product.svg';
+        }
     }
 }

@@ -363,6 +363,13 @@ body {
     color: #888;
 }
 
+.form-hint {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #b0b0b0;
+}
+
 .form-actions {
     display: flex;
     gap: 1rem;

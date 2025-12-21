@@ -3,7 +3,7 @@
     <a href="/products/<?php echo $product['id']; ?>" class="btn btn-secondary">← Назад к товару</a>
 </div>
 
-<form method="POST" action="/products/<?php echo $product['id']; ?>" class="product-form">
+<form method="POST" action="/products/<?php echo $product['id']; ?>" enctype="multipart/form-data" class="product-form">
     <div class="form-section">
         <div class="form-row">
             <div class="form-group">
@@ -36,6 +36,19 @@
             <label for="description">Описание</label>
             <textarea id="description" name="description" rows="4"
                       class="form-input"><?php echo htmlspecialchars($product['description'] ?? ''); ?></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="image">Изображение товара</label>
+            <input type="file" id="image" name="image" accept="image/*"
+                   class="form-input">
+            <small class="form-hint">Оставьте пустым, чтобы сохранить текущее изображение. Поддерживаемые форматы: JPG, PNG, GIF, WebP. Максимальный размер: 5MB</small>
+            <?php if (!empty($product['image']) && $product['image'] !== '/css/placeholder-product.svg'): ?>
+            <div class="current-image">
+                <small>Текущее изображение:</small><br>
+                <img src="<?php echo htmlspecialchars($product['image']); ?>" alt="Текущее изображение" style="max-width: 200px; max-height: 200px; margin-top: 0.5rem;">
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 

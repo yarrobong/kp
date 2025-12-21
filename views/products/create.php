@@ -3,7 +3,7 @@
     <a href="/products" class="btn btn-secondary">← Назад к списку</a>
 </div>
 
-<form method="POST" action="/products" class="product-form">
+<form method="POST" action="/products" enctype="multipart/form-data" class="product-form">
     <div class="form-section">
         <div class="form-row">
             <div class="form-group">
@@ -36,6 +36,13 @@
             <label for="description">Описание</label>
             <textarea id="description" name="description" rows="4"
                       class="form-input" placeholder="Подробное описание товара"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="image">Изображение товара</label>
+            <input type="file" id="image" name="image" accept="image/*"
+                   class="form-input">
+            <small class="form-hint">Поддерживаемые форматы: JPG, PNG, GIF, WebP. Максимальный размер: 5MB</small>
         </div>
     </div>
 

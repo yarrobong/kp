@@ -1396,13 +1396,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Filters Section */
 .filters-section {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 20px;
-    background: #1e1e1e;
+    background: #1a1a1a;
     border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border: 1px solid #333;
 }
 
@@ -1977,11 +1975,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-section {
-    background: white;
+    background: #1a1a1a;
     border-radius: 12px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
 }
 
 .form-section h2 {
@@ -2081,11 +2080,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Product cards */
 .product-card {
-    background: white;
+    background: #1a1a1a;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #333;
 }
 
 .product-card:hover {
@@ -2152,11 +2152,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Proposal cards */
 .proposal-card {
-    background: white;
+    background: #1a1a1a;
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #333;
 }
 
 .proposal-card:hover {
@@ -2207,11 +2208,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Filters and search */
 .filters-section {
-    background: white;
+    background: #1a1a1a;
     border-radius: 12px;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
 }
 
 .search-form {
@@ -2246,9 +2248,10 @@ h1, h2, h3, h4, h5, h6 {
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
-    background: white;
+    background: #1a1a1a;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
 }
 
 .empty-state h3 {
@@ -2272,10 +2275,11 @@ h1, h2, h3, h4, h5, h6 {
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 2rem;
-    background: white;
+    background: #1a1a1a;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
 }
 
 .product-image-large, .product-info-detail {

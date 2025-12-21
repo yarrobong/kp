@@ -148,8 +148,11 @@ switch ($uri) {
                 <div class="container">
                     <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/proposals">Мои КП</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Мои товары</a>
+                        <a href="/proposals">КП</a>
                         <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
                         <a href="/logout">Выход</a>
                     </div>
                 </div>
@@ -157,21 +160,155 @@ switch ($uri) {
 
             <main class="container">
                 <h1>Добро пожаловать, ' . session('user_name') . '!</h1>
+
                 <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Мои товары</h3>
+                        <div class="stat-number">0</div>
+                        <a href="/products" class="btn btn-sm btn-primary">Управлять</a>
+                    </div>
                     <div class="stat-card">
                         <h3>Коммерческие предложения</h3>
                         <div class="stat-number">0</div>
+                        <a href="/proposals" class="btn btn-sm btn-primary">Управлять</a>
                     </div>
                     <div class="stat-card">
                         <h3>Шаблоны</h3>
                         <div class="stat-number">0</div>
+                        <a href="/templates" class="btn btn-sm btn-primary">Управлять</a>
                     </div>
                 </div>
-                <div class="form-actions">
-                    <a href="/proposals" class="btn btn-primary">Управление КП</a>
-                    <a href="/templates" class="btn btn-secondary">Шаблоны</a>
+
+                <div class="dashboard-sections">
+                    <div class="dashboard-card">
+                        <h2>📦 Управление товарами</h2>
+                        <p>Добавляйте товары в свой каталог оборудования</p>
+                        <div class="form-actions">
+                            <a href="/products" class="btn btn-primary">Мои товары</a>
+                            <a href="/products/create" class="btn btn-secondary">Добавить товар</a>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h2>📄 Коммерческие предложения</h2>
+                        <p>Создавайте КП на основе вашего каталога товаров</p>
+                        <div class="form-actions">
+                            <a href="/proposals" class="btn btn-primary">Мои КП</a>
+                            <a href="/proposals/create" class="btn btn-secondary">Создать КП</a>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <h2>🎨 Шаблоны</h2>
+                        <p>Настраивайте внешний вид ваших предложений</p>
+                        <div class="form-actions">
+                            <a href="/templates" class="btn btn-primary">Мои шаблоны</a>
+                            <a href="/templates/create" class="btn btn-secondary">Создать шаблон</a>
+                        </div>
+                    </div>
                 </div>
             </main>
+        </body>
+        </html>';
+        break;
+
+    case '/admin':
+        // Проверка на админа (простая проверка по роли)
+        if (!session('user_id') || session('user_role') !== 'admin') {
+            redirect('/dashboard');
+        }
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Админ панель</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор - Админ</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/admin">Админка</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Админ панель</h1>
+                </div>
+
+                <div class="alert alert-info">
+                    Админская панель находится в разработке.
+                    Здесь будет список всех пользователей и их данных.
+                </div>
+
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <h3>Всего пользователей</h3>
+                        <div class="stat-number">1</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Всего товаров</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Всего КП</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                </div>
+
+                <div class="admin-sections">
+                    <div class="admin-card">
+                        <h2>👥 Управление пользователями</h2>
+                        <p>Просмотр и управление всеми пользователями системы</p>
+                        <a href="/admin/users" class="btn btn-primary">Пользователи</a>
+                    </div>
+
+                    <div class="admin-card">
+                        <h2>📊 Статистика системы</h2>
+                        <p>Общая статистика использования платформы</p>
+                        <a href="/admin/stats" class="btn btn-primary">Статистика</a>
+                    </div>
+                </div>
+            </main>
+
+            <style>
+                .admin-stats {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 20px;
+                    margin: 30px 0;
+                }
+
+                .admin-sections {
+                    display: grid;
+                    gap: 20px;
+                    margin-top: 40px;
+                }
+
+                .admin-card {
+                    background: #fff;
+                    padding: 25px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+                .admin-card h2 {
+                    margin: 0 0 10px 0;
+                    color: #333;
+                }
+
+                .admin-card p {
+                    color: #666;
+                    margin-bottom: 20px;
+                }
+            </style>
         </body>
         </html>';
         break;
@@ -437,6 +574,192 @@ switch ($uri) {
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Создать шаблон</button>
                         <a href="/templates" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
+            </main>
+        </body>
+        </html>';
+        break;
+
+    case '/products':
+        if (!session('user_id')) {
+            redirect('/login');
+        }
+
+        // Получаем товары пользователя (пока что пустой массив, так как нет базы)
+        $products = []; // В будущем: Product::getByUserId(session('user_id'))
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Мои товары</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Мои товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Мои товары</h1>
+                    <a href="/products/create" class="btn btn-primary">Добавить товар</a>
+                </div>
+
+                <div class="alert alert-info">
+                    Каталог товаров находится в разработке.
+                    Функционал добавления товаров будет доступен после настройки базы данных.
+                </div>
+
+                <div class="products-grid">
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="/css/placeholder-product.png" alt="Пример товара" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                        </div>
+                        <div class="product-info">
+                            <h3>Пример товара</h3>
+                            <p class="product-price">₽ 10,000</p>
+                            <p>Описание товара будет здесь</p>
+                        </div>
+                        <div class="product-actions">
+                            <a href="#" class="btn btn-sm btn-primary">Редактировать</a>
+                            <a href="#" class="btn btn-sm btn-danger">Удалить</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <style>
+                .products-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 20px;
+                    margin-top: 20px;
+                }
+
+                .product-card {
+                    background: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                }
+
+                .product-image {
+                    padding: 15px;
+                }
+
+                .product-info {
+                    padding: 15px;
+                }
+
+                .product-info h3 {
+                    margin: 0 0 10px 0;
+                    font-size: 18px;
+                }
+
+                .product-price {
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #007bff;
+                    margin: 10px 0;
+                }
+
+                .product-info p {
+                    color: #666;
+                    margin: 10px 0;
+                }
+
+                .product-actions {
+                    padding: 15px;
+                    border-top: 1px solid #eee;
+                    display: flex;
+                    gap: 10px;
+                }
+            </style>
+        </body>
+        </html>';
+        break;
+
+    case '/products/create':
+        if (!session('user_id')) {
+            redirect('/login');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Обработка формы создания товара
+            // В будущем: сохранить в базу данных
+            redirect('/products');
+        }
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Добавить товар</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Мои товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Добавить товар</h1>
+                    <a href="/products" class="btn btn-secondary">← Назад к товарам</a>
+                </div>
+
+                <div class="alert alert-info">
+                    Форма добавления товаров находится в разработке.
+                    После настройки базы данных можно будет добавлять товары с фото.
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="product-form">
+                    <div class="form-group">
+                        <label>Название товара</label>
+                        <input type="text" name="name" placeholder="Например: Ноутбук Lenovo ThinkPad" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Цена (₽)</label>
+                        <input type="number" name="price" step="0.01" placeholder="10000.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Фото товара</label>
+                        <input type="file" name="photo" accept="image/*">
+                        <small class="hint">Поддерживаются форматы: JPG, PNG, GIF (макс. 5MB)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea name="description" rows="4" placeholder="Подробное описание товара, характеристики..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Добавить товар</button>
+                        <a href="/products" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
             </main>

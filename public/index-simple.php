@@ -296,12 +296,15 @@ switch ($uri) {
 
         // Подсчет товаров пользователя
         $userProductsCount = 0;
-        $allProducts = session('products', []);
-        if (is_array($allProducts)) {
-            $userId = session('user_id');
-            foreach ($allProducts as $product) {
-                if (isset($product['user_id']) && $product['user_id'] == $userId) {
-                    $userProductsCount++;
+        $userId = session('user_id');
+        $dataFile = __DIR__ . '/../storage/products.json';
+        if (file_exists($dataFile)) {
+            $allProducts = json_decode(file_get_contents($dataFile), true) ?: [];
+            if (is_array($allProducts)) {
+                foreach ($allProducts as $product) {
+                    if (isset($product['user_id']) && $product['user_id'] == $userId) {
+                        $userProductsCount++;
+                    }
                 }
             }
         }
@@ -317,12 +320,15 @@ switch ($uri) {
 
         // Подсчет предложений пользователя
         $userProposalsCount = 0;
-        $allProposals = session('proposals', []);
-        if (is_array($allProposals)) {
-            $userId = session('user_id');
-            foreach ($allProposals as $proposal) {
-                if (isset($proposal['user_id']) && $proposal['user_id'] == $userId) {
-                    $userProposalsCount++;
+        $userId = session('user_id');
+        $dataFile = __DIR__ . '/../storage/proposals.json';
+        if (file_exists($dataFile)) {
+            $allProposals = json_decode(file_get_contents($dataFile), true) ?: [];
+            if (is_array($allProposals)) {
+                foreach ($allProposals as $proposal) {
+                    if (isset($proposal['user_id']) && $proposal['user_id'] == $userId) {
+                        $userProposalsCount++;
+                    }
                 }
             }
         }

@@ -25,12 +25,17 @@ function getProducts($userId = null) {
             if ($userId) {
                 $stmt = $db->prepare("SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC");
                 $stmt->execute([$userId]);
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             } else {
-                $stmt = $db->query("SELECT * FROM products ORDER BY created_at DESC");
+                $results = $db->query("SELECT * FROM products ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
             }
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Если в БД есть результаты, возвращаем их
+            if (!empty($results)) {
+                return $results;
+            }
+            // Если в БД нет результатов, переходим к JSON fallback
         } catch (Exception $e) {
-            // Fallback на JSON
+            // Fallback на JSON при ошибке БД
         }
     }
 
@@ -106,9 +111,13 @@ function getProduct($id) {
         try {
             $stmt = $db->prepare("SELECT * FROM products WHERE id = ?");
             $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                return $result;
+            }
+            // Если в БД нет результата, переходим к JSON fallback
         } catch (Exception $e) {
-            // Fallback на JSON
+            // Fallback на JSON при ошибке БД
         }
     }
 

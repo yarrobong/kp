@@ -423,16 +423,6 @@ switch ($uri) {
             }
         }
 
-        // Показать сообщения
-        $successMsg = '';
-        $errorMsg = '';
-        if (!empty($success)) {
-            $successMsg = $success;
-        }
-        if (!empty($error)) {
-            $errorMsg = $error;
-        }
-
         echo '<!DOCTYPE html>
         <html lang="ru">
         <head>
@@ -462,16 +452,16 @@ switch ($uri) {
                     <a href="/products" class="btn btn-secondary">← Назад</a>
                 </div>';
 
-        if (!empty($successMsg)) {
-            echo '<div class="alert alert-success">' . $successMsg . '</div>';
+        if (!empty($success)) {
+            echo '<div class="alert alert-success">' . $success . '</div>';
         }
-        if (!empty($errorMsg)) {
-            echo '<div class="alert alert-error">' . $errorMsg . '</div>';
+        if (!empty($error)) {
+            echo '<div class="alert alert-error">' . $error . '</div>';
         }
 
         echo '<div class="alert alert-info">
                     Форма добавления товаров. После настройки базы данных товары будут сохраняться.
-                </div>';
+                </div>
 
                 <form method="POST" enctype="multipart/form-data">
                     <div class="form-group">

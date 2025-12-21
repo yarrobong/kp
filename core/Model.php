@@ -13,7 +13,11 @@ abstract class Model {
     protected static function getDB() {
         if (self::$db === null) {
             try {
-                $config = require __DIR__ . '/../config/database.php';
+                $configPath = dirname(__DIR__) . '/config/database.php';
+                if (!file_exists($configPath)) {
+                    throw new Exception("Config file not found: $configPath");
+                }
+                $config = require $configPath;
                 $dsn = "mysql:host={$config['host']};dbname={$config['database']};charset={$config['charset']}";
                 self::$db = new PDO($dsn, $config['username'], $config['password'], $config['options']);
             } catch (PDOException $e) {

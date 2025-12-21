@@ -1929,7 +1929,8 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         break;
 
     case '/logout':
-        header('Location: /products');
+        // В демо-версии просто перенаправляем на главную страницу
+        header('Location: /');
         exit;
 
     default:

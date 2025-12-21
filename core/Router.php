@@ -41,6 +41,9 @@ class Router {
         // Удаляем trailing slash
         $uri = rtrim($uri, '/');
 
+        // Отладка
+        error_log("Router: Method=$method, URI=$uri");
+
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $this->matchPath($route['path'], $uri, $params)) {
                 try {

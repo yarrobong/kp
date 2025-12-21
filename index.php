@@ -100,6 +100,78 @@ function createProduct($data) {
     return $newId;
 }
 
+function getProduct($id) {
+    $db = getDB();
+    if ($db) {
+        try {
+            $stmt = $db->prepare("SELECT * FROM products WHERE id = ?");
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            // Fallback на JSON
+        }
+    }
+
+    // Fallback на JSON файл
+    $dataFile = __DIR__ . '/products.json';
+    if (file_exists($dataFile)) {
+        $products = json_decode(file_get_contents($dataFile), true) ?: [];
+        foreach ($products as $product) {
+            if ($product['id'] == $id) {
+                return $product;
+            }
+        }
+    }
+    return null;
+}
+
+function updateProduct($id, $data) {
+    $db = getDB();
+    if ($db) {
+        try {
+            $stmt = $db->prepare("UPDATE products SET name = ?, description = ?, price = ?, category = ?, image = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->execute([
+                $data['name'],
+                $data['description'] ?? '',
+                $data['price'],
+                $data['category'] ?? '',
+                $data['image'] ?? '/css/placeholder-product.svg',
+                $id
+            ]);
+            return true;
+        } catch (Exception $e) {
+            // Fallback на JSON
+        }
+    }
+
+    // Fallback на JSON файл
+    $dataFile = __DIR__ . '/products.json';
+    if (file_exists($dataFile)) {
+        $products = json_decode(file_get_contents($dataFile), true) ?: [];
+        foreach ($products as &$product) {
+            if ($product['id'] == $id) {
+                $product['name'] = $data['name'];
+                $product['description'] = $data['description'] ?? '';
+                $product['price'] = $data['price'];
+                $product['category'] = $data['category'] ?? '';
+                $product['image'] = $data['image'] ?? '/css/placeholder-product.svg';
+                break;
+            }
+        }
+        file_put_contents($dataFile, json_encode($products));
+        return true;
+    }
+    return false;
+}
+
+function getProductImage($imagePath) {
+    if (!$imagePath || $imagePath === '/css/placeholder-product.svg') {
+        // Используем сервис для генерации изображений товаров
+        return 'https://picsum.photos/300/200?random=' . rand(1, 1000);
+    }
+    return $imagePath;
+}
+
 // Обработка маршрутов
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri = rtrim($uri, '/');
@@ -208,13 +280,16 @@ switch ($uri) {
             foreach ($userProducts as $product) {
                 echo '<div class="product-card">
                         <div class="product-image-container">
-                            <img src="' . htmlspecialchars($product['image'] ?? '/css/placeholder-product.svg') . '" alt="' . htmlspecialchars($product['name']) . '" class="product-image">
+                            <img src="' . htmlspecialchars(getProductImage($product['image'])) . '" alt="' . htmlspecialchars($product['name']) . '" class="product-image">
                         </div>
                         <div class="product-info">
                             <div class="product-title">' . htmlspecialchars($product['name']) . '</div>
                             <div class="product-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
                             ' . (!empty($product['description']) ? '<div class="product-description">' . htmlspecialchars(substr($product['description'], 0, 100)) . '</div>' : '') . '
                             <div class="product-category" style="font-size: 12px; color: #666; margin-top: 8px;">' . htmlspecialchars($product['category'] ?? 'Без категории') . '</div>
+                        </div>
+                        <div class="product-actions" style="margin-top: 16px; display: flex; gap: 8px;">
+                            <a href="/products/' . $product['id'] . '/edit" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">✏️ Редактировать</a>
                         </div>
                     </div>';
             }
@@ -328,6 +403,118 @@ switch ($uri) {
         </body>
         </html>';
         break;
+
+    default:
+        // Проверяем, является ли это маршрутом редактирования товара /products/{id}/edit
+        if (preg_match('#^/products/(\d+)/edit$#', $uri, $matches)) {
+            $productId = (int)$matches[1];
+            $product = getProduct($productId);
+
+            if (!$product) {
+                http_response_code(404);
+                echo '<h1>Товар не найден</h1><a href="/products">Назад</a>';
+                break;
+            }
+
+            $error = '';
+            $success = '';
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $name = trim($_POST['name'] ?? '');
+                $price = floatval($_POST['price'] ?? 0);
+                $category = trim($_POST['category'] ?? '');
+                $description = trim($_POST['description'] ?? '');
+
+                if (empty($name)) {
+                    $error = 'Название товара обязательно';
+                } elseif ($price <= 0) {
+                    $error = 'Цена должна быть больше 0';
+                } else {
+                    // Обновляем товар
+                    try {
+                        updateProduct($productId, [
+                            'name' => $name,
+                            'price' => $price,
+                            'category' => $category,
+                            'description' => $description,
+                            'image' => $product['image'] // Сохраняем существующее изображение
+                        ]);
+                        header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно обновлен!'));
+                        exit;
+                    } catch (Exception $e) {
+                        $error = 'Ошибка обновления товара: ' . $e->getMessage();
+                    }
+                }
+            }
+
+            echo '<!DOCTYPE html>
+            <html lang="ru">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Редактировать товар</title>
+                <link rel="stylesheet" href="/css/app.css">
+            </head>
+            <body>
+                <nav class="navbar">
+                    <div class="container">
+                        <a href="/" class="navbar-brand">КП Генератор</a>
+                        <div class="navbar-menu">
+                            <a href="/dashboard">Панель</a>
+                            <a href="/products">Товары</a>
+                            <a href="/logout">Выход</a>
+                        </div>
+                    </div>
+                </nav>
+
+                <main class="container">
+                    <div class="page-header">
+                        <h1>Редактировать товар</h1>
+                        <a href="/products" class="btn btn-secondary">← Назад</a>
+                    </div>';
+
+            if (!empty($error)) {
+                echo '<div class="alert alert-error">' . $error . '</div>';
+            }
+
+            echo '<form method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Название товара</label>
+                            <input type="text" name="name" value="' . htmlspecialchars($product['name']) . '" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Цена (₽)</label>
+                                <input type="number" name="price" step="0.01" value="' . htmlspecialchars($product['price']) . '" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Категория</label>
+                                <select name="category">
+                                    <option value="">Без категории</option>
+                                    <option value="Электроника"' . ($product['category'] === 'Электроника' ? ' selected' : '') . '>Электроника</option>
+                                    <option value="Оборудование"' . ($product['category'] === 'Оборудование' ? ' selected' : '') . '>Оборудование</option>
+                                    <option value="Программное обеспечение"' . ($product['category'] === 'Программное обеспечение' ? ' selected' : '') . '>Программное обеспечение</option>
+                                    <option value="Услуги"' . ($product['category'] === 'Услуги' ? ' selected' : '') . '>Услуги</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <textarea name="description" rows="4">' . htmlspecialchars($product['description'] ?? '') . '</textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">💾 Сохранить изменения</button>
+                            <a href="/products" class="btn btn-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </main>
+            </body>
+            </html>';
+            break;
+        }
 
     case '/logout':
         header('Location: /products');

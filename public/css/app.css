@@ -251,6 +251,13 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 12px;
 }
 
+.product-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 /* Alerts */
 .alert {
     padding: 15px;

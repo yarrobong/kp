@@ -103,6 +103,13 @@ class Request
         return parse_url($this->server['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     }
 
+    public function isJson()
+    {
+        $contentType = $this->header('Content-Type') ?? '';
+        return str_contains($contentType, 'application/json') ||
+               str_contains($this->server['HTTP_ACCEPT'] ?? '', 'application/json');
+    }
+
     public function url()
     {
         return ($this->server['HTTPS'] ?? 'off') === 'on' ? 'https' : 'http'

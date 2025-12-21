@@ -297,16 +297,10 @@ switch ($uri) {
         // Подсчет товаров пользователя
         $userProductsCount = 0;
         $userId = session('user_id');
-        $dataFile = __DIR__ . '/../storage/products.json';
-        if (file_exists($dataFile)) {
-            $allProducts = json_decode(file_get_contents($dataFile), true) ?: [];
-            if (is_array($allProducts)) {
-                foreach ($allProducts as $product) {
-                    if (isset($product['user_id']) && $product['user_id'] == $userId) {
-                        $userProductsCount++;
-                    }
-                }
-            }
+        try {
+            $userProductsCount = \App\Models\Product::where('user_id', $userId)->count();
+        } catch (Exception $e) {
+            $userProductsCount = 0;
         }
         echo $userProductsCount;
 
@@ -408,32 +402,18 @@ switch ($uri) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
-        // Получить товары из файла (всегда свежие данные)
+        // Получить товары из базы данных
         $userProducts = [];
         $userId = session('user_id');
-        $allProducts = [];
 
-        $dataFile = __DIR__ . '/../storage/products.json';
-        if (file_exists($dataFile)) {
-            $fileData = json_decode(file_get_contents($dataFile), true);
-            if (is_array($fileData)) {
-                $allProducts = $fileData;
-                // Сохраняем в сессию для быстрого доступа
-                session('products', $allProducts);
-            }
+        try {
+            $allProducts = \App\Models\Product::where('user_id', $userId)->get();
+            $userProducts = $allProducts->toArray();
+        } catch (Exception $e) {
+            $userProducts = [];
         }
 
-        $debugInfo = "User ID: $userId, All Products: " . count($allProducts ?? []) . ", Session: " . (is_array($allProducts) ? 'array' : gettype($allProducts));
-
-        if (is_array($allProducts)) {
-            foreach ($allProducts as $product) {
-                if (isset($product['user_id']) && $product['user_id'] == $userId) {
-                    $userProducts[] = $product;
-                }
-            }
-        }
-
-        $debugInfo .= ", User Products: " . count($userProducts);
+        $debugInfo = "User ID: $userId, User Products: " . count($userProducts);
 
         echo '
 
@@ -504,40 +484,17 @@ switch ($uri) {
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
             } else {
-                // Загружаем существующие товары из файла
-                $dataFile = __DIR__ . '/../storage/products.json';
-                $existingProducts = [];
-                if (file_exists($dataFile)) {
-                    $existingProducts = json_decode(file_get_contents($dataFile), true) ?: [];
-                }
-
-                // Определяем следующий ID
-                $maxId = 0;
-                foreach ($existingProducts as $product) {
-                    if (isset($product['id']) && $product['id'] > $maxId) {
-                        $maxId = $product['id'];
-                    }
-                }
-                $newId = $maxId + 1;
-
-                // Создаем новый товар
-                $newProduct = [
-                    'id' => $newId,
+                // Сохраняем товар в базу данных
+                $product = \App\Models\Product::create([
                     'user_id' => session('user_id'),
                     'name' => $name,
                     'price' => $price,
                     'category' => $category,
                     'description' => $description,
                     'image' => '/css/placeholder-product.svg',
-                    'created_at' => date('Y-m-d H:i:s')
-                ];
+                ]);
 
-                // Добавляем к существующим товарам
-                $existingProducts[$newId] = $newProduct;
-
-                // Сохраняем в сессии и файл
-                session('products', $existingProducts);
-                file_put_contents($dataFile, json_encode($existingProducts));
+                $newId = $product->id;
 
                 $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
 

@@ -1,0 +1,20 @@
+{
+    "name": "yaroslav/kp-generator",
+    "description": "Commercial proposal generator application",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "tecnickcom/tcpdf": "^6.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Core\\": "core/",
+            "Models\\": "models/",
+            "Controllers\\": "controllers/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

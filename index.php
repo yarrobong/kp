@@ -5,6 +5,85 @@ if (!defined('PROJECT_ROOT')) {
     define('PROJECT_ROOT', dirname(__FILE__));
 }
 
+// Функция для красивого отображения ошибок
+function handleError($message, $code = 500, $title = 'Произошла ошибка') {
+    http_response_code($code);
+    $icon = match($code) {
+        404 => '🔍',
+        403 => '🚫',
+        400 => '⚠️',
+        default => '❌'
+    };
+
+    echo '<!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>' . htmlspecialchars($title) . '</title>
+        <link rel="stylesheet" href="/css/app.css">
+        <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #121212;
+            color: #e0e0e0;
+        }
+        .error-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            background: #1e1e1e;
+            border-radius: 16px;
+            border: 1px solid #333;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+        .error-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        .error-message {
+            font-size: 16px;
+            color: #b0b0b0;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        .error-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .error-actions .btn {
+            padding: 12px 24px;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="error-page">
+            <div class="error-container">
+                <div class="error-icon">' . $icon . '</div>
+                <div class="error-title">' . htmlspecialchars($title) . '</div>
+                <div class="error-message">' . htmlspecialchars($message) . '</div>
+                <div class="error-actions">
+                    <a href="javascript:history.back()" class="btn btn-secondary">← Назад</a>
+                    <a href="/" class="btn btn-primary">На главную</a>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>';
+    exit;
+}
+
 // Простое приложение для управления товарами
 
 // Хранение в базе данных
@@ -504,7 +583,8 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
     // Простая демо-версия без аутентификации
     $userId = 1; // Фиксированный пользователь для демо
 
-    switch ($uri) {
+    try {
+        switch ($uri) {
     case '':
     case '/':
         header('Location: /products');
@@ -676,6 +756,88 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
         echo '</div>
             </main>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const searchInput = document.getElementById("searchInput");
+                const searchBtn = document.getElementById("searchBtn");
+                const categoryFilter = document.getElementById("categoryFilter");
+                const sortFilter = document.getElementById("sortFilter");
+                const productsGrid = document.getElementById("productsGrid");
+
+                let allProducts = ' . json_encode($userProducts) . ';
+
+                function filterAndSortProducts() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const categoryValue = categoryFilter.value;
+                    const sortValue = sortFilter.value;
+
+                    let filtered = allProducts.filter(product => {
+                        const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                                            product.description.toLowerCase().includes(searchTerm);
+                        const matchesCategory = !categoryValue || product.category === categoryValue;
+                        return matchesSearch && matchesCategory;
+                    });
+
+                    // Сортировка
+                    filtered.sort((a, b) => {
+                        switch(sortValue) {
+                            case "price_asc":
+                                return a.price - b.price;
+                            case "price_desc":
+                                return b.price - a.price;
+                            case "name_asc":
+                                return a.name.localeCompare(b.name);
+                            case "name_desc":
+                                return b.name.localeCompare(a.name);
+                            case "newest":
+                            default:
+                                return new Date(b.created_at) - new Date(a.created_at);
+                        }
+                    });
+
+                    renderProducts(filtered);
+                }
+
+                function renderProducts(products) {
+                    if (products.length === 0) {
+                        productsGrid.innerHTML = \'<div class="product-card" style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;"><div style="font-size: 48px; margin-bottom: 16px;">🔍</div><div class="product-title">Ничего не найдено</div><div class="product-description">Попробуйте изменить параметры поиска</div></div>\';
+                        return;
+                    }
+
+                    const html = products.map(product => `
+                        <div class="product-card">
+                            <div class="product-image-container">
+                                <img src="${product.image ? \'/\' + product.image : \'/css/placeholder-product.svg\'}" alt="${product.name}" class="product-image">
+                            </div>
+                            <div class="product-info">
+                                <div class="product-title">${product.name}</div>
+                                <div class="product-price">₽ ${new Intl.NumberFormat("ru-RU").format(product.price)}</div>
+                                <div class="product-description">${product.description ? product.description.substring(0, 100) + (product.description.length > 100 ? "..." : "") : ""}</div>
+                                <div class="product-category">${product.category || "Без категории"}</div>
+                            </div>
+                            <div class="product-actions">
+                                <a href="/products/${product.id}/edit" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">✏️ Редактировать</a>
+                                <form method="POST" action="/products/${product.id}/delete" style="display: inline;" onsubmit="return confirm(\'Вы уверены, что хотите удалить этот товар?\')">
+                                    <button type="submit" class="btn btn-danger" style="font-size: 12px; padding: 6px 12px;">🗑️ Удалить</button>
+                                </form>
+                            </div>
+                        </div>
+                    `).join("");
+
+                    productsGrid.innerHTML = html;
+                }
+
+                // Обработчики событий
+                searchInput.addEventListener("input", filterAndSortProducts);
+                searchBtn.addEventListener("click", filterAndSortProducts);
+                categoryFilter.addEventListener("change", filterAndSortProducts);
+                sortFilter.addEventListener("change", filterAndSortProducts);
+
+                // Начальная загрузка
+                renderProducts(allProducts);
+            });
+            </script>';
         </body>
         </html>';
         break;
@@ -715,35 +877,32 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
-        echo '<div class="products-grid">';
+        echo '<div class="filters-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Поиск товаров..." class="search-input">
+                <button class="search-btn" id="searchBtn">🔍</button>
+            </div>
+            <div class="filters">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">Все категории</option>
+                    <option value="Электроника">Электроника</option>
+                    <option value="Офисная техника">Офисная техника</option>
+                    <option value="Мебель">Мебель</option>
+                    <option value="Услуги">Услуги</option>
+                </select>
+                <select id="sortFilter" class="filter-select">
+                    <option value="newest">Сначала новые</option>
+                    <option value="price_asc">Цена: по возрастанию</option>
+                    <option value="price_desc">Цена: по убыванию</option>
+                    <option value="name_asc">Название: А-Я</option>
+                    <option value="name_desc">Название: Я-А</option>
+                </select>
+            </div>
+        </div>
 
-        if (empty($userProducts)) {
-            echo '<div class="product-card" style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
-                        <div class="product-title">Каталог пуст</div>
-                        <div class="product-description">Добавьте первый товар</div>
-                    </div>';
-        } else {
-            foreach ($userProducts as $product) {
-                echo '<div class="product-card">
-                        <div class="product-image-container">
-                            <img src="' . htmlspecialchars(getProductImage($product['image'])) . '" alt="' . htmlspecialchars($product['name']) . '" class="product-image">
-                        </div>
-                        <div class="product-info">
-                            <div class="product-title">' . htmlspecialchars($product['name']) . '</div>
-                            <div class="product-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
-                            ' . (!empty($product['description']) ? '<div class="product-description">' . htmlspecialchars(substr($product['description'], 0, 100)) . '</div>' : '') . '
-                            <div class="product-category" style="font-size: 12px; color: #666; margin-top: 8px;">' . htmlspecialchars($product['category'] ?? 'Без категории') . '</div>
-                        </div>
-                        <div class="product-actions" style="margin-top: 16px; display: flex; gap: 8px;">
-                            <a href="/products/' . $product['id'] . '/edit" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;">✏️ Редактировать</a>
-                            <form method="POST" action="/products/' . $product['id'] . '/delete" style="display: inline;" onsubmit="return confirm(\'Вы уверены, что хотите удалить этот товар?\')">
-                                <button type="submit" class="btn btn-danger" style="font-size: 12px; padding: 6px 12px;">🗑️ Удалить</button>
-                            </form>
-                        </div>
-                    </div>';
-            }
-        }
+        <div id="productsGrid" class="products-grid">';
+
+        // Товары будут отрендерены через JavaScript
 
         echo '</div>
         </main>
@@ -764,31 +923,69 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             $proposalItems = $_POST['proposal_items'] ?? [];
             $offerDate = $_POST['offer_date'] ?? date('Y-m-d');
 
-
+            // Валидация имени клиента
             if (empty($clientName)) {
-                $error = 'Имя клиента обязательно';
+                $error = 'Имя клиента обязательно для заполнения';
+            } elseif (strlen($clientName) < 2) {
+                $error = 'Имя клиента должно содержать минимум 2 символа';
+            } elseif (strlen($clientName) > 100) {
+                $error = 'Имя клиента не должно превышать 100 символов';
+            } elseif (!preg_match('/^[\p{L}\p{N}\s\-\.\(\)\[\]\"\'«»]+$/u', $clientName)) {
+                $error = 'Имя клиента содержит недопустимые символы';
             } elseif (empty($proposalItems) || !is_array($proposalItems)) {
-                $error = 'Добавьте хотя бы один товар';
+                $error = 'Добавьте хотя бы один товар в предложение';
+            } elseif (count($proposalItems) > 50) {
+                $error = 'Слишком много товаров в предложении (максимум 50)';
             } else {
                 // Проверить и подготовить товары
                 $total = 0;
                 $proposalProducts = [];
                 $validItems = 0;
 
-                foreach ($proposalItems as $item) {
-                    $productId = $item['product_id'] ?? '';
+                foreach ($proposalItems as $index => $item) {
+                    $productId = trim($item['product_id'] ?? '');
                     $quantity = floatval($item['quantity'] ?? 0);
 
-                    if (!empty($productId) && $quantity > 0) {
-                        $product = getProduct($productId);
-                        if ($product) {
-                            $product['quantity'] = $quantity;
-                            $product['line_total'] = $product['price'] * $quantity;
-                            $proposalProducts[] = $product;
-                            $total += $product['line_total'];
-                            $validItems++;
-                        }
+                    // Пропускаем пустые строки
+                    if (empty($productId) && $quantity <= 0) {
+                        continue;
                     }
+
+                    // Валидация ID товара
+                    if (empty($productId) || !is_numeric($productId)) {
+                        $error = 'Некорректный ID товара в строке ' . ($index + 1);
+                        break;
+                    }
+
+                    // Валидация количества
+                    if ($quantity <= 0) {
+                        $error = 'Количество товара должно быть больше 0 в строке ' . ($index + 1);
+                        break;
+                    }
+
+                    if ($quantity > 999999) {
+                        $error = 'Количество товара слишком большое в строке ' . ($index + 1);
+                        break;
+                    }
+
+                    // Проверяем существование товара
+                    $product = getProduct($productId);
+                    if (!$product) {
+                        $error = 'Товар не найден (ID: ' . $productId . ')';
+                        break;
+                    }
+
+                    // Проверяем доступность товара (пользователь может редактировать только свои товары)
+                    if ($product['user_id'] != $userId) {
+                        $error = 'У вас нет доступа к этому товару';
+                        break;
+                    }
+
+                    $product['quantity'] = $quantity;
+                    $product['line_total'] = $product['price'] * $quantity;
+                    $proposalProducts[] = $product;
+                    $total += $product['line_total'];
+                    $validItems++;
                 }
 
                 if ($validItems === 0) {
@@ -837,6 +1034,23 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Создать коммерческое предложение</title>
             <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="notifications" id="notifications-container"></div>
+
+            <main class="container">
             <style>
                 .products-selection {
                     max-height: 400px;
@@ -961,6 +1175,29 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 </form>
 
                 <script>
+                    // Функция для показа уведомлений
+                    function showNotification(message, type = 'info', duration = 3000) {
+                        const container = document.getElementById('notifications-container');
+                        const notification = document.createElement('div');
+                        notification.className = `notification ${type}`;
+                        notification.innerHTML = `
+                            <span>${message}</span>
+                            <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+                        `;
+
+                        container.appendChild(notification);
+
+                        // Автоматическое скрытие
+                        setTimeout(() => {
+                            notification.classList.add('fade-out');
+                            setTimeout(() => {
+                                if (notification.parentElement) {
+                                    notification.remove();
+                                }
+                            }, 300);
+                        }, duration);
+                    }
+
                     const productsData = ' . $productsJson . ';
 
                     let rowCounter = 0;
@@ -1104,6 +1341,204 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                             addProductRow();
                         });
 
+                        // Автосохранение черновика
+                        let saveTimeout;
+                        let isDraftSaved = false;
+
+                        function saveDraft() {
+                            const formData = new FormData(document.getElementById("proposal-form"));
+                            const draft = {
+                                client_name: formData.get("client_name") || "",
+                                offer_date: formData.get("offer_date") || "",
+                                items: []
+                            };
+
+                            // Собираем данные товаров
+                            const rows = document.querySelectorAll("#products-tbody tr");
+                            rows.forEach((row, index) => {
+                                const productId = row.querySelector("input[type=\"hidden\"]")?.value;
+                                const quantity = row.querySelector(".quantity-input")?.value;
+                                if (productId && quantity) {
+                                    draft.items.push({
+                                        product_id: productId,
+                                        quantity: quantity,
+                                        row_index: index + 1
+                                    });
+                                }
+                            });
+
+                            if (draft.client_name || draft.items.length > 0) {
+                                localStorage.setItem("proposal_draft", JSON.stringify(draft));
+                                isDraftSaved = true;
+                                showNotification("Черновик сохранен", "success");
+                            }
+                        }
+
+                        function loadDraft() {
+                            const draft = localStorage.getItem("proposal_draft");
+                            if (draft) {
+                                try {
+                                    const data = JSON.parse(draft);
+
+                                    // Восстанавливаем имя клиента
+                                    if (data.client_name) {
+                                        document.querySelector("input[name=\"client_name\"]").value = data.client_name;
+                                    }
+
+                                    // Восстанавливаем дату
+                                    if (data.offer_date) {
+                                        document.querySelector("input[name=\"offer_date\"]").value = data.offer_date;
+                                    }
+
+                                    // Восстанавливаем товары
+                                    if (data.items && data.items.length > 0) {
+                                        data.items.forEach((item, index) => {
+                                            if (index === 0) {
+                                                // Первая строка уже есть
+                                                const firstRow = document.querySelector("#products-tbody tr");
+                                                if (firstRow && item.product_id) {
+                                                    const product = productsData.find(p => p.id == item.product_id);
+                                                    if (product) {
+                                                        fillProductRow(firstRow, product, item.quantity);
+                                                    }
+                                                }
+                                            } else {
+                                                // Добавляем новые строки
+                                                const product = productsData.find(p => p.id == item.product_id);
+                                                if (product) {
+                                                    addProductRow(item.product_id, item.quantity);
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    showNotification("Черновик восстановлен", "info");
+                                } catch (e) {
+                                    console.error("Ошибка загрузки черновика:", e);
+                                }
+                            }
+                        }
+
+                        // Автосохранение при изменении формы
+                        function setupAutoSave() {
+                            const form = document.getElementById("proposal-form");
+
+                            form.addEventListener("input", function() {
+                                clearTimeout(saveTimeout);
+                                saveTimeout = setTimeout(saveDraft, 2000);
+                            });
+
+                            form.addEventListener("change", function() {
+                                clearTimeout(saveTimeout);
+                                saveTimeout = setTimeout(saveDraft, 1000);
+                            });
+                        }
+
+                        // Загружаем черновик при загрузке страницы
+                        document.addEventListener("DOMContentLoaded", function() {
+                            addProductRow();
+                            setupAutoSave();
+                            setupRealTimeValidation();
+                            loadDraft();
+                        });
+
+                        // Валидация формы
+                        function validateForm() {
+                            const clientName = document.querySelector("input[name='client_name']").value.trim();
+                            const offerDate = document.querySelector("input[name='offer_date']").value;
+                            const rows = document.querySelectorAll("#products-tbody tr");
+                            let hasValidProduct = false;
+
+                            // Валидация имени клиента
+                            if (!clientName) {
+                                showNotification("Пожалуйста, введите имя клиента", "error");
+                                return false;
+                            }
+
+                            if (clientName.length < 2) {
+                                showNotification("Имя клиента должно содержать минимум 2 символа", "error");
+                                return false;
+                            }
+
+                            // Валидация даты
+                            if (!offerDate) {
+                                showNotification("Пожалуйста, выберите дату предложения", "error");
+                                return false;
+                            }
+
+                            const selectedDate = new Date(offerDate);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+
+                            if (selectedDate < today) {
+                                showNotification("Дата предложения не может быть в прошлом", "warning");
+                            }
+
+                            // Валидация товаров
+                            rows.forEach(row => {
+                                const productId = row.querySelector("input[type='hidden']").value;
+                                const quantity = parseFloat(row.querySelector(".quantity-input").value);
+
+                                if (productId && quantity > 0) {
+                                    hasValidProduct = true;
+
+                                    if (quantity <= 0) {
+                                        showNotification("Количество товара должно быть больше 0", "error");
+                                        return false;
+                                    }
+
+                                    if (quantity > 999999) {
+                                        showNotification("Количество товара слишком большое", "error");
+                                        return false;
+                                    }
+                                }
+                            });
+
+                            if (!hasValidProduct) {
+                                showNotification("Пожалуйста, добавьте хотя бы один товар", "error");
+                                return false;
+                            }
+
+                            return true;
+                        }
+
+                        // Валидация в реальном времени
+                        function setupRealTimeValidation() {
+                            const clientNameInput = document.querySelector("input[name='client_name']");
+                            const offerDateInput = document.querySelector("input[name='offer_date']");
+
+                            clientNameInput.addEventListener("blur", function() {
+                                const value = this.value.trim();
+                                if (value && value.length < 2) {
+                                    showNotification("Имя клиента должно содержать минимум 2 символа", "warning", 2000);
+                                }
+                            });
+
+                            offerDateInput.addEventListener("change", function() {
+                                const selectedDate = new Date(this.value);
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+
+                                if (selectedDate < today) {
+                                    showNotification("Дата предложения не может быть в прошлом", "warning", 2000);
+                                }
+                            });
+
+                            // Валидация количества в реальном времени
+                            document.addEventListener("input", function(e) {
+                                if (e.target.classList.contains("quantity-input")) {
+                                    const value = parseFloat(e.target.value);
+                                    if (value < 0) {
+                                        e.target.value = 0;
+                                        showNotification("Количество не может быть отрицательным", "warning", 1500);
+                                    } else if (value > 999999) {
+                                        e.target.value = 999999;
+                                        showNotification("Максимальное количество: 999999", "warning", 1500);
+                                    }
+                                }
+                            });
+                        }
+
                         // Отладка формы перед отправкой
                         document.getElementById("proposal-form").addEventListener("submit", function(e) {
                             console.log("Form data before submit:");
@@ -1112,13 +1547,14 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                                 console.log(key + ": " + value);
                             }
 
-                            // Проверить что есть хотя бы один товар
-                            const productInputs = formData.getAll("proposal_items[1][product_id]");
-                            if (productInputs.length === 0 || !productInputs[0]) {
-                                alert("Пожалуйста, выберите хотя бы один товар!");
+                            if (!validateForm()) {
                                 e.preventDefault();
                                 return false;
                             }
+
+                            // Очищаем черновик после успешной отправки
+                            localStorage.removeItem("proposal_draft");
+                            showNotification("Создание коммерческого предложения...", "info");
                         });
                 </script>
         </main>
@@ -2157,36 +2593,26 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         }
 
         // 404 - Страница не найдена
-        http_response_code(404);
-        echo '<!DOCTYPE html>
-        <html lang="ru">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>404 - Страница не найдена</title>
-            <link rel="stylesheet" href="/css/app.css">
-        </head>
-        <body>
-            <nav class="navbar">
-                <div class="container">
-                    <a href="/" class="navbar-brand">КП Генератор</a>
-                    <div class="navbar-menu">
-                        <a href="/dashboard">Панель</a>
-                        <a href="/products">Товары</a>
-                        <a href="/logout">Выход</a>
-                    </div>
-                </div>
-            </nav>
-
-            <main class="container">
-                <div style="text-align: center; margin-top: 100px;">
-                    <h1>404 - Страница не найдена</h1>
-                    <p>Запрашиваемая страница не существует.</p>
-                    <a href="/" class="btn btn-primary">На главную</a>
-                </div>
-            </main>
-        </body>
-        </html>';
+        handleError(
+            "Запрашиваемая страница не существует. Проверьте правильность URL адреса.",
+            404,
+            "Страница не найдена"
+        );
         break;
+    }
+    } catch (Exception $e) {
+        error_log("Application error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+        handleError(
+            "Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз или обратитесь к администратору.",
+            500,
+            "Внутренняя ошибка сервера"
+        );
+    } catch (Error $e) {
+        error_log("PHP Error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+        handleError(
+            "Произошла критическая ошибка. Пожалуйста, обратитесь к администратору.",
+            500,
+            "Критическая ошибка"
+        );
     }
 }

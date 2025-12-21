@@ -252,15 +252,15 @@ function getProductImage($imagePath) {
     return $imagePath;
 }
 
-// Обработка маршрутов
-$uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-$uri = rtrim($uri, '/');
+// Обработка маршрутов (только если это не CLI или прямой вызов)
+if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
+    $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $uri = rtrim($uri, '/');
 
-// Простая демо-версия без аутентификации
-$userId = 1; // Фиксированный пользователь для демо
+    // Простая демо-версия без аутентификации
+    $userId = 1; // Фиксированный пользователь для демо
 
-
-switch ($uri) {
+    switch ($uri) {
     case '':
     case '/':
         header('Location: /products');
@@ -763,4 +763,5 @@ switch ($uri) {
         </body>
         </html>';
         break;
+    }
 }

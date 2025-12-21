@@ -45,13 +45,15 @@ class Router {
             $uri = $requestUri;
         }
 
+        // Удаляем trailing slash, но сохраняем '/' как '/'
+        if ($uri !== '/' && substr($uri, -1) === '/') {
+            $uri = rtrim($uri, '/');
+        }
+
         // Если URI пустой, устанавливаем корень
         if (!$uri || $uri === '') {
             $uri = '/';
         }
-
-        // Удаляем trailing slash
-        $uri = rtrim($uri, '/');
 
         // Временная отладка
         error_log("Router: Method=$method, URI='$uri', REQUEST_URI='$requestUri'");

@@ -698,6 +698,76 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         echo 'POST: ' . print_r($_POST, true) . PHP_EOL;
         echo 'FILES: ' . print_r($_FILES, true) . PHP_EOL;
         echo 'REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD'] . PHP_EOL;
+
+        // Попробуем создать предложение из POST данных
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $clientName = trim($_POST['client_name'] ?? '');
+            $proposalItems = $_POST['proposal_items'] ?? [];
+            $offerDate = $_POST['offer_date'] ?? date('Y-m-d');
+
+            echo PHP_EOL . '=== TESTING PROPOSAL CREATION ===' . PHP_EOL;
+            echo "Client name: $clientName" . PHP_EOL;
+            echo "Offer date: $offerDate" . PHP_EOL;
+            echo "Proposal items: " . print_r($proposalItems, true) . PHP_EOL;
+
+            if (!empty($proposalItems) && is_array($proposalItems)) {
+                $total = 0;
+                $proposalProducts = [];
+                $validItems = 0;
+
+                foreach ($proposalItems as $item) {
+                    $productId = $item['product_id'] ?? '';
+                    $quantity = floatval($item['quantity'] ?? 0);
+
+                    echo "Processing item: product_id=$productId, quantity=$quantity" . PHP_EOL;
+
+                    if (!empty($productId) && $quantity > 0) {
+                        $product = getProduct($productId);
+                        if ($product) {
+                            echo "Found product: " . $product['name'] . PHP_EOL;
+                            $product['quantity'] = $quantity;
+                            $product['line_total'] = $product['price'] * $quantity;
+                            $proposalProducts[] = $product;
+                            $total += $product['line_total'];
+                            $validItems++;
+                        } else {
+                            echo "Product not found: $productId" . PHP_EOL;
+                        }
+                    }
+                }
+
+                echo "Valid items: $validItems, Total: $total" . PHP_EOL;
+
+                if ($validItems > 0) {
+                    $proposalData = [
+                        'user_id' => 1,
+                        'title' => 'Коммерческое предложение для ' . $clientName,
+                        'offer_number' => generateOfferNumber(),
+                        'offer_date' => $offerDate,
+                        'client_info' => json_encode([
+                            'client_name' => $clientName,
+                            'products' => $proposalProducts
+                        ]),
+                        'status' => 'draft',
+                        'total' => $total
+                    ];
+
+                    echo "Proposal data: " . print_r($proposalData, true) . PHP_EOL;
+
+                    $proposalId = createProposal($proposalData);
+                    echo "CREATED PROPOSAL ID: $proposalId" . PHP_EOL;
+
+                    if ($proposalId) {
+                        echo "SUCCESS! Redirecting to /proposals/$proposalId" . PHP_EOL;
+                        header('Location: /proposals/' . $proposalId);
+                        exit;
+                    } else {
+                        echo "FAILED TO CREATE PROPOSAL" . PHP_EOL;
+                    }
+                }
+            }
+        }
+
         echo '</pre>';
         break;
 

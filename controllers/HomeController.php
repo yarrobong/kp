@@ -6,7 +6,7 @@ require_once __DIR__ . '/../core/Controller.php';
 /**
  * Контроллер главной страницы
  */
-class HomeController extends Controller {
+class HomeController extends \Core\Controller {
 
     /**
      * Главная страница

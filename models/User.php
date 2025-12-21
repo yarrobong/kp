@@ -6,7 +6,7 @@ require_once __DIR__ . '/../core/Model.php';
 /**
  * Модель пользователя
  */
-class User extends Model {
+class User extends \Core\Model {
     protected static $table = 'users';
 
     /**

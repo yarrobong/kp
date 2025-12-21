@@ -9,7 +9,7 @@ require_once __DIR__ . '/../models/Proposal.php';
 /**
  * Контроллер админ панели
  */
-class AdminController extends Controller {
+class AdminController extends \Core\Controller {
 
     public function __construct() {
         // Проверяем авторизацию и права админа

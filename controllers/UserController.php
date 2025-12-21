@@ -9,7 +9,7 @@ require_once __DIR__ . '/../models/Proposal.php';
 /**
  * Контроллер личного кабинета
  */
-class UserController extends Controller {
+class UserController extends \Core\Controller {
 
     public function __construct() {
         // Проверяем авторизацию

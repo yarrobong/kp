@@ -7,7 +7,7 @@ require_once __DIR__ . '/../models/User.php';
 /**
  * Контроллер аутентификации
  */
-class AuthController extends Controller {
+class AuthController extends \Core\Controller {
 
     public function __construct() {
         // Запускаем сессию

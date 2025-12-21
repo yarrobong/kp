@@ -6,7 +6,7 @@ require_once __DIR__ . '/../core/Model.php';
 /**
  * Модель коммерческого предложения
  */
-class Proposal extends Model {
+class Proposal extends \Core\Model {
     protected static $table = 'proposals';
 
     /**

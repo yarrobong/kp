@@ -7,7 +7,7 @@ require_once __DIR__ . '/../models/Product.php';
 /**
  * Контроллер товаров
  */
-class ProductController extends Controller {
+class ProductController extends \Core\Controller {
 
     public function __construct() {
         // Проверяем авторизацию для создания/редактирования товаров

@@ -8,7 +8,7 @@ require_once __DIR__ . '/../models/Product.php';
 /**
  * Контроллер коммерческих предложений
  */
-class ProposalController extends Controller {
+class ProposalController extends \Core\Controller {
 
     /**
      * Список всех предложений

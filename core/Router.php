@@ -42,7 +42,7 @@ class Router {
         $uri = rtrim($uri, '/');
 
         // Отладка
-        error_log("Router: Method=$method, URI=$uri");
+        error_log("Router: Method=$method, URI=$uri, REQUEST_URI=" . ($_SERVER['REQUEST_URI'] ?? 'not set'));
 
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $this->matchPath($route['path'], $uri, $params)) {

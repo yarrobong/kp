@@ -918,6 +918,124 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         </html>';
         break;
 
+    case '/proposals':
+        // Получить коммерческие предложения пользователя
+        $userId = $userId ?? 1; // Fallback для демо
+        $userProposals = getProposals($userId);
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Коммерческие предложения</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h1>Коммерческие предложения</h1>
+                    <a href="/proposals/create" class="btn btn-primary" style="margin: 0;">+ Создать КП</a>
+                </div>';
+
+        if (isset($_GET['success'])) {
+            echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
+        }
+
+        echo '<div class="proposals-grid">';
+
+        if (empty($userProposals)) {
+            echo '<div class="proposal-card" style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+                        <div class="proposal-title">Нет коммерческих предложений</div>
+                        <div class="proposal-description">Создайте первое предложение</div>
+                    </div>';
+        } else {
+            foreach ($userProposals as $proposal) {
+                $clientInfo = json_decode($proposal['client_info'], true);
+                $clientName = $clientInfo['client_name'] ?? 'Без имени';
+                $products = $clientInfo['products'] ?? [];
+
+                // Формируем компактную информацию о товарах
+                $productsInfo = [];
+                $totalQuantity = 0;
+                foreach ($products as $product) {
+                    $quantity = $product['quantity'] ?? 1;
+                    $totalQuantity += $quantity;
+                    $productsInfo[] = htmlspecialchars(substr($product['name'], 0, 20)) . (strlen($product['name']) > 20 ? '...' : '');
+                }
+
+                $productsText = empty($productsInfo) ? 'Нет товаров' : implode(', ', array_slice($productsInfo, 0, 2));
+                if (count($productsInfo) > 2) {
+                    $productsText .= ' +' . (count($productsInfo) - 2) . ' ещё';
+                }
+
+                $statusClass = '';
+                $statusText = '';
+
+                switch ($proposal['status']) {
+                    case 'draft':
+                        $statusClass = 'status-draft';
+                        $statusText = 'Черновик';
+                        break;
+                    case 'sent':
+                        $statusClass = 'status-sent';
+                        $statusText = 'Отправлено';
+                        break;
+                    case 'accepted':
+                        $statusClass = 'status-accepted';
+                        $statusText = 'Принято';
+                        break;
+                    case 'rejected':
+                        $statusClass = 'status-rejected';
+                        $statusText = 'Отклонено';
+                        break;
+                }
+
+                echo '<div class="proposal-card">
+                        <div class="proposal-compact-header">
+                            <div class="proposal-client-info">
+                                <strong>' . htmlspecialchars(substr($clientName, 0, 25)) . (strlen($clientName) > 25 ? '...' : '') . '</strong>
+                                <span class="proposal-date-small">' . date('d.m.Y', strtotime($proposal['offer_date'])) . '</span>
+                            </div>
+                            <div class="proposal-status ' . $statusClass . '">' . $statusText . '</div>
+                        </div>
+                        <div class="proposal-compact-content">
+                            <div class="proposal-products-compact">
+                                <span class="products-label">Товары:</span>
+                                <span class="products-list">' . $productsText . '</span>
+                            </div>
+                            <div class="proposal-summary">
+                                <span class="quantity-info">' . $totalQuantity . ' шт.</span>
+                                <span class="total-amount">₽ ' . number_format($proposal['total'], 0, ',', ' ') . '</span>
+                            </div>
+                        </div>
+                        <div class="proposal-actions" style="margin-top: 12px; display: flex; gap: 6px;">
+                            <a href="/proposals/' . $proposal['id'] . '" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">👁️</a>
+                            <a href="/proposals/' . $proposal['id'] . '/edit" class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;">✏️</a>
+                            <form method="POST" action="/proposals/' . $proposal['id'] . '/delete" style="display: inline;" onsubmit="return confirm(\'Удалить предложение?\')">
+                                <button type="submit" class="btn btn-danger" style="font-size: 11px; padding: 4px 8px;">🗑️</button>
+                            </form>
+                        </div>
+                    </div>';
+            }
+        }
+
+        echo '</div>
+            </main>
+        </body>
+        </html>';
+        break;
 
     case '/proposals/create':
         $error = '';

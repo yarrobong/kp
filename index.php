@@ -1,11 +1,23 @@
 <?php
 
-// Простая версия index.php без базы данных
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Простое приложение для управления товарами
+// Все в одном файле - максимально просто
 
-// Сессии
 session_start();
+
+// Функции для работы с товарами
+function getProducts() {
+    $dataFile = __DIR__ . '/products.json';
+    if (!file_exists($dataFile)) {
+        return [];
+    }
+    $products = json_decode(file_get_contents($dataFile), true);
+    return is_array($products) ? $products : [];
+}
+
+function saveProducts($products) {
+    file_put_contents(__DIR__ . '/products.json', json_encode($products));
+}
 
 // Обработка маршрутов
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
@@ -29,17 +41,13 @@ switch ($uri) {
             if ($email === 'admin@example.com' && $password === 'password') {
                 $_SESSION['user_id'] = 1;
                 $_SESSION['user_name'] = 'Администратор';
-                $_SESSION['user_role'] = 'admin';
                 header('Location: /dashboard');
                 exit;
             } elseif ($email === 'user@example.com' && $password === 'password') {
                 $_SESSION['user_id'] = 2;
                 $_SESSION['user_name'] = 'Пользователь';
-                $_SESSION['user_role'] = 'user';
                 header('Location: /dashboard');
                 exit;
-            } else {
-                $error = 'Неверный email или пароль';
             }
         }
 
@@ -56,12 +64,11 @@ switch ($uri) {
                 <div class="auth-card">
                     <h1>Вход в систему</h1>';
 
-        if (isset($error)) {
-            echo '<div class="alert alert-error">' . $error . '</div>';
+        if (isset($_GET['error'])) {
+            echo '<div class="alert alert-error">Неверный email или пароль</div>';
         }
 
-        echo '
-                    <form method="POST">
+        echo '<form method="POST">
                         <div class="form-group">
                             <label>Email</label>
                             <input type="email" name="email" required autofocus>
@@ -75,7 +82,7 @@ switch ($uri) {
                         <button type="submit" class="btn btn-primary">Войти</button>
                     </form>
 
-                    <div style="margin-top: 24px; text-align: center;">
+                    <div style="margin-top: 20px; text-align: center;">
                         <p><strong>Тестовые аккаунты:</strong></p>
                         <p>admin@example.com / password</p>
                         <p>user@example.com / password</p>
@@ -92,9 +99,9 @@ switch ($uri) {
             exit;
         }
 
-        // Подсчет товаров из сессии
+        // Подсчет товаров
         $userProductsCount = 0;
-        $allProducts = $_SESSION['products'] ?? [];
+        $allProducts = getProducts();
         if (is_array($allProducts)) {
             foreach ($allProducts as $product) {
                 if (isset($product['user_id']) && $product['user_id'] == $_SESSION['user_id']) {
@@ -118,7 +125,6 @@ switch ($uri) {
                     <div class="navbar-menu">
                         <a href="/dashboard">Панель</a>
                         <a href="/products">Товары</a>
-                        <a href="/proposals">КП</a>
                         <a href="/logout">Выход</a>
                     </div>
                 </div>
@@ -126,7 +132,7 @@ switch ($uri) {
 
             <main class="container">
                 <div class="page-header">
-                    <h1>Добро пожаловать, ' . $_SESSION['user_name'] . '!</h1>
+                    <h1>Добро пожаловать, ' . htmlspecialchars($_SESSION['user_name']) . '!</h1>
                 </div>
 
                 <div class="dashboard-metrics">
@@ -135,32 +141,10 @@ switch ($uri) {
                         <div class="metric-value">' . $userProductsCount . '</div>
                         <div class="metric-label">Товаров</div>
                     </div>
-
-                    <div class="metric-card">
-                        <div class="metric-icon">📄</div>
-                        <div class="metric-value">0</div>
-                        <div class="metric-label">КП создано</div>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-icon">🎨</div>
-                        <div class="metric-value">0</div>
-                        <div class="metric-label">Шаблонов</div>
-                    </div>
                 </div>
 
-                <div class="quick-actions">
-                    <div class="action-card">
-                        <div class="action-icon">📦</div>
-                        <div class="action-title">Управление товарами</div>
-                        <div class="action-description">Добавляйте товары в каталог</div>
-                    </div>
-
-                    <div class="action-card">
-                        <div class="action-icon">📄</div>
-                        <div class="action-title">Коммерческие предложения</div>
-                        <div class="action-description">Создавайте КП из товаров</div>
-                    </div>
+                <div class="alert alert-success">
+                    Система работает! Товары хранятся в файле products.json
                 </div>
             </main>
         </body>
@@ -173,9 +157,9 @@ switch ($uri) {
             exit;
         }
 
-        // Получить товары из сессии
+        // Получить товары пользователя
         $userProducts = [];
-        $allProducts = $_SESSION['products'] ?? [];
+        $allProducts = getProducts();
         if (is_array($allProducts)) {
             foreach ($allProducts as $product) {
                 if (isset($product['user_id']) && $product['user_id'] == $_SESSION['user_id']) {
@@ -207,7 +191,6 @@ switch ($uri) {
             <main class="container">
                 <div class="page-header">
                     <h1>Каталог товаров</h1>
-                    <input type="text" placeholder="🔍 Поиск товаров..." style="padding: 12px 16px; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(10px);">
                 </div>
 
                 <div class="products-grid">';
@@ -232,10 +215,6 @@ switch ($uri) {
                             <div class="product-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
                             ' . (!empty($product['description']) ? '<div class="product-description">' . htmlspecialchars(substr($product['description'], 0, 100)) . '</div>' : '') . '
                         </div>
-                        <div class="product-actions">
-                            <a href="/products/' . $product['id'] . '" class="btn btn-sm">Просмотр</a>
-                            <a href="/products/' . $product['id'] . '/edit" class="btn btn-sm btn-secondary">Редактировать</a>
-                        </div>
                     </div>';
             }
         }
@@ -254,8 +233,8 @@ switch ($uri) {
             exit;
         }
 
-        $success = '';
         $error = '';
+        $success = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
@@ -268,8 +247,8 @@ switch ($uri) {
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
             } else {
-                // Сохраняем товар в сессии
-                $products = $_SESSION['products'] ?? [];
+                // Сохраняем товар
+                $products = getProducts();
                 if (!is_array($products)) {
                     $products = [];
                 }
@@ -292,10 +271,8 @@ switch ($uri) {
                     'created_at' => date('Y-m-d H:i:s')
                 ];
 
-                $_SESSION['products'] = $products;
-                $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
-
-                header('Location: /products?success=' . urlencode($success));
+                saveProducts($products);
+                header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно добавлен!'));
                 exit;
             }
         }
@@ -327,17 +304,13 @@ switch ($uri) {
                 </div>';
 
         if (!empty($success)) {
-            echo '<div class="alert alert-success">' . $success . '</div>';
+            echo '<div class="alert alert-success">' . htmlspecialchars($success) . '</div>';
         }
         if (!empty($error)) {
             echo '<div class="alert alert-error">' . $error . '</div>';
         }
 
-        echo '<div class="alert alert-info">
-                    Форма добавления товаров. Товары сохраняются в сессии.
-                </div>
-
-                <form method="POST" enctype="multipart/form-data">
+        echo '<form method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>Название товара</label>
                         <input type="text" name="name" placeholder="Ноутбук Lenovo ThinkPad" required>

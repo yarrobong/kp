@@ -154,7 +154,11 @@ switch ($uri) {
         echo '<pre>';
         echo 'PHP Version: ' . PHP_VERSION . "\n";
         echo 'URI: ' . $uri . "\n";
-        echo 'Session: ' . print_r($_SESSION, true) . "\n";
+        // Ensure session is started before accessing it
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        echo 'Session: ' . print_r($_SESSION ?? [], true) . "\n";
         echo 'Files in public/: ' . implode(', ', scandir(__DIR__)) . "\n";
         echo '</pre>';
         break;
@@ -166,4 +170,5 @@ switch ($uri) {
         echo '<p><a href="/">Главная</a></p>';
         break;
 }
+
 

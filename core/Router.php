@@ -97,7 +97,13 @@ class Router {
     private function callController($handler, $params) {
         list($controllerName, $method) = explode('@', $handler);
 
-        $controllerClass = $controllerName . 'Controller';
+        // Если имя контроллера уже содержит "Controller", не добавляем суффикс
+        if (substr($controllerName, -10) === 'Controller') {
+            $controllerClass = $controllerName;
+        } else {
+            $controllerClass = $controllerName . 'Controller';
+        }
+
         $controllerFile = __DIR__ . '/../controllers/' . $controllerClass . '.php';
 
         if (!file_exists($controllerFile)) {

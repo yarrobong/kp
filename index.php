@@ -275,12 +275,17 @@ function getProposals($userId = null) {
             if ($userId) {
                 $stmt = $db->prepare("SELECT * FROM proposals WHERE user_id = ? ORDER BY created_at DESC");
                 $stmt->execute([$userId]);
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             } else {
-                $stmt = $db->query("SELECT * FROM proposals ORDER BY created_at DESC");
+                $results = $db->query("SELECT * FROM proposals ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
             }
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Если в базе данных есть результаты, возвращаем их
+            if (!empty($results)) {
+                return $results;
+            }
+            // Если результатов нет, переходим к JSON fallback
         } catch (Exception $e) {
-            // Fallback на JSON
+            // Fallback на JSON при ошибке БД
         }
     }
 

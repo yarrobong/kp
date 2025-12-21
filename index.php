@@ -1349,7 +1349,9 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         // Проверяем, является ли это маршрутом просмотра предложения /proposals/{id}
         if (preg_match('#^/proposals/(\d+)$#', $uri, $matches)) {
             $proposalId = (int)$matches[1];
+            error_log("Loading proposal ID: $proposalId");
             $proposal = getProposal($proposalId);
+            error_log("Proposal result: " . (empty($proposal) ? "NOT FOUND" : "FOUND"));
 
             if (!$proposal) {
                 http_response_code(404);

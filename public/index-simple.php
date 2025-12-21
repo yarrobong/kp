@@ -392,7 +392,7 @@ switch ($uri) {
 
         <script>
         // Toast notifications
-        function showToast(message, type = 'success') {
+        function showToast(message, type) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
@@ -601,7 +601,7 @@ switch ($uri) {
 
                 <script>
                 // Toast notifications
-                function showToast(message, type = 'success') {
+                function showToast(message, type) {
                     const container = document.getElementById('toast-container');
                     const toast = document.createElement('div');
                     toast.className = `toast ${type}`;

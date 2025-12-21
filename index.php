@@ -4,6 +4,10 @@
 define('PROJECT_ROOT', dirname(__FILE__));
 
 // Простое приложение для управления товарами
+
+// Отладка маршрута
+file_put_contents(PROJECT_ROOT . '/debug.log', "REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'none') . "\n", FILE_APPEND);
+file_put_contents(PROJECT_ROOT . '/debug.log', "QUERY_STRING: " . ($_SERVER['QUERY_STRING'] ?? 'none') . "\n", FILE_APPEND);
 // Хранение в базе данных
 
 // Подключение к БД (с fallback на JSON)

@@ -696,51 +696,64 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         $error = '';
         $success = '';
 
-        // Получить все товары для выбора
+        // Получить все товары для автокомплита
         $allProducts = getProducts($userId);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $clientName = trim($_POST['client_name'] ?? '');
-            $selectedProducts = $_POST['selected_products'] ?? [];
+            $proposalItems = $_POST['proposal_items'] ?? [];
             $offerDate = $_POST['offer_date'] ?? date('Y-m-d');
 
             if (empty($clientName)) {
                 $error = 'Имя клиента обязательно';
-            } elseif (empty($selectedProducts)) {
-                $error = 'Выберите хотя бы один товар';
+            } elseif (empty($proposalItems) || !is_array($proposalItems)) {
+                $error = 'Добавьте хотя бы один товар';
             } else {
-                // Рассчитать общую сумму и подготовить данные
+                // Проверить и подготовить товары
                 $total = 0;
                 $proposalProducts = [];
+                $validItems = 0;
 
-                foreach ($selectedProducts as $productId) {
-                    $product = getProduct($productId);
-                    if ($product) {
-                        $proposalProducts[] = $product;
-                        $total += $product['price'];
+                foreach ($proposalItems as $item) {
+                    $productId = $item['product_id'] ?? '';
+                    $quantity = floatval($item['quantity'] ?? 0);
+
+                    if (!empty($productId) && $quantity > 0) {
+                        $product = getProduct($productId);
+                        if ($product) {
+                            $product['quantity'] = $quantity;
+                            $product['line_total'] = $product['price'] * $quantity;
+                            $proposalProducts[] = $product;
+                            $total += $product['line_total'];
+                            $validItems++;
+                        }
                     }
                 }
 
-                // Создать предложение
-                try {
-                    $proposalData = [
-                        'user_id' => $userId,
-                        'title' => 'Коммерческое предложение для ' . $clientName,
-                        'offer_number' => generateOfferNumber(),
-                        'offer_date' => $offerDate,
-                        'client_info' => json_encode([
-                            'client_name' => $clientName,
-                            'products' => $proposalProducts
-                        ]),
-                        'status' => 'draft',
-                        'total' => $total
-                    ];
+                if ($validItems === 0) {
+                    $error = 'Выберите товары и укажите количество';
+                } else {
+                    // Создать предложение
+                    try {
+                        $proposalData = [
+                            'user_id' => $userId,
+                            'title' => 'Коммерческое предложение для ' . $clientName,
+                            'offer_number' => generateOfferNumber(),
+                            'offer_date' => $offerDate,
+                            'client_info' => json_encode([
+                                'client_name' => $clientName,
+                                'products' => $proposalProducts
+                            ]),
+                            'status' => 'draft',
+                            'total' => $total
+                        ];
 
-                    $proposalId = createProposal($proposalData);
-                    header('Location: /proposals/' . $proposalId);
-                    exit;
-                } catch (Exception $e) {
-                    $error = 'Ошибка создания предложения: ' . $e->getMessage();
+                        $proposalId = createProposal($proposalData);
+                        header('Location: /proposals/' . $proposalId);
+                        exit;
+                    } catch (Exception $e) {
+                        $error = 'Ошибка создания предложения: ' . $e->getMessage();
+                    }
                 }
             }
         }
@@ -814,7 +827,19 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             echo '<div class="alert alert-error">' . $error . '</div>';
         }
 
-        echo '<form method="POST">
+        // Подготовить данные товаров для JavaScript
+        $productsJson = json_encode(array_map(function($product) {
+            return [
+                'id' => $product['id'],
+                'name' => $product['name'],
+                'price' => $product['price'],
+                'description' => $product['description'] ?? '',
+                'category' => $product['category'] ?? '',
+                'image' => getProductImage($product['image'])
+            ];
+        }, $allProducts));
+
+        echo '<form method="POST" id="proposal-form">
                     <div class="form-group">
                         <label>Имя клиента</label>
                         <input type="text" name="client_name" placeholder="ООО \"Ромашка\"" required>
@@ -829,28 +854,32 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                     <div class="form-group">
                         <label>Выберите товары</label>
-                        <div class="products-selection">';
-
-        if (empty($allProducts)) {
-            echo '<p style="color: #b0b0b0; text-align: center; padding: 40px;">Сначала добавьте товары в каталог</p>';
-        } else {
-            foreach ($allProducts as $product) {
-                echo '<div class="product-selection-item">
-                                <input type="checkbox" name="selected_products[]" value="' . $product['id'] . '" id="product_' . $product['id'] . '">
-                                <label for="product_' . $product['id'] . '" style="display: flex; align-items: center; gap: 12px; width: 100%; cursor: pointer;">
-                                    <img src="' . htmlspecialchars(getProductImage($product['image'])) . '" alt="' . htmlspecialchars($product['name']) . '">
-                                    <div class="product-selection-info">
-                                        <div class="product-selection-title">' . htmlspecialchars($product['name']) . '</div>
-                                        <div class="product-selection-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
-                                        ' . (!empty($product['description']) ? '<div style="color: #b0b0b0; font-size: 12px; margin-top: 4px;">' . htmlspecialchars(substr($product['description'], 0, 80)) . '...</div>' : '') . '
-                                    </div>
-                                </label>
-                            </div>';
-            }
-        }
-
-        echo '</div>
-                        <small style="color: #b0b0b0; font-size: 12px; margin-top: 8px; display: block;">Выберите товары, которые будут включены в коммерческое предложение</small>
+                        <div class="products-table-container">
+                            <table class="products-table" id="products-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40%;">Наименование товара</th>
+                                        <th style="width: 15%;">Количество</th>
+                                        <th style="width: 15%;">Цена за ед.</th>
+                                        <th style="width: 15%;">Сумма</th>
+                                        <th style="width: 10%;">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-tbody">
+                                    <!-- Строки будут добавляться динамически -->
+                                </tbody>
+                                <tfoot>
+                                    <tr class="total-row">
+                                        <td colspan="3" style="text-align: right; font-weight: bold;">Итого:</td>
+                                        <td id="total-amount">₽ 0.00</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <button type="button" class="btn btn-secondary" id="add-product-btn" style="margin-top: 16px;">
+                                ➕ Добавить товар
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-actions">
@@ -858,6 +887,151 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                         <a href="/proposals" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
+
+                <script>
+                    const productsData = ' . $productsJson . ';
+
+                    let rowCounter = 0;
+
+                    function addProductRow(productId = "", quantity = 1) {
+                        rowCounter++;
+                        const rowId = "row_" + rowCounter;
+                        const tbody = document.getElementById("products-tbody");
+
+                        const row = document.createElement("tr");
+                        row.id = rowId;
+                        row.innerHTML = `
+                            <td>
+                                <input type="text" class="product-search" placeholder="Начните вводить название товара..." autocomplete="off">
+                                <input type="hidden" name="proposal_items[${rowCounter}][product_id]" value="${productId}">
+                                <div class="autocomplete-results" style="display: none;"></div>
+                            </td>
+                            <td>
+                                <input type="number" name="proposal_items[${rowCounter}][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
+                            </td>
+                            <td class="unit-price">₽ 0.00</td>
+                            <td class="line-total">₽ 0.00</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'${rowId}\')">🗑️</button>
+                            </td>
+                        `;
+
+                        tbody.appendChild(row);
+
+                        // Инициализировать автокомплит для новой строки
+                        initAutocomplete(row.querySelector(".product-search"));
+
+                        // Если передан productId, заполнить строку
+                        if (productId) {
+                            const product = productsData.find(p => p.id == productId);
+                            if (product) {
+                                fillProductRow(row, product, quantity);
+                            }
+                        }
+
+                        // Инициализировать обработчик изменения количества
+                        row.querySelector(".quantity-input").addEventListener("input", function() {
+                            updateRowTotal(row);
+                            updateTotal();
+                        });
+
+                        updateTotal();
+                    }
+
+                    function initAutocomplete(inputElement) {
+                        const resultsDiv = inputElement.nextElementSibling.nextElementSibling;
+
+                        inputElement.addEventListener("input", function() {
+                            const query = this.value.toLowerCase();
+                            if (query.length < 2) {
+                                resultsDiv.style.display = "none";
+                                return;
+                            }
+
+                            const matches = productsData.filter(product =>
+                                product.name.toLowerCase().includes(query) ||
+                                (product.description && product.description.toLowerCase().includes(query)) ||
+                                (product.category && product.category.toLowerCase().includes(query))
+                            );
+
+                            if (matches.length > 0) {
+                                resultsDiv.innerHTML = matches.map(product => `
+                                    <div class="autocomplete-item" data-product-id="${product.id}">
+                                        <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
+                                        <div>
+                                            <div style="font-weight: bold;">${product.name}</div>
+                                            <div style="color: #666; font-size: 12px;">₽ ${product.price.toLocaleString()}</div>
+                                            ${product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : ""}
+                                        </div>
+                                    </div>
+                                `).join("");
+                                resultsDiv.style.display = "block";
+                            } else {
+                                resultsDiv.style.display = "none";
+                            }
+                        });
+
+                        inputElement.addEventListener("blur", function() {
+                            setTimeout(() => {
+                                resultsDiv.style.display = "none";
+                            }, 200);
+                        });
+
+                        resultsDiv.addEventListener("click", function(e) {
+                            const item = e.target.closest(".autocomplete-item");
+                            if (item) {
+                                const productId = item.dataset.productId;
+                                const product = productsData.find(p => p.id == productId);
+                                const row = inputElement.closest("tr");
+                                fillProductRow(row, product);
+                                resultsDiv.style.display = "none";
+                            }
+                        });
+                    }
+
+                    function fillProductRow(row, product, quantity = 1) {
+                        row.querySelector(".product-search").value = product.name;
+                        row.querySelector("input[type=\"hidden\"]").value = product.id;
+                        row.querySelector(".quantity-input").value = quantity;
+                        row.querySelector(".unit-price").textContent = "₽ " + product.price.toLocaleString();
+                        updateRowTotal(row);
+                    }
+
+                    function updateRowTotal(row) {
+                        const quantity = parseFloat(row.querySelector(".quantity-input").value) || 0;
+                        const unitPriceText = row.querySelector(".unit-price").textContent;
+                        const unitPrice = parseFloat(unitPriceText.replace("₽ ", "").replace(/\s/g, "").replace(",", ".")) || 0;
+                        const lineTotal = quantity * unitPrice;
+                        row.querySelector(".line-total").textContent = "₽ " + lineTotal.toLocaleString();
+                    }
+
+                    function updateTotal() {
+                        let total = 0;
+                        document.querySelectorAll(".line-total").forEach(function(element) {
+                            const amount = parseFloat(element.textContent.replace("₽ ", "").replace(/\s/g, "").replace(",", ".")) || 0;
+                            total += amount;
+                        });
+                        document.getElementById("total-amount").textContent = "₽ " + total.toLocaleString();
+                    }
+
+                    function removeProductRow(rowId) {
+                        const row = document.getElementById(rowId);
+                        if (row) {
+                            row.remove();
+                            updateTotal();
+                        }
+                    }
+
+                    // Инициализация
+                    document.getElementById("add-product-btn").addEventListener("click", function() {
+                        addProductRow();
+                    });
+
+                    // Добавить первую пустую строку при загрузке
+                    document.addEventListener("DOMContentLoaded", function() {
+                        addProductRow();
+                    });
+                </script>
             </main>
         </body>
         </html>';
@@ -1187,6 +1361,21 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                         font-weight: 700;
                         color: #1976d2;
                     }
+                    .proposal-product-details {
+                        margin-top: 12px;
+                    }
+                    .proposal-product-quantity,
+                    .proposal-product-unit-price {
+                        font-size: 14px;
+                        color: #b0b0b0;
+                        margin-bottom: 4px;
+                    }
+                    .proposal-product-line-total {
+                        font-size: 18px;
+                        font-weight: 600;
+                        color: #1976d2;
+                        margin-top: 8px;
+                    }
                     .proposal-total-section {
                         margin-top: 40px;
                         padding: 24px;
@@ -1270,12 +1459,18 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
             if (!empty($proposalProducts)) {
                 foreach ($proposalProducts as $product) {
+                    $quantity = $product['quantity'] ?? 1;
+                    $lineTotal = $product['line_total'] ?? ($product['price'] * $quantity);
                     echo '<div class="proposal-product">
                                 <img src="' . htmlspecialchars(getProductImage($product['image'])) . '" alt="' . htmlspecialchars($product['name']) . '" class="proposal-product-image">
                                 <div class="proposal-product-info">
                                     <div class="proposal-product-title">' . htmlspecialchars($product['name']) . '</div>
                                     ' . (!empty($product['description']) ? '<div class="proposal-product-description">' . htmlspecialchars($product['description']) . '</div>' : '') . '
-                                    <div class="proposal-product-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
+                                    <div class="proposal-product-details">
+                                        <div class="proposal-product-quantity">Количество: ' . number_format($quantity, 2, ',', ' ') . '</div>
+                                        <div class="proposal-product-unit-price">Цена за ед.: ₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
+                                        <div class="proposal-product-line-total">Сумма: ₽ ' . number_format($lineTotal, 2, ',', ' ') . '</div>
+                                    </div>
                                 </div>
                             </div>';
                 }
@@ -1344,62 +1539,84 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
             $clientInfo = json_decode($proposal['client_info'], true);
             $clientName = $clientInfo['client_name'] ?? '';
-            $selectedProducts = array_column($clientInfo['products'] ?? [], 'id');
+            $selectedProducts = $clientInfo['products'] ?? [];
 
             $error = '';
             $success = '';
 
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $clientName = trim($_POST['client_name'] ?? '');
-                $selectedProducts = $_POST['selected_products'] ?? [];
+                $proposalItems = $_POST['proposal_items'] ?? [];
                 $offerDate = $_POST['offer_date'] ?? $proposal['offer_date'];
                 $status = $_POST['status'] ?? $proposal['status'];
 
                 if (empty($clientName)) {
                     $error = 'Имя клиента обязательно';
-                } elseif (empty($selectedProducts)) {
-                    $error = 'Выберите хотя бы один товар';
+                } elseif (empty($proposalItems) || !is_array($proposalItems)) {
+                    $error = 'Добавьте хотя бы один товар';
                 } else {
-                    // Получить все товары пользователя для расчета суммы
-                    $allProducts = getProducts($userId);
-
-                    // Рассчитать общую сумму и подготовить данные
+                    // Проверить и подготовить товары
                     $total = 0;
                     $proposalProducts = [];
+                    $validItems = 0;
 
-                    foreach ($selectedProducts as $productId) {
-                        $product = getProduct($productId);
-                        if ($product) {
-                            $proposalProducts[] = $product;
-                            $total += $product['price'];
+                    foreach ($proposalItems as $item) {
+                        $productId = $item['product_id'] ?? '';
+                        $quantity = floatval($item['quantity'] ?? 0);
+
+                        if (!empty($productId) && $quantity > 0) {
+                            $product = getProduct($productId);
+                            if ($product) {
+                                $product['quantity'] = $quantity;
+                                $product['line_total'] = $product['price'] * $quantity;
+                                $proposalProducts[] = $product;
+                                $total += $product['line_total'];
+                                $validItems++;
+                            }
                         }
                     }
 
-                    // Обновить предложение
-                    try {
-                        $proposalData = [
-                            'title' => 'Коммерческое предложение для ' . $clientName,
-                            'offer_number' => $proposal['offer_number'], // Не меняем номер
-                            'offer_date' => $offerDate,
-                            'client_info' => json_encode([
-                                'client_name' => $clientName,
-                                'products' => $proposalProducts
-                            ]),
-                            'status' => $status,
-                            'total' => $total
-                        ];
+                    if ($validItems === 0) {
+                        $error = 'Выберите товары и укажите количество';
+                    } else {
+                        // Обновить предложение
+                        try {
+                            $proposalData = [
+                                'title' => 'Коммерческое предложение для ' . $clientName,
+                                'offer_number' => $proposal['offer_number'], // Не меняем номер
+                                'offer_date' => $offerDate,
+                                'client_info' => json_encode([
+                                    'client_name' => $clientName,
+                                    'products' => $proposalProducts
+                                ]),
+                                'status' => $status,
+                                'total' => $total
+                            ];
 
-                        updateProposal($proposalId, $proposalData);
-                        header('Location: /proposals/' . $proposalId);
-                        exit;
-                    } catch (Exception $e) {
-                        $error = 'Ошибка обновления предложения: ' . $e->getMessage();
+                            updateProposal($proposalId, $proposalData);
+                            header('Location: /proposals/' . $proposalId);
+                            exit;
+                        } catch (Exception $e) {
+                            $error = 'Ошибка обновления предложения: ' . $e->getMessage();
+                        }
                     }
                 }
             }
 
             // Получить все товары для выбора
             $allProducts = getProducts($userId);
+
+            // Подготовить данные товаров для JavaScript
+            $productsJson = json_encode(array_map(function($product) {
+                return [
+                    'id' => $product['id'],
+                    'name' => $product['name'],
+                    'price' => $product['price'],
+                    'description' => $product['description'] ?? '',
+                    'category' => $product['category'] ?? '',
+                    'image' => getProductImage($product['image'])
+                ];
+            }, $allProducts));
 
             echo '<!DOCTYPE html>
             <html lang="ru">
@@ -1408,48 +1625,6 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Редактировать предложение</title>
                 <link rel="stylesheet" href="/css/app.css">
-                <style>
-                    .products-selection {
-                        max-height: 400px;
-                        overflow-y: auto;
-                        border: 1px solid #333333;
-                        border-radius: 8px;
-                        padding: 16px;
-                        background: #1e1e1e;
-                    }
-                    .product-selection-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        padding: 12px;
-                        border: 1px solid #333333;
-                        border-radius: 8px;
-                        margin-bottom: 8px;
-                        background: #2d2d2d;
-                    }
-                    .product-selection-item.selected {
-                        border-color: #1976d2;
-                        background: #1e3a5f;
-                    }
-                    .product-selection-item img {
-                        width: 60px;
-                        height: 60px;
-                        object-fit: cover;
-                        border-radius: 4px;
-                    }
-                    .product-selection-info {
-                        flex: 1;
-                    }
-                    .product-selection-title {
-                        font-weight: 600;
-                        color: #ffffff;
-                        margin-bottom: 4px;
-                    }
-                    .product-selection-price {
-                        color: #1976d2;
-                        font-weight: 600;
-                    }
-                </style>
             </head>
             <body>
                 <nav class="navbar">
@@ -1474,7 +1649,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 echo '<div class="alert alert-error">' . $error . '</div>';
             }
 
-            echo '<form method="POST">
+            echo '<form method="POST" id="proposal-form">
                         <div class="form-group">
                             <label>Имя клиента</label>
                             <input type="text" name="client_name" value="' . htmlspecialchars($clientName) . '" placeholder="ООО \"Ромашка\"" required>
@@ -1498,29 +1673,56 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                         <div class="form-group">
                             <label>Выберите товары</label>
-                            <div class="products-selection">';
+                            <div class="products-table-container">
+                                <table class="products-table" id="products-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40%;">Наименование товара</th>
+                                            <th style="width: 15%;">Количество</th>
+                                            <th style="width: 15%;">Цена за ед.</th>
+                                            <th style="width: 15%;">Сумма</th>
+                                            <th style="width: 10%;">Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="products-tbody">';
 
-            if (empty($allProducts)) {
-                echo '<p style="color: #b0b0b0; text-align: center; padding: 40px;">Сначала добавьте товары в каталог</p>';
-            } else {
-                foreach ($allProducts as $product) {
-                    $isSelected = in_array($product['id'], $selectedProducts);
-                    echo '<div class="product-selection-item' . ($isSelected ? ' selected' : '') . '">
-                                    <input type="checkbox" name="selected_products[]" value="' . $product['id'] . '" id="product_' . $product['id'] . '"' . ($isSelected ? ' checked' : '') . '>
-                                    <label for="product_' . $product['id'] . '" style="display: flex; align-items: center; gap: 12px; width: 100%; cursor: pointer;">
-                                        <img src="' . htmlspecialchars(getProductImage($product['image'])) . '" alt="' . htmlspecialchars($product['name']) . '">
-                                        <div class="product-selection-info">
-                                            <div class="product-selection-title">' . htmlspecialchars($product['name']) . '</div>
-                                            <div class="product-selection-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
-                                            ' . (!empty($product['description']) ? '<div style="color: #b0b0b0; font-size: 12px; margin-top: 4px;">' . htmlspecialchars(substr($product['description'], 0, 80)) . '...</div>' : '') . '
-                                        </div>
-                                    </label>
-                                </div>';
+            // Заполнить таблицу существующими товарами
+            if (!empty($selectedProducts)) {
+                $counter = 0;
+                foreach ($selectedProducts as $product) {
+                    $counter++;
+                    $quantity = $product['quantity'] ?? 1;
+                    echo '<tr id="row_' . $counter . '">
+                                <td>
+                                    <input type="text" class="product-search" value="' . htmlspecialchars($product['name']) . '" placeholder="Начните вводить название товара..." autocomplete="off">
+                                    <input type="hidden" name="proposal_items[' . $counter . '][product_id]" value="' . $product['id'] . '">
+                                    <div class="autocomplete-results" style="display: none;"></div>
+                                </td>
+                                <td>
+                                    <input type="number" name="proposal_items[' . $counter . '][quantity]" value="' . $quantity . '" min="0.01" step="0.01" class="quantity-input">
+                                </td>
+                                <td class="unit-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</td>
+                                <td class="line-total">₽ ' . number_format($product['price'] * $quantity, 2, ',', ' ') . '</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'row_' . $counter . '\')">🗑️</button>
+                                </td>
+                            </tr>';
                 }
             }
 
-            echo '</div>
-                            <small style="color: #b0b0b0; font-size: 12px; margin-top: 8px; display: block;">Выберите товары, которые будут включены в коммерческое предложение</small>
+            echo '</tbody>
+                                    <tfoot>
+                                        <tr class="total-row">
+                                            <td colspan="3" style="text-align: right; font-weight: bold;">Итого:</td>
+                                            <td id="total-amount">₽ ' . number_format($proposal['total'], 2, ',', ' ') . '</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <button type="button" class="btn btn-secondary" id="add-product-btn" style="margin-top: 16px;">
+                                    ➕ Добавить товар
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-actions">
@@ -1528,6 +1730,157 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                             <a href="/proposals/' . $proposal['id'] . '" class="btn btn-secondary">Отмена</a>
                         </div>
                     </form>
+
+                    <script>
+                        const productsData = ' . $productsJson . ';
+
+                        let rowCounter = ' . (count($selectedProducts) ?: 0) . ';
+
+                        function addProductRow(productId = "", quantity = 1) {
+                            rowCounter++;
+                            const rowId = "row_" + rowCounter;
+                            const tbody = document.getElementById("products-tbody");
+
+                            const row = document.createElement("tr");
+                            row.id = rowId;
+                            row.innerHTML = `
+                                <td>
+                                    <input type="text" class="product-search" placeholder="Начните вводить название товара..." autocomplete="off">
+                                    <input type="hidden" name="proposal_items[${rowCounter}][product_id]" value="${productId}">
+                                    <div class="autocomplete-results" style="display: none;"></div>
+                                </td>
+                                <td>
+                                    <input type="number" name="proposal_items[${rowCounter}][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
+                                </td>
+                                <td class="unit-price">₽ 0.00</td>
+                                <td class="line-total">₽ 0.00</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'${rowId}\')">🗑️</button>
+                                </td>
+                            `;
+
+                            tbody.appendChild(row);
+
+                            // Инициализировать автокомплит для новой строки
+                            initAutocomplete(row.querySelector(".product-search"));
+
+                            // Если передан productId, заполнить строку
+                            if (productId) {
+                                const product = productsData.find(p => p.id == productId);
+                                if (product) {
+                                    fillProductRow(row, product, quantity);
+                                }
+                            }
+
+                            // Инициализировать обработчик изменения количества
+                            row.querySelector(".quantity-input").addEventListener("input", function() {
+                                updateRowTotal(row);
+                                updateTotal();
+                            });
+
+                            updateTotal();
+                        }
+
+                        function initAutocomplete(inputElement) {
+                            const resultsDiv = inputElement.nextElementSibling.nextElementSibling;
+
+                            inputElement.addEventListener("input", function() {
+                                const query = this.value.toLowerCase();
+                                if (query.length < 2) {
+                                    resultsDiv.style.display = "none";
+                                    return;
+                                }
+
+                                const matches = productsData.filter(product =>
+                                    product.name.toLowerCase().includes(query) ||
+                                    (product.description && product.description.toLowerCase().includes(query)) ||
+                                    (product.category && product.category.toLowerCase().includes(query))
+                                );
+
+                                if (matches.length > 0) {
+                                    resultsDiv.innerHTML = matches.map(product => `
+                                        <div class="autocomplete-item" data-product-id="${product.id}">
+                                            <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
+                                            <div>
+                                                <div style="font-weight: bold;">${product.name}</div>
+                                                <div style="color: #666; font-size: 12px;">₽ ${product.price.toLocaleString()}</div>
+                                                ${product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : ""}
+                                            </div>
+                                        </div>
+                                    `).join("");
+                                    resultsDiv.style.display = "block";
+                                } else {
+                                    resultsDiv.style.display = "none";
+                                }
+                            });
+
+                            inputElement.addEventListener("blur", function() {
+                                setTimeout(() => {
+                                    resultsDiv.style.display = "none";
+                                }, 200);
+                            });
+
+                            resultsDiv.addEventListener("click", function(e) {
+                                const item = e.target.closest(".autocomplete-item");
+                                if (item) {
+                                    const productId = item.dataset.productId;
+                                    const product = productsData.find(p => p.id == productId);
+                                    const row = inputElement.closest("tr");
+                                    fillProductRow(row, product);
+                                    resultsDiv.style.display = "none";
+                                }
+                            });
+                        }
+
+                        function fillProductRow(row, product, quantity = 1) {
+                            row.querySelector(".product-search").value = product.name;
+                            row.querySelector("input[type=\"hidden\"]").value = product.id;
+                            row.querySelector(".quantity-input").value = quantity;
+                            row.querySelector(".unit-price").textContent = "₽ " + product.price.toLocaleString();
+                            updateRowTotal(row);
+                        }
+
+                        function updateRowTotal(row) {
+                            const quantity = parseFloat(row.querySelector(".quantity-input").value) || 0;
+                            const unitPriceText = row.querySelector(".unit-price").textContent;
+                            const unitPrice = parseFloat(unitPriceText.replace("₽ ", "").replace(/\s/g, "").replace(",", ".")) || 0;
+                            const lineTotal = quantity * unitPrice;
+                            row.querySelector(".line-total").textContent = "₽ " + lineTotal.toLocaleString();
+                        }
+
+                        function updateTotal() {
+                            let total = 0;
+                            document.querySelectorAll(".line-total").forEach(function(element) {
+                                const amount = parseFloat(element.textContent.replace("₽ ", "").replace(/\s/g, "").replace(",", ".")) || 0;
+                                total += amount;
+                            });
+                            document.getElementById("total-amount").textContent = "₽ " + total.toLocaleString();
+                        }
+
+                        function removeProductRow(rowId) {
+                            const row = document.getElementById(rowId);
+                            if (row) {
+                                row.remove();
+                                updateTotal();
+                            }
+                        }
+
+                        // Инициализация
+                        document.getElementById("add-product-btn").addEventListener("click", function() {
+                            addProductRow();
+                        });
+
+                        // Инициализировать существующие строки
+                        document.addEventListener("DOMContentLoaded", function() {
+                            document.querySelectorAll("#products-tbody tr").forEach(function(row) {
+                                initAutocomplete(row.querySelector(".product-search"));
+                                row.querySelector(".quantity-input").addEventListener("input", function() {
+                                    updateRowTotal(row);
+                                    updateTotal();
+                                });
+                            });
+                        });
+                    </script>
                 </main>
             </body>
             </html>';

@@ -132,7 +132,7 @@ class Router {
             $controllerClass = 'Controllers\\' . $controllerName . 'Controller';
         }
 
-        $controllerFile = __DIR__ . '/../controllers/' . $controllerClass . '.php';
+        $controllerFile = __DIR__ . '/../controllers/' . str_replace('\\', '/', $controllerClass) . '.php';
 
         if (!file_exists($controllerFile)) {
             throw new \Exception("Controller file not found: $controllerFile");

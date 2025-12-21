@@ -28,6 +28,8 @@ spl_autoload_register('autoloadClass');
 // Подключение зависимостей
 require_once ROOT_DIR . '/vendor/autoload.php';
 
+use Core\Router;
+
 // Инициализация роутера
 $router = new Router();
 

@@ -561,10 +561,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
     case '/proposals':
         // Получить коммерческие предложения пользователя
-        echo "<!-- DEBUG: userId = " . (isset($userId) ? $userId : 'not set') . " -->";
-        echo "<!-- DEBUG: PROJECT_ROOT = " . PROJECT_ROOT . " -->";
         $userProposals = getProposals($userId);
-        echo "<!-- DEBUG: Found " . count($userProposals) . " proposals -->";
 
         echo '<!DOCTYPE html>
         <html lang="ru">

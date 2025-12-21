@@ -392,9 +392,6 @@ switch ($uri) {
         </main>
         </body>
         </html>';
-            </main>
-        </body>
-        </html>';
         break;
 
     case '/products/create':
@@ -979,8 +976,11 @@ function redirect($path) {
     exit;
 }
 
-// JavaScript для toast уведомлений - добавляется в конец каждой страницы
-$toastScript = '
+// Добавляем JavaScript для страниц, которые его используют
+$pagesWithToast = ['/products', '/products/create', '/proposals', '/proposals/create'];
+
+if (in_array($uri, $pagesWithToast)) {
+    echo '<div id="toast-container"></div>
 <script>
 // Toast notifications
 function showToast(message, type) {
@@ -1015,12 +1015,6 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>';
-
-// Добавляем toast container в конец каждой страницы
-$pagesWithToast = ['/products', '/products/create', '/proposals', '/proposals/create'];
-
-if (in_array($uri, $pagesWithToast)) {
-    echo '<div id="toast-container"></div>' . $toastScript;
 } else {
     echo '</body></html>';
 }

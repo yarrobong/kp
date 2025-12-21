@@ -702,10 +702,17 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         break;
 
     case '/debug':
+        // Логируем в файл для отладки
+        $logFile = __DIR__ . '/debug.log';
+        $logData = date('Y-m-d H:i:s') . " - Debug request\n";
+        $logData .= 'GET: ' . print_r($_GET, true) . "\n";
+        $logData .= 'POST: ' . print_r($_POST, true) . "\n";
+        $logData .= 'REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD'] . "\n";
+        file_put_contents($logFile, $logData, FILE_APPEND);
+
         echo '<pre>';
         echo 'GET: ' . print_r($_GET, true) . PHP_EOL;
         echo 'POST: ' . print_r($_POST, true) . PHP_EOL;
-        echo 'FILES: ' . print_r($_FILES, true) . PHP_EOL;
         echo 'REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD'] . PHP_EOL;
 
         // Попробуем создать предложение из POST данных
@@ -713,6 +720,8 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             $clientName = trim($_POST['client_name'] ?? '');
             $proposalItems = $_POST['proposal_items'] ?? [];
             $offerDate = $_POST['offer_date'] ?? date('Y-m-d');
+
+            file_put_contents($logFile, "Client: $clientName, Items: " . count($proposalItems) . "\n", FILE_APPEND);
 
             echo PHP_EOL . '=== TESTING PROPOSAL CREATION ===' . PHP_EOL;
             echo "Client name: $clientName" . PHP_EOL;
@@ -729,11 +738,13 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                     $quantity = floatval($item['quantity'] ?? 0);
 
                     echo "Processing item: product_id=$productId, quantity=$quantity" . PHP_EOL;
+                    file_put_contents($logFile, "Processing: $productId x $quantity\n", FILE_APPEND);
 
                     if (!empty($productId) && $quantity > 0) {
                         $product = getProduct($productId);
                         if ($product) {
                             echo "Found product: " . $product['name'] . PHP_EOL;
+                            file_put_contents($logFile, "Found: " . $product['name'] . "\n", FILE_APPEND);
                             $product['quantity'] = $quantity;
                             $product['line_total'] = $product['price'] * $quantity;
                             $proposalProducts[] = $product;
@@ -741,11 +752,13 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                             $validItems++;
                         } else {
                             echo "Product not found: $productId" . PHP_EOL;
+                            file_put_contents($logFile, "Product not found: $productId\n", FILE_APPEND);
                         }
                     }
                 }
 
                 echo "Valid items: $validItems, Total: $total" . PHP_EOL;
+                file_put_contents($logFile, "Valid: $validItems, Total: $total\n", FILE_APPEND);
 
                 if ($validItems > 0) {
                     $proposalData = [
@@ -762,16 +775,20 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                     ];
 
                     echo "Proposal data: " . print_r($proposalData, true) . PHP_EOL;
+                    file_put_contents($logFile, "Creating proposal...\n", FILE_APPEND);
 
                     $proposalId = createProposal($proposalData);
                     echo "CREATED PROPOSAL ID: $proposalId" . PHP_EOL;
+                    file_put_contents($logFile, "Created ID: $proposalId\n", FILE_APPEND);
 
                     if ($proposalId) {
                         echo "SUCCESS! Redirecting to /proposals/$proposalId" . PHP_EOL;
+                        file_put_contents($logFile, "SUCCESS!\n", FILE_APPEND);
                         header('Location: /proposals/' . $proposalId);
                         exit;
                     } else {
                         echo "FAILED TO CREATE PROPOSAL" . PHP_EOL;
+                        file_put_contents($logFile, "FAILED!\n", FILE_APPEND);
                     }
                 }
             }
@@ -933,7 +950,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             ];
         }, $allProducts));
 
-        echo '<form method="POST" id="proposal-form">
+        echo '<form method="POST" action="/debug" id="proposal-form">
                     <div class="form-group">
                         <label>Имя клиента</label>
                         <input type="text" name="client_name" placeholder="ООО \"Ромашка\"" required>
@@ -978,7 +995,6 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">📄 Сформировать КП</button>
-                        <button type="submit" formaction="/debug" class="btn btn-secondary" style="background: #ff6b35;">🐛 Debug</button>
                         <a href="/proposals" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
@@ -1127,21 +1143,30 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                             addProductRow();
                         });
 
-                        // Отладка формы перед отправкой
+                        // Валидация формы перед отправкой
                         document.getElementById("proposal-form").addEventListener("submit", function(e) {
-                            console.log("Form data before submit:");
-                            const formData = new FormData(this);
-                            for (let [key, value] of formData.entries()) {
-                                console.log(key + ": " + value);
-                            }
+                            // Проверить что есть хотя бы один товар с данными
+                            const productRows = document.querySelectorAll("#products-tbody tr");
+                            let hasValidProduct = false;
 
-                            // Проверить что есть хотя бы один товар
-                            const productInputs = formData.getAll("proposal_items[1][product_id]");
-                            if (productInputs.length === 0 || !productInputs[0]) {
-                                alert("Пожалуйста, выберите хотя бы один товар!");
+                            productRows.forEach(row => {
+                                const productId = row.querySelector("input[type='hidden']").value;
+                                const quantity = parseFloat(row.querySelector(".quantity-input").value) || 0;
+                                if (productId && quantity > 0) {
+                                    hasValidProduct = true;
+                                }
+                            });
+
+                            if (!hasValidProduct) {
+                                alert("Пожалуйста, выберите хотя бы один товар и укажите количество!");
                                 e.preventDefault();
                                 return false;
                             }
+
+                            // Показать что форма отправляется
+                            const submitBtn = this.querySelector("button[type='submit']");
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = "⏳ Создание...";
                         });
                 </script>
         </main>

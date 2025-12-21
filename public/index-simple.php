@@ -135,7 +135,7 @@ switch ($uri) {
                     <h3 style="text-align: center; margin-bottom: 20px; color: #4a5568;">Тестовые аккаунты</h3>
 
                     <div class="account-card" onclick="fillForm(\'admin@example.com\', \'password\')">
-                        <div class="account-avatar">👑</div>
+                        <div class="account-avatar">A</div>
                         <div class="account-info">
                             <div class="account-role">Администратор</div>
                             <div class="account-email">admin@example.com</div>
@@ -144,7 +144,7 @@ switch ($uri) {
                     </div>
 
                     <div class="account-card" onclick="fillForm(\'user@example.com\', \'password\')">
-                        <div class="account-avatar">👤</div>
+                        <div class="account-avatar">U</div>
                         <div class="account-info">
                             <div class="account-role">Пользователь</div>
                             <div class="account-email">user@example.com</div>
@@ -272,14 +272,14 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор</a>
+                    <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/products">📦 Товары</a>
-                        <a href="/proposals">📄 КП</a>
-                        <a href="/templates">🎨 Шаблоны</a>
-                        ' . (session('user_role') === 'admin' ? '<a href="/admin">⚙️ Админ</a>' : '') . '
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -349,14 +349,14 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор</a>
+                    <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/products">📦 Товары</a>
-                        <a href="/proposals">📄 КП</a>
-                        <a href="/templates">🎨 Шаблоны</a>
-                        ' . (session('user_role') === 'admin' ? '<a href="/admin">⚙️ Админ</a>' : '') . '
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -380,12 +380,12 @@ switch ($uri) {
                         <div class="product-title">Каталог пуст</div>
                         <div class="product-description">Добавьте первый товар</div>
                         <div style="margin-top: 20px;">
-                            <a href="/products/create" class="btn btn-primary">➕ Добавить товар</a>
+                            <a href="/products/create" class="btn btn-primary">+ Добавить товар</a>
                         </div>
                     </div>
                 </div>
 
-                <a href="/products/create" class="fab" title="Добавить товар">➕</a>
+                <a href="/products/create" class="fab" title="Добавить товар">+</a>
 
         <!-- Toast Notifications Container -->
         <div id="toast-container"></div>
@@ -414,7 +414,22 @@ switch ($uri) {
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
             } else {
-                // В будущем: сохранить в базу данных
+                // Сохраняем товар в сессии
+                $products = session('products', []);
+                $newId = count($products) + 1;
+
+                $products[$newId] = [
+                    'id' => $newId,
+                    'user_id' => session('user_id'),
+                    'name' => $name,
+                    'price' => $price,
+                    'category' => $category,
+                    'description' => $description,
+                    'image' => '/css/placeholder-product.svg',
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                session(['products' => $products]);
                 $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
 
                 // Очистить форму (редирект)
@@ -434,14 +449,14 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор</a>
+                    <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/products">📦 Товары</a>
-                        <a href="/proposals">📄 КП</a>
-                        <a href="/templates">🎨 Шаблоны</a>
-                        ' . (session('user_role') === 'admin' ? '<a href="/admin">⚙️ Админ</a>' : '') . '
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -496,8 +511,8 @@ switch ($uri) {
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">💾 Сохранить товар</button>
-                        <a href="/products" class="btn btn-secondary">❌ Отмена</a>
+                        <button type="submit" class="btn btn-primary">Сохранить товар</button>
+                        <a href="/products" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
             </main>
@@ -521,14 +536,14 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор</a>
+                    <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/products">📦 Товары</a>
-                        <a href="/proposals">📄 КП</a>
-                        <a href="/templates">🎨 Шаблоны</a>
-                        ' . (session('user_role') === 'admin' ? '<a href="/admin">⚙️ Админ</a>' : '') . '
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -536,7 +551,7 @@ switch ($uri) {
             <main class="container">
                 <div class="page-header">
                     <h1>Коммерческие предложения</h1>
-                    <a href="/proposals/create" class="btn btn-primary">📄 Создать КП</a>
+                    <a href="/proposals/create" class="btn btn-primary">Создать КП</a>
                 </div>';
 
         // Показать сообщение успеха из URL параметра
@@ -556,7 +571,7 @@ switch ($uri) {
                             <span>Создайте первое коммерческое предложение</span>
                         </div>
                         <div style="margin-top: 20px;">
-                            <a href="/proposals/create" class="btn btn-primary">➕ Создать КП</a>
+                            <a href="/proposals/create" class="btn btn-primary">+ Создать КП</a>
                         </div>
                     </div>
                 </div>
@@ -589,7 +604,23 @@ switch ($uri) {
             } elseif (empty($date)) {
                 $error = 'Укажите дату';
             } else {
-                // В будущем: сохранить в базу данных
+                // Сохраняем КП в сессии
+                $proposals = session('proposals', []);
+                $newId = count($proposals) + 1;
+
+                $proposals[$newId] = [
+                    'id' => $newId,
+                    'user_id' => session('user_id'),
+                    'title' => $title,
+                    'template_id' => $template,
+                    'offer_date' => $date,
+                    'offer_number' => 'КП-' . date('Y') . '-' . str_pad($newId, 3, '0', STR_PAD_LEFT),
+                    'client_info' => $clientInfo,
+                    'status' => 'draft',
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+
+                session(['proposals' => $proposals]);
                 $success = 'Коммерческое предложение "' . htmlspecialchars($title) . '" успешно создано!';
 
                 // Очистить форму (редирект)
@@ -609,14 +640,14 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор</a>
+                    <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/products">📦 Товары</a>
-                        <a href="/proposals">📄 КП</a>
-                        <a href="/templates">🎨 Шаблоны</a>
-                        ' . (session('user_role') === 'admin' ? '<a href="/admin">⚙️ Админ</a>' : '') . '
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -665,8 +696,8 @@ switch ($uri) {
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">📄 Создать КП</button>
-                        <a href="/proposals" class="btn btn-secondary">❌ Отмена</a>
+                        <button type="submit" class="btn btn-primary">Создать КП</button>
+                        <a href="/proposals" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
             </main>
@@ -690,14 +721,14 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор</a>
+                    <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/products">📦 Товары</a>
-                        <a href="/proposals">📄 КП</a>
-                        <a href="/templates">🎨 Шаблоны</a>
-                        ' . (session('user_role') === 'admin' ? '<a href="/admin">⚙️ Админ</a>' : '') . '
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -705,7 +736,7 @@ switch ($uri) {
             <main class="container">
                 <div class="page-header">
                     <h1>Шаблоны коммерческих предложений</h1>
-                    <a href="/templates/create" class="btn btn-primary">🎨 Создать шаблон</a>
+                    <a href="/templates/create" class="btn btn-primary">Создать шаблон</a>
                 </div>
 
                 <div class="templates-list">
@@ -716,7 +747,7 @@ switch ($uri) {
                         </div>
                         <p>Создайте свой первый шаблон для КП</p>
                         <div style="margin-top: 20px;">
-                            <a href="/templates/create" class="btn btn-primary">➕ Создать шаблон</a>
+                            <a href="/templates/create" class="btn btn-primary">+ Создать шаблон</a>
                         </div>
                     </div>
                 </div>
@@ -741,14 +772,14 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор</a>
+                    <a href="/" class="navbar-brand">КП Генератор</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/products">📦 Товары</a>
-                        <a href="/proposals">📄 КП</a>
-                        <a href="/templates">🎨 Шаблоны</a>
-                        ' . (session('user_role') === 'admin' ? '<a href="/admin">⚙️ Админ</a>' : '') . '
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/products">Товары</a>
+                        <a href="/proposals">КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        ' . (session('user_role') === 'admin' ? '<a href="/admin">Админ</a>' : '') . '
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -784,8 +815,8 @@ switch ($uri) {
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">💾 Сохранить шаблон</button>
-                        <a href="/templates" class="btn btn-secondary">❌ Отмена</a>
+                        <button type="submit" class="btn btn-primary">Сохранить шаблон</button>
+                        <a href="/templates" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
             </main>
@@ -809,11 +840,11 @@ switch ($uri) {
         <body>
             <nav class="navbar">
                 <div class="container">
-                    <a href="/" class="navbar-brand">🚀 КП Генератор - Админ</a>
+                    <a href="/" class="navbar-brand">КП Генератор - Админ</a>
                     <div class="navbar-menu">
-                        <a href="/dashboard">📊 Панель</a>
-                        <a href="/admin">⚙️ Админка</a>
-                        <a href="/logout">🚪 Выход</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/admin">Админка</a>
+                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
@@ -829,11 +860,11 @@ switch ($uri) {
                         <div class="stat-number">2</div>
                     </div>
                     <div class="stat-card">
-                        <h3>📦 Товары</h3>
+                        <h3>Товары</h3>
                         <div class="stat-number">0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>📄 КП</h3>
+                        <h3>КП</h3>
                         <div class="stat-number">0</div>
                     </div>
                 </div>

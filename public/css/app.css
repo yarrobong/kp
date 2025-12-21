@@ -15,26 +15,11 @@ html {
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.5;
-    color: #1a1a2e;
-    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 50%, #e8ecff 100%);
+    color: #e2e8f0;
+    background: #0f172a;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-/* Background Pattern */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image:
-        radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
 }
 
 .container {
@@ -45,10 +30,10 @@ body::before {
 
 /* Navigation */
 .navbar {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     margin-bottom: 40px;
     border-radius: 0 0 20px 20px;
     position: sticky;
@@ -66,10 +51,7 @@ body::before {
 .navbar-brand {
     font-size: 1.8rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #3b82f6;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -79,11 +61,7 @@ body::before {
 
 .navbar-brand:hover {
     transform: scale(1.05);
-}
-
-.navbar-brand::before {
-    content: "🚀";
-    font-size: 1.5rem;
+    color: #60a5fa;
 }
 
 .navbar-menu {
@@ -93,7 +71,7 @@ body::before {
 }
 
 .navbar-menu a {
-    color: #4a5568;
+    color: #cbd5e1;
     text-decoration: none;
     padding: 12px 20px;
     border-radius: 12px;
@@ -111,15 +89,15 @@ body::before {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
     transition: left 0.5s;
 }
 
 .navbar-menu a:hover {
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .navbar-menu a:hover::before {
@@ -132,7 +110,7 @@ body::before {
     align-items: center;
     gap: 8px;
     padding: 14px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -143,7 +121,7 @@ body::before {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     min-height: 48px;
 }
 
@@ -160,7 +138,7 @@ body::before {
 
 .btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
 .btn:hover::before {
@@ -245,28 +223,28 @@ body::before {
 .form-group select {
     width: 100%;
     padding: 16px 20px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(71, 85, 105, 0.3);
     border-radius: 12px;
     font-size: 16px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(30, 41, 59, 0.8);
     backdrop-filter: blur(10px);
     font-family: inherit;
-    color: #1a1a2e;
+    color: #e2e8f0;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    background: rgba(255, 255, 255, 0.9);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    background: rgba(30, 41, 59, 0.9);
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-    color: #a0aec0;
+    color: #64748b;
 }
 
 /* Form Icons */
@@ -345,10 +323,7 @@ body::before {
 .page-header h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #f1f5f9;
     margin: 0;
 }
 
@@ -361,13 +336,13 @@ body::before {
 }
 
 .metric-card {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(30, 41, 59, 0.8);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(71, 85, 105, 0.3);
     border-radius: 16px;
     padding: 32px 24px;
     text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -375,7 +350,8 @@ body::before {
 
 .metric-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(59, 130, 246, 0.5);
 }
 
 .metric-card::before {
@@ -385,14 +361,14 @@ body::before {
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
 }
 
 .metric-icon {
     width: 48px;
     height: 48px;
     margin: 0 auto 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -403,16 +379,13 @@ body::before {
 .metric-value {
     font-size: 3rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #3b82f6;
     margin-bottom: 8px;
 }
 
 .metric-label {
     font-size: 16px;
-    color: #4a5568;
+    color: #94a3b8;
     font-weight: 600;
 }
 
@@ -476,12 +449,12 @@ body::before {
 .proposal-card,
 .template-card,
 .product-card {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(30, 41, 59, 0.8);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(71, 85, 105, 0.3);
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -491,7 +464,8 @@ body::before {
 .template-card:hover,
 .product-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(59, 130, 246, 0.5);
 }
 
 .proposal-card::before,
@@ -503,7 +477,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
 }
 
 .proposal-header,
@@ -839,19 +813,19 @@ body::before {
 .product-title {
     font-size: 18px;
     font-weight: 600;
-    color: #1a1a2e;
+    color: #f1f5f9;
     margin-bottom: 8px;
 }
 
 .product-price {
     font-size: 20px;
     font-weight: 700;
-    color: #667eea;
+    color: #3b82f6;
     margin-bottom: 12px;
 }
 
 .product-description {
-    color: #4a5568;
+    color: #94a3b8;
     font-size: 14px;
     line-height: 1.5;
 }

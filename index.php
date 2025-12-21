@@ -1,22 +1,48 @@
 <?php
 
 // Простое приложение для управления товарами
-// Все в одном файле - максимально просто
+// Хранение в базе данных
 
 session_start();
 
-// Функции для работы с товарами
-function getProducts() {
-    $dataFile = __DIR__ . '/products.json';
-    if (!file_exists($dataFile)) {
-        return [];
+// Подключение к БД
+function getDB() {
+    static $db = null;
+    if ($db === null) {
+        try {
+            $db = new PDO('mysql:host=localhost;dbname=commercial_proposals;charset=utf8', 'appuser', 'apppassword');
+            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Ошибка подключения к БД: " . $e->getMessage());
+        }
     }
-    $products = json_decode(file_get_contents($dataFile), true);
-    return is_array($products) ? $products : [];
+    return $db;
 }
 
-function saveProducts($products) {
-    file_put_contents(__DIR__ . '/products.json', json_encode($products));
+// Функции для работы с товарами
+function getProducts($userId = null) {
+    $db = getDB();
+    if ($userId) {
+        $stmt = $db->prepare("SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$userId]);
+    } else {
+        $stmt = $db->query("SELECT * FROM products ORDER BY created_at DESC");
+    }
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function createProduct($data) {
+    $db = getDB();
+    $stmt = $db->prepare("INSERT INTO products (user_id, name, description, price, category, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
+    $stmt->execute([
+        $data['user_id'],
+        $data['name'],
+        $data['description'] ?? '',
+        $data['price'],
+        $data['category'] ?? '',
+        $data['image'] ?? '/css/placeholder-product.svg'
+    ]);
+    return $db->lastInsertId();
 }
 
 // Обработка маршрутов
@@ -99,16 +125,9 @@ switch ($uri) {
             exit;
         }
 
-        // Подсчет товаров
-        $userProductsCount = 0;
-        $allProducts = getProducts();
-        if (is_array($allProducts)) {
-            foreach ($allProducts as $product) {
-                if (isset($product['user_id']) && $product['user_id'] == $_SESSION['user_id']) {
-                    $userProductsCount++;
-                }
-            }
-        }
+        // Подсчет товаров из БД
+        $userProducts = getProducts($_SESSION['user_id']);
+        $userProductsCount = count($userProducts);
 
         echo '<!DOCTYPE html>
         <html lang="ru">
@@ -157,16 +176,8 @@ switch ($uri) {
             exit;
         }
 
-        // Получить товары пользователя
-        $userProducts = [];
-        $allProducts = getProducts();
-        if (is_array($allProducts)) {
-            foreach ($allProducts as $product) {
-                if (isset($product['user_id']) && $product['user_id'] == $_SESSION['user_id']) {
-                    $userProducts[] = $product;
-                }
-            }
-        }
+        // Получить товары пользователя из БД
+        $userProducts = getProducts($_SESSION['user_id']);
 
         echo '<!DOCTYPE html>
         <html lang="ru">
@@ -189,20 +200,22 @@ switch ($uri) {
             </nav>
 
             <main class="container">
-                <div class="page-header">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
                     <h1>Каталог товаров</h1>
-                </div>
+                    <a href="/products/create" class="btn btn-primary" style="margin: 0;">+ Добавить товар</a>
+                </div>';
 
-                <div class="products-grid">';
+        if (isset($_GET['success'])) {
+            echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
+        }
+
+        echo '<div class="products-grid">';
 
         if (empty($userProducts)) {
-            echo '<div class="product-card" style="text-align: center; padding: 60px 20px;">
+            echo '<div class="product-card" style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;">
                         <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
                         <div class="product-title">Каталог пуст</div>
                         <div class="product-description">Добавьте первый товар</div>
-                        <div style="margin-top: 20px;">
-                            <a href="/products/create" class="btn btn-primary">+ Добавить товар</a>
-                        </div>
                     </div>';
         } else {
             foreach ($userProducts as $product) {
@@ -214,14 +227,13 @@ switch ($uri) {
                             <div class="product-title">' . htmlspecialchars($product['name']) . '</div>
                             <div class="product-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
                             ' . (!empty($product['description']) ? '<div class="product-description">' . htmlspecialchars(substr($product['description'], 0, 100)) . '</div>' : '') . '
+                            <div class="product-category" style="font-size: 12px; color: #666; margin-top: 8px;">' . htmlspecialchars($product['category'] ?? 'Без категории') . '</div>
                         </div>
                     </div>';
             }
         }
 
         echo '</div>
-
-                <a href="/products/create" class="fab" title="Добавить товар">+</a>
             </main>
         </body>
         </html>';
@@ -247,33 +259,21 @@ switch ($uri) {
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
             } else {
-                // Сохраняем товар
-                $products = getProducts();
-                if (!is_array($products)) {
-                    $products = [];
+                // Сохраняем товар в БД
+                try {
+                    createProduct([
+                        'user_id' => $_SESSION['user_id'],
+                        'name' => $name,
+                        'price' => $price,
+                        'category' => $category,
+                        'description' => $description,
+                        'image' => '/css/placeholder-product.svg'
+                    ]);
+                    header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно добавлен!'));
+                    exit;
+                } catch (Exception $e) {
+                    $error = 'Ошибка сохранения товара: ' . $e->getMessage();
                 }
-                $maxId = 0;
-                foreach ($products as $product) {
-                    if (isset($product['id']) && $product['id'] > $maxId) {
-                        $maxId = $product['id'];
-                    }
-                }
-                $newId = $maxId + 1;
-
-                $products[$newId] = [
-                    'id' => $newId,
-                    'user_id' => $_SESSION['user_id'],
-                    'name' => $name,
-                    'price' => $price,
-                    'category' => $category,
-                    'description' => $description,
-                    'image' => '/css/placeholder-product.svg',
-                    'created_at' => date('Y-m-d H:i:s')
-                ];
-
-                saveProducts($products);
-                header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно добавлен!'));
-                exit;
             }
         }
 

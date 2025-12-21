@@ -55,11 +55,11 @@ $router->post('/proposals/{id}', 'ProposalController@update');
 $router->post('/proposals/{id}/delete', 'ProposalController@delete');
 $router->get('/proposals/{id}/pdf', 'ProposalController@pdf');
 
-// Запуск роутинга
-$router->run();
-
 // Вспомогательная функция для определения активной страницы
 function isActivePage($pageUri) {
     $currentUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     return ($currentUri === $pageUri) ? 'active' : '';
 }
+
+// Запуск роутинга
+$router->run();

@@ -6,7 +6,7 @@
     <title><?php echo htmlspecialchars($title ?? 'КП Генератор'); ?></title>
 
     <!-- Подключение стилей -->
-    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/public/css/app.css">
 
     <!-- Иконки -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -31,7 +31,7 @@
     </main>
 
     <!-- Подключение JavaScript -->
-    <script src="/js/app.js"></script>
+    <script src="/public/js/app.js"></script>
 
     <!-- Flash сообщения -->
     <?php if (isset($_SESSION['flash_message'])): ?>

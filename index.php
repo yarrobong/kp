@@ -5,7 +5,7 @@
 
 session_start();
 
-// Подключение к БД
+// Подключение к БД (с fallback на JSON)
 function getDB() {
     static $db = null;
     if ($db === null) {
@@ -13,7 +13,7 @@ function getDB() {
             $db = new PDO('mysql:host=localhost;dbname=commercial_proposals;charset=utf8', 'appuser', 'apppassword');
             $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            die("Ошибка подключения к БД: " . $e->getMessage());
+            $db = false; // Отключаем БД если ошибка
         }
     }
     return $db;
@@ -22,27 +22,84 @@ function getDB() {
 // Функции для работы с товарами
 function getProducts($userId = null) {
     $db = getDB();
-    if ($userId) {
-        $stmt = $db->prepare("SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC");
-        $stmt->execute([$userId]);
-    } else {
-        $stmt = $db->query("SELECT * FROM products ORDER BY created_at DESC");
+    if ($db) {
+        try {
+            if ($userId) {
+                $stmt = $db->prepare("SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC");
+                $stmt->execute([$userId]);
+            } else {
+                $stmt = $db->query("SELECT * FROM products ORDER BY created_at DESC");
+            }
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            // Fallback на JSON
+        }
     }
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fallback на JSON файл
+    $dataFile = __DIR__ . '/products.json';
+    if (!file_exists($dataFile)) {
+        return [];
+    }
+    $products = json_decode(file_get_contents($dataFile), true);
+    if (!is_array($products)) {
+        return [];
+    }
+
+    if ($userId) {
+        return array_filter($products, function($product) use ($userId) {
+            return isset($product['user_id']) && $product['user_id'] == $userId;
+        });
+    }
+
+    return $products;
 }
 
 function createProduct($data) {
     $db = getDB();
-    $stmt = $db->prepare("INSERT INTO products (user_id, name, description, price, category, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
-    $stmt->execute([
-        $data['user_id'],
-        $data['name'],
-        $data['description'] ?? '',
-        $data['price'],
-        $data['category'] ?? '',
-        $data['image'] ?? '/css/placeholder-product.svg'
-    ]);
-    return $db->lastInsertId();
+    if ($db) {
+        try {
+            $stmt = $db->prepare("INSERT INTO products (user_id, name, description, price, category, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt->execute([
+                $data['user_id'],
+                $data['name'],
+                $data['description'] ?? '',
+                $data['price'],
+                $data['category'] ?? '',
+                $data['image'] ?? '/css/placeholder-product.svg'
+            ]);
+            return $db->lastInsertId();
+        } catch (Exception $e) {
+            // Fallback на JSON
+        }
+    }
+
+    // Fallback на JSON файл
+    $dataFile = __DIR__ . '/products.json';
+    $products = [];
+    if (file_exists($dataFile)) {
+        $products = json_decode(file_get_contents($dataFile), true) ?: [];
+    }
+
+    $newId = 1;
+    if (!empty($products)) {
+        $maxId = max(array_column($products, 'id'));
+        $newId = $maxId + 1;
+    }
+
+    $products[] = [
+        'id' => $newId,
+        'user_id' => $data['user_id'],
+        'name' => $data['name'],
+        'description' => $data['description'] ?? '',
+        'price' => $data['price'],
+        'category' => $data['category'] ?? '',
+        'image' => $data['image'] ?? '/css/placeholder-product.svg',
+        'created_at' => date('Y-m-d H:i:s')
+    ];
+
+    file_put_contents($dataFile, json_encode($products));
+    return $newId;
 }
 
 // Обработка маршрутов
@@ -125,7 +182,7 @@ switch ($uri) {
             exit;
         }
 
-        // Подсчет товаров из БД
+        // Подсчет товаров
         $userProducts = getProducts($_SESSION['user_id']);
         $userProductsCount = count($userProducts);
 
@@ -234,7 +291,7 @@ switch ($uri) {
         }
 
         echo '</div>
-            </main>
+        </main>
         </body>
         </html>';
         break;

@@ -181,6 +181,119 @@ switch ($uri) {
         redirect('/login');
         break;
 
+    case '/proposals':
+        if (!session('user_id')) {
+            redirect('/login');
+        }
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Мои КП</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/proposals">Мои КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Мои коммерческие предложения</h1>
+                    <a href="/proposals/create" class="btn btn-primary">Создать новое КП</a>
+                </div>
+
+                <div class="alert alert-info">
+                    Функционал управления КП находится в разработке.
+                    Пока что это демо-версия с базовым интерфейсом.
+                </div>
+
+                <div class="proposals-list">
+                    <div class="proposal-card">
+                        <div class="proposal-header">
+                            <h3>Пример коммерческого предложения</h3>
+                            <span class="badge badge-secondary">Черновик</span>
+                        </div>
+                        <div class="proposal-meta">
+                            <span>Дата: ' . date('d.m.Y') . '</span>
+                            <span>Клиент: Пример ООО</span>
+                        </div>
+                        <div class="proposal-actions">
+                            <a href="#" class="btn btn-sm btn-primary">Редактировать</a>
+                            <a href="#" class="btn btn-sm btn-secondary">Просмотр</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </body>
+        </html>';
+        break;
+
+    case '/templates':
+        if (!session('user_id')) {
+            redirect('/login');
+        }
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Шаблоны</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/proposals">Мои КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Шаблоны коммерческих предложений</h1>
+                    <a href="/templates/create" class="btn btn-primary">Создать шаблон</a>
+                </div>
+
+                <div class="alert alert-info">
+                    Функционал управления шаблонами находится в разработке.
+                    Пока что это демо-версия с базовым интерфейсом.
+                </div>
+
+                <div class="templates-list">
+                    <div class="template-card">
+                        <div class="template-header">
+                            <h3>Стандартный шаблон КП</h3>
+                            <span class="badge badge-success">Системный</span>
+                        </div>
+                        <p>Универсальный шаблон для создания коммерческих предложений</p>
+                        <div class="template-actions">
+                            <a href="#" class="btn btn-sm btn-primary">Использовать</a>
+                            <a href="#" class="btn btn-sm btn-secondary">Просмотр</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </body>
+        </html>';
+        break;
+
     case '/debug':
         echo '<h1>Отладка</h1>';
         echo '<pre>';

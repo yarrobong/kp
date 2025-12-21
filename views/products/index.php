@@ -52,6 +52,8 @@
         <div class="product-actions">
             <a href="/products/<?php echo $product['id']; ?>" class="btn btn-small">Просмотр</a>
             <a href="/products/<?php echo $product['id']; ?>/edit" class="btn btn-small btn-secondary">Редактировать</a>
+            <a href="/products/<?php echo $product['id']; ?>/delete" class="btn btn-small btn-danger"
+               onclick="return confirm('Вы уверены, что хотите удалить этот товар?')">Удалить</a>
         </div>
     </div>
     <?php endforeach; ?>

@@ -918,16 +918,16 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                         row.innerHTML = `
                             <td>
                                 <input type="text" class="product-search" placeholder="Начните вводить название товара..." autocomplete="off">
-                                <input type="hidden" name="proposal_items[${rowCounter}][product_id]" value="${productId}">
+                                <input type="hidden" name="proposal_items[' + rowCounter + '][product_id]" value="' + productId + '">
                                 <div class="autocomplete-results" style="display: none;"></div>
                             </td>
                             <td>
-                                <input type="number" name="proposal_items[${rowCounter}][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
+                                <input type="number" name="proposal_items[' + rowCounter + '][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
                             </td>
                             <td class="unit-price">₽ 0.00</td>
                             <td class="line-total">₽ 0.00</td>
                             <td>
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'${rowId}\')">🗑️</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'' + rowId + '\')">🗑️</button>
                             </td>
                         `;
 
@@ -971,12 +971,12 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                             if (matches.length > 0) {
                                 resultsDiv.innerHTML = matches.map(product => `
-                                    <div class="autocomplete-item" data-product-id="${product.id}">
-                                        <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
+                                    <div class="autocomplete-item" data-product-id="' + product.id + '">
+                                        <img src="' + product.image + '" alt="' + product.name + '" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
                                         <div>
-                                            <div style="font-weight: bold;">${product.name}</div>
-                                            <div style="color: #666; font-size: 12px;">₽ ${product.price.toLocaleString()}</div>
-                                            ${product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : ""}
+                                            <div style="font-weight: bold;">' + product.name + '</div>
+                                            <div style="color: #666; font-size: 12px;">₽ ' + product.price.toLocaleString() + '</div>
+                                            ' + (product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : "") + '
                                         </div>
                                     </div>
                                 `).join("");
@@ -1791,12 +1791,12 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                                     <div class="autocomplete-results" style="display: none;"></div>
                                 </td>
                                 <td>
-                                    <input type="number" name="proposal_items[${rowCounter}][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
+                                    <input type="number" name="proposal_items[' + rowCounter + '][quantity]" value="${quantity}" min="0.01" step="0.01" class="quantity-input">
                                 </td>
                                 <td class="unit-price">₽ 0.00</td>
                                 <td class="line-total">₽ 0.00</td>
                                 <td>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'${rowId}\')">🗑️</button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeProductRow(\'' + rowId + '\')">🗑️</button>
                                 </td>
                             `;
 
@@ -1840,12 +1840,12 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                                 if (matches.length > 0) {
                                     resultsDiv.innerHTML = matches.map(product => `
-                                        <div class="autocomplete-item" data-product-id="${product.id}">
-                                            <img src="${product.image}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
+                                        <div class="autocomplete-item" data-product-id="' + product.id + '">
+                                            <img src="' + product.image + '" alt="' + product.name + '" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;">
                                             <div>
-                                                <div style="font-weight: bold;">${product.name}</div>
-                                                <div style="color: #666; font-size: 12px;">₽ ${product.price.toLocaleString()}</div>
-                                                ${product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : ""}
+                                                <div style="font-weight: bold;">' + product.name + '</div>
+                                                <div style="color: #666; font-size: 12px;">₽ ' + product.price.toLocaleString() + '</div>
+                                                ' + (product.description ? `<div style="color: #999; font-size: 11px;">${product.description.substring(0, 50)}...</div>` : "") + '
                                             </div>
                                         </div>
                                     `).join("");

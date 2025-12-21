@@ -77,22 +77,6 @@ switch ($uri) {
         break;
 
     case '/login':
-        echo '<!DOCTYPE html>
-        <html>
-        <head>
-            <title>Вход</title>
-            <meta charset="utf-8">
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
-                .form-group { margin: 10px 0; }
-                input { padding: 8px; width: 200px; }
-                button { padding: 8px 16px; background: #007bff; color: white; border: none; cursor: pointer; }
-                .error { color: red; }
-            </style>
-        </head>
-        <body>
-            <h1>Вход в систему</h1>';
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
@@ -103,23 +87,45 @@ switch ($uri) {
                 session('user_name', 'Admin');
                 redirect('/dashboard');
             } else {
-                echo '<div class="error">Неверный email или пароль</div>';
+                $error = 'Неверный email или пароль';
             }
         }
 
+        // HTML с CSS
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Вход</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h1>Вход</h1>';
+
+        if (isset($error)) {
+            echo '<div class="alert alert-error">' . $error . '</div>';
+        }
+
         echo '
-            <form method="POST">
-                <div class="form-group">
-                    <label>Email:</label><br>
-                    <input type="email" name="email" required>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" required autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label>Пароль</label>
+                            <input type="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Войти</button>
+                    </form>
+                    <p class="text-center">
+                        <a href="/debug">Отладка</a>
+                    </p>
                 </div>
-                <div class="form-group">
-                    <label>Пароль:</label><br>
-                    <input type="password" name="password" required>
-                </div>
-                <button type="submit">Войти</button>
-            </form>
-            <p><a href="/debug">Отладка</a></p>
+            </div>
         </body>
         </html>';
         break;
@@ -130,16 +136,42 @@ switch ($uri) {
         }
 
         echo '<!DOCTYPE html>
-        <html>
+        <html lang="ru">
         <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Панель управления</title>
-            <meta charset="utf-8">
+            <link rel="stylesheet" href="/css/app.css">
         </head>
         <body>
-            <h1>Добро пожаловать, ' . session('user_name') . '!</h1>
-            <p><a href="/proposals">Управление КП</a></p>
-            <p><a href="/templates">Шаблоны</a></p>
-            <p><a href="/logout">Выход</a></p>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/proposals">Мои КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <h1>Добро пожаловать, ' . session('user_name') . '!</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Коммерческие предложения</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Шаблоны</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <a href="/proposals" class="btn btn-primary">Управление КП</a>
+                    <a href="/templates" class="btn btn-secondary">Шаблоны</a>
+                </div>
+            </main>
         </body>
         </html>';
         break;

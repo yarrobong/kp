@@ -1099,14 +1099,14 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
             <script>
             // Плавная прокрутка для якорных ссылок
-            document.addEventListener('DOMContentLoaded', function() {
-                const navbarLinks = document.querySelectorAll('.navbar-menu a[href^="#"]');
+            document.addEventListener("DOMContentLoaded", function() {
+                const navbarLinks = document.querySelectorAll(".navbar-menu a[href^='#']");
 
                 navbarLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
+                    link.addEventListener("click", function(e) {
                         e.preventDefault();
 
-                        const targetId = this.getAttribute('href').substring(1);
+                        const targetId = this.getAttribute("href").substring(1);
                         const targetElement = document.getElementById(targetId);
 
                         if (targetElement) {
@@ -1114,7 +1114,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                             window.scrollTo({
                                 top: offsetTop,
-                                behavior: 'smooth'
+                                behavior: "smooth"
                             });
                         }
                     });
@@ -1123,23 +1123,23 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                 // Добавляем эффект появления при прокрутке
                 const observerOptions = {
                     threshold: 0.1,
-                    rootMargin: '0px 0px -50px 0px'
+                    rootMargin: "0px 0px -50px 0px"
                 };
 
                 const observer = new IntersectionObserver(function(entries) {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
-                            entry.target.style.opacity = '1';
-                            entry.target.style.transform = 'translateY(0)';
+                            entry.target.style.opacity = "1";
+                            entry.target.style.transform = "translateY(0)";
                         }
                     });
                 }, observerOptions);
 
                 // Наблюдаем за элементами
-                document.querySelectorAll('.feature-card, .step').forEach(el => {
-                    el.style.opacity = '0';
-                    el.style.transform = 'translateY(20px)';
-                    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                document.querySelectorAll(".feature-card, .step").forEach(el => {
+                    el.style.opacity = "0";
+                    el.style.transform = "translateY(20px)";
+                    el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
                     observer.observe(el);
                 });
             });

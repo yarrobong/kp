@@ -600,6 +600,8 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         echo '<div class="proposals-grid">';
 
         echo "<!-- DEBUG: userProposals count: " . count($userProposals) . " -->";
+        echo "<!-- DEBUG: PROJECT_ROOT: " . PROJECT_ROOT . " -->";
+        echo "<!-- DEBUG: File: " . PROJECT_ROOT . "/proposals.json exists: " . (file_exists(PROJECT_ROOT . "/proposals.json") ? "YES" : "NO") . " -->";
         if (empty($userProposals)) {
             echo '<div class="proposal-card" style="text-align: center; padding: 60px 20px; grid-column: 1 / -1;">
                         <div style="font-size: 48px; margin-bottom: 16px;">📄</div>

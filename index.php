@@ -5,6 +5,125 @@ if (!defined('PROJECT_ROOT')) {
     define('PROJECT_ROOT', dirname(__FILE__));
 }
 
+// Функция для генерации PDF коммерческого предложения
+function generateProposalPDF($proposal) {
+    require_once __DIR__ . '/vendor/autoload.php';
+
+    // Создаем новый PDF документ
+    $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+    // Устанавливаем информацию о документе
+    $pdf->SetCreator('КП Генератор');
+    $pdf->SetAuthor('КП Генератор');
+    $pdf->SetTitle('Коммерческое предложение');
+
+    // Убираем header и footer
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+
+    // Устанавливаем margins
+    $pdf->SetMargins(20, 20, 20);
+    $pdf->SetAutoPageBreak(true, 20);
+
+    // Добавляем страницу
+    $pdf->AddPage();
+
+    // Получаем данные клиента
+    $clientInfo = json_decode($proposal['client_info'], true);
+    $clientName = $clientInfo['client_name'] ?? 'Клиент';
+    $products = $clientInfo['products'] ?? [];
+
+    // Устанавливаем шрифт
+    $pdf->SetFont('dejavusans', '', 12);
+
+    // Заголовок
+    $pdf->SetFont('dejavusans', 'B', 20);
+    $pdf->SetTextColor(25, 118, 210); // Синий цвет
+    $pdf->Cell(0, 15, 'КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ', 0, 1, 'C');
+    $pdf->Ln(5);
+
+    // Номер предложения и дата
+    $pdf->SetFont('dejavusans', '', 12);
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->Cell(0, 10, '№ ' . $proposal['offer_number'], 0, 1, 'R');
+    $pdf->Cell(0, 10, 'от ' . date('d.m.Y', strtotime($proposal['offer_date'])), 0, 1, 'R');
+    $pdf->Ln(10);
+
+    // Информация о клиенте
+    $pdf->SetFont('dejavusans', 'B', 14);
+    $pdf->SetFillColor(240, 240, 240);
+    $pdf->Cell(0, 12, 'Уважаемый клиент: ' . $clientName, 1, 1, 'L', true);
+    $pdf->Ln(5);
+
+    // Введение
+    $pdf->SetFont('dejavusans', '', 11);
+    $pdf->MultiCell(0, 8, 'Мы рады представить Вам наше коммерческое предложение на поставку товаров и услуг. Предложение действительно в течение 30 дней с момента выставления.', 0, 'L');
+    $pdf->Ln(10);
+
+    // Таблица товаров
+    $pdf->SetFont('dejavusans', 'B', 12);
+    $pdf->SetFillColor(25, 118, 210);
+    $pdf->SetTextColor(255, 255, 255);
+
+    // Заголовки таблицы
+    $pdf->Cell(80, 10, 'Наименование', 1, 0, 'C', true);
+    $pdf->Cell(20, 10, 'Кол-во', 1, 0, 'C', true);
+    $pdf->Cell(25, 10, 'Цена', 1, 0, 'C', true);
+    $pdf->Cell(25, 10, 'Сумма', 1, 1, 'C', true);
+
+    // Данные товаров
+    $pdf->SetFont('dejavusans', '', 10);
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->SetFillColor(248, 248, 248);
+
+    $fill = false;
+    foreach ($products as $product) {
+        $quantity = $product['quantity'] ?? 1;
+        $price = $product['price'] ?? 0;
+        $lineTotal = $quantity * $price;
+
+        $pdf->Cell(80, 8, $product['name'], 1, 0, 'L', $fill);
+        $pdf->Cell(20, 8, $quantity, 1, 0, 'C', $fill);
+        $pdf->Cell(25, 8, number_format($price, 2, ',', ' ') . ' ₽', 1, 0, 'R', $fill);
+        $pdf->Cell(25, 8, number_format($lineTotal, 2, ',', ' ') . ' ₽', 1, 1, 'R', $fill);
+
+        $fill = !$fill;
+    }
+
+    // Итого
+    $pdf->SetFont('dejavusans', 'B', 12);
+    $pdf->SetFillColor(25, 118, 210);
+    $pdf->SetTextColor(255, 255, 255);
+    $pdf->Cell(125, 10, 'ИТОГО:', 1, 0, 'R', true);
+    $pdf->Cell(25, 10, number_format($proposal['total'], 2, ',', ' ') . ' ₽', 1, 1, 'R', true);
+
+    $pdf->Ln(15);
+
+    // Условия и контакты
+    $pdf->SetFont('dejavusans', '', 10);
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->MultiCell(0, 6, 'Условия оплаты: 100% предоплата или в соответствии с договором поставки.
+
+Условия доставки: Самовывоз или доставка транспортной компанией (дополнительно).
+
+Срок поставки: 3-7 рабочих дней после подтверждения заказа.
+
+Все цены указаны без НДС.', 0, 'L');
+
+    $pdf->Ln(10);
+
+    // Подпись
+    $pdf->SetFont('dejavusans', '', 11);
+    $pdf->Cell(0, 10, 'С уважением,', 0, 1, 'L');
+    $pdf->Cell(0, 10, 'КП Генератор', 0, 1, 'L');
+    $pdf->Cell(0, 10, 'Телефон: +7 (495) 123-45-67', 0, 1, 'L');
+    $pdf->Cell(0, 10, 'Email: info@kpgenerator.ru', 0, 1, 'L');
+
+    // Выводим PDF
+    $filename = 'KP_' . $proposal['offer_number'] . '.pdf';
+    $pdf->Output($filename, 'D');
+}
+
 // Функция для красивого отображения ошибок
 function handleError($message, $code = 500, $title = 'Произошла ошибка') {
     http_response_code($code);
@@ -584,7 +703,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
     $userId = 1; // Фиксированный пользователь для демо
 
     try {
-        switch ($uri) {
+    switch ($uri) {
     case '':
     case '/':
         header('Location: /products');
@@ -1432,6 +1551,25 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             break;
         }
 
+        // Проверяем, является ли это маршрутом скачивания PDF /proposals/{id}/pdf
+        if (preg_match('#^/proposals/(\d+)/pdf$#', $uri, $matches)) {
+            $proposalId = (int)$matches[1];
+            $proposal = getProposal($proposalId);
+
+            if (!$proposal) {
+                handleError('Предложение не найдено', 404, 'Предложение не найдено');
+            }
+
+            // Проверяем права доступа
+            if ($proposal['user_id'] != $userId) {
+                handleError('У вас нет доступа к этому предложению', 403, 'Доступ запрещен');
+            }
+
+            // Генерируем PDF
+            generateProposalPDF($proposal);
+            exit;
+        }
+
         // Проверяем, является ли это маршрутом просмотра предложения /proposals/{id}
         if (preg_match('#^/proposals/(\d+)$#', $uri, $matches)) {
             $proposalId = (int)$matches[1];
@@ -1694,6 +1832,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
                     <div class="proposal-actions">
                         <a href="/proposals" class="btn btn-secondary">← К списку предложений</a>
                         <a href="/proposals/' . $proposal['id'] . '/edit" class="btn btn-secondary">✏️ Редактировать</a>
+                        <a href="/proposals/' . $proposal['id'] . '/pdf" class="btn btn-success" target="_blank">📄 Скачать PDF</a>
                         <button onclick="window.print()" class="btn btn-primary">🖨️ Печать</button>
                         <form method="POST" action="/proposals/' . $proposal['id'] . '/delete" style="display: inline;" onsubmit="return confirm(\'Вы уверены, что хотите удалить это предложение?\')">
                             <button type="submit" class="btn btn-danger">🗑️ Удалить</button>

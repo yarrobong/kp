@@ -1,6 +1,26 @@
 /* Import Inter Font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Success button for PDF download */
+.btn-success {
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    color: white;
+    border: 1px solid #4caf50;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #45a049, #4caf50);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
 /* Notifications */
 .notifications {
     position: fixed;

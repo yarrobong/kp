@@ -666,7 +666,7 @@ function createProposal($data) {
     $db = getDB();
     if ($db) {
         try {
-            $stmt = $db->prepare("INSERT INTO proposals (user_id, template_id, title, offer_number, offer_date, client_info, status, total, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt = $db->prepare("INSERT INTO proposals (user_id, template_id, title, offer_number, offer_date, client_info, status, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([
                 $data['user_id'],
                 $data['template_id'] ?? null,

@@ -2,7 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
+use App\Http\Request;
+use App\Http\Response;
 
 class VerifyCsrfToken
 {
@@ -10,18 +11,18 @@ class VerifyCsrfToken
         'api/*',
     ];
 
-    public function handle($request, Closure $next)
+    public function handle(Request $request, $next)
     {
         if ($this->inExceptArray($request)) {
             return $next($request);
         }
 
-        $token = $request->input('_token') ?? $request->header('X-CSRF-TOKEN');
+        $token = $_POST['_token'] ?? $request->header('X-CSRF-TOKEN');
         $sessionToken = session('_token');
 
         if (!$token || $token !== $sessionToken) {
-            if ($request->expectsJson()) {
-                return response()->json(['error' => 'CSRF token mismatch'], 403);
+            if ($request->isJson()) {
+                return Response::json(['error' => 'CSRF token mismatch'], 403);
             }
             abort(403, 'CSRF token mismatch');
         }
@@ -29,10 +30,10 @@ class VerifyCsrfToken
         return $next($request);
     }
 
-    protected function inExceptArray($request)
+    protected function inExceptArray(Request $request)
     {
         foreach ($this->except as $except) {
-            if ($request->is($except)) {
+            if (fnmatch($except, $request->path())) {
                 return true;
             }
         }

@@ -2,30 +2,32 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
+use App\Http\Request;
+use App\Http\Response;
 use App\Models\User;
 
 class ApiAuth
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, $next)
     {
-        $token = $request->bearerToken() ?? $request->header('X-API-Token');
-        
+        $token = $request->header('Authorization') ?? $request->header('X-API-Token');
+
         if (!$token) {
-            return response()->json(['error' => 'Token required'], 401);
+            return Response::json(['error' => 'Token required'], 401);
         }
 
-        // Простая проверка токена (в реальности используйте Laravel Sanctum)
+        // Убираем "Bearer " если есть
+        $token = str_replace('Bearer ', '', $token);
+
+        // Простая проверка токена
         $user = User::where('api_token', $token)->first();
-        
+
         if (!$user) {
-            return response()->json(['error' => 'Invalid token'], 401);
+            return Response::json(['error' => 'Invalid token'], 401);
         }
 
-        $request->setUserResolver(function () use ($user) {
-            return $user;
-        });
+        // Сохраняем пользователя в сессии для API запросов
+        session('api_user', $user);
 
         return $next($request);
     }

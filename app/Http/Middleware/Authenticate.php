@@ -2,18 +2,19 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
+use App\Http\Request;
+use App\Http\Redirect;
+use App\Http\Response;
 
 class Authenticate
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, $next)
     {
         if (!session('user_id')) {
-            if ($request->expectsJson()) {
-                return response()->json(['error' => 'Unauthorized'], 401);
+            if ($request->isJson()) {
+                return Response::json(['error' => 'Unauthorized'], 401);
             }
-            return redirect('/login');
+            return Redirect::to('/login');
         }
         return $next($request);
     }

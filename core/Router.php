@@ -135,19 +135,19 @@ class Router {
         $controllerFile = __DIR__ . '/../controllers/' . $controllerClass . '.php';
 
         if (!file_exists($controllerFile)) {
-            throw new Exception("Controller file not found: $controllerFile");
+            throw new \Exception("Controller file not found: $controllerFile");
         }
 
         require_once $controllerFile;
 
         if (!class_exists($controllerClass)) {
-            throw new Exception("Controller class not found: $controllerClass");
+            throw new \Exception("Controller class not found: $controllerClass");
         }
 
         $controller = new $controllerClass();
 
         if (!method_exists($controller, $method)) {
-            throw new Exception("Controller method not found: $method");
+            throw new \Exception("Controller method not found: $method");
         }
 
         call_user_func_array([$controller, $method], [$params]);

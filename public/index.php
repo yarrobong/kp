@@ -35,11 +35,7 @@ $router = new Router();
 
 // Маршруты
 $router->get('/', 'HomeController@index');
-$router->get('/health', function() {
-    header('Content-Type: application/json');
-    echo json_encode(['status' => 'ok', 'time' => time()]);
-    exit;
-});
+$router->get('/health', 'HomeController@health');
 
 // Маршруты аутентификации
 $router->get('/login', 'AuthController@login');

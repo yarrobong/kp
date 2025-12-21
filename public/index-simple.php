@@ -402,11 +402,33 @@ switch ($uri) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
-        // Получить товары из сессии
+        // Получить товары из сессии или файла
         $userProducts = [];
         $allProducts = session('products', []);
+        $userId = session('user_id');
+
+        // Если в сессии нет товаров, попробуем загрузить из файла
+        if (empty($allProducts) || !is_array($allProducts)) {
+            $dataFile = __DIR__ . '/../storage/products.json';
+            if (file_exists($dataFile)) {
+                $fileData = json_decode(file_get_contents($dataFile), true);
+                if (is_array($fileData)) {
+                    // Группируем по ID для сессии
+                    $allProducts = [];
+                    foreach ($fileData as $product) {
+                        if (isset($product['id'])) {
+                            $allProducts[$product['id']] = $product;
+                        }
+                    }
+                    // Сохраняем в сессию для быстрого доступа
+                    session('products', $allProducts);
+                }
+            }
+        }
+
+        $debugInfo = "User ID: $userId, All Products: " . count($allProducts ?? []) . ", Session: " . (is_array($allProducts) ? 'array' : gettype($allProducts));
+
         if (is_array($allProducts)) {
-            $userId = session('user_id');
             foreach ($allProducts as $product) {
                 if (isset($product['user_id']) && $product['user_id'] == $userId) {
                     $userProducts[] = $product;
@@ -414,8 +436,11 @@ switch ($uri) {
             }
         }
 
+        $debugInfo .= ", User Products: " . count($userProducts);
+
         echo '
 
+                <!-- Debug Info: ' . $debugInfo . ' -->
                 <div class="products-grid">';
 
         if (empty($userProducts)) {
@@ -489,6 +514,9 @@ switch ($uri) {
                 }
                 $newId = count($products) + 1;
 
+                // Debug: проверяем сохранение
+                error_log("Saving product ID $newId for user " . session('user_id'));
+
                 $products[$newId] = [
                     'id' => $newId,
                     'user_id' => session('user_id'),
@@ -501,6 +529,16 @@ switch ($uri) {
                 ];
 
                 session('products', $products);
+
+                // Также сохраняем в файл для надежности
+                $dataFile = __DIR__ . '/../storage/products.json';
+                $allData = [];
+                if (file_exists($dataFile)) {
+                    $allData = json_decode(file_get_contents($dataFile), true) ?: [];
+                }
+                $allData[] = $products[$newId];
+                file_put_contents($dataFile, json_encode($allData));
+
                 $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
 
                 // Очистить форму (редирект)

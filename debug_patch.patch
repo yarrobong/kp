@@ -1,0 +1,63 @@
+diff --git a/index.php b/index.php
+index bfadbdc..8a28b12 100644
+--- a/index.php
++++ b/index.php
+@@ -357,34 +357,49 @@ function createProposal($data) {
+ }
+ 
+ function getProposal($id) {
++    echo "<!-- DEBUG: getProposal called with ID $id -->";
+     $db = getDB();
++    echo "<!-- DEBUG: DB " . ($db ? "connected" : "not connected") . " -->";
+     if ($db) {
+         try {
+             $stmt = $db->prepare("SELECT * FROM proposals WHERE id = ?");
+             $stmt->execute([$id]);
+             $result = $stmt->fetch(PDO::FETCH_ASSOC);
++            echo "<!-- DEBUG: DB result " . ($result ? "found" : "not found") . " -->";
+             if ($result) {
+                 return $result;
+             }
+         } catch (Exception $e) {
+-            // Fallback на JSON
++            echo "<!-- DEBUG: DB exception: " . $e->getMessage() . " -->";
+         }
+     }
+ 
+     // Fallback на JSON файл
+     $dataFile = PROJECT_ROOT . '/proposals.json';
++    echo "<!-- DEBUG: JSON file: $dataFile -->";
++    echo "<!-- DEBUG: PROJECT_ROOT defined: " . (defined('PROJECT_ROOT') ? 'yes' : 'no') . " -->";
++    if (defined('PROJECT_ROOT')) {
++        echo "<!-- DEBUG: PROJECT_ROOT value: " . PROJECT_ROOT . " -->";
++    }
++    echo "<!-- DEBUG: File exists: " . (file_exists($dataFile) ? 'yes' : 'no') . " -->";
++
+     if (file_exists($dataFile)) {
+-        $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
+-        foreach ($proposals as $proposal) {
+-            if ($proposal['id'] == $id) {
+-                // Отладка
+-                file_put_contents(PROJECT_ROOT . '/debug.log', "getProposal: Found proposal ID $id: " . $proposal['title'] . "\n", FILE_APPEND);
+-                return $proposal;
++        $content = file_get_contents($dataFile);
++        echo "<!-- DEBUG: File content length: " . strlen($content) . " -->";
++        $proposals = json_decode($content, true);
++        echo "<!-- DEBUG: JSON decode: " . (is_array($proposals) ? 'success' : 'failed') . " -->";
++        if (is_array($proposals)) {
++            echo "<!-- DEBUG: Proposals count: " . count($proposals) . " -->";
++            foreach ($proposals as $proposal) {
++                echo "<!-- DEBUG: Checking proposal ID: " . ($proposal['id'] ?? 'no id') . " -->";
++                if (($proposal['id'] ?? 0) == $id) {
++                    echo "<!-- DEBUG: FOUND proposal ID $id -->";
++                    return $proposal;
++                }
+             }
+         }
+     }
+-    // Отладка
+-    file_put_contents(PROJECT_ROOT . '/debug.log', "getProposal: Proposal ID $id not found\n", FILE_APPEND);
++    echo "<!-- DEBUG: Proposal ID $id NOT found -->";
+     return null;
+ }
+ 

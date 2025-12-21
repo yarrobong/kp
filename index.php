@@ -5,10 +5,6 @@ define('PROJECT_ROOT', dirname(__FILE__));
 
 // Простое приложение для управления товарами
 
-// Отладка маршрута
-if (strpos($_SERVER['REQUEST_URI'] ?? '', '/proposals/') !== false) {
-    echo "<!-- DEBUG: URI=" . $_SERVER['REQUEST_URI'] . " -->";
-}
 // Хранение в базе данных
 
 // Подключение к БД (с fallback на JSON)
@@ -357,49 +353,30 @@ function createProposal($data) {
 }
 
 function getProposal($id) {
-    echo "<!-- DEBUG: getProposal called with ID $id -->";
     $db = getDB();
-    echo "<!-- DEBUG: DB " . ($db ? "connected" : "not connected") . " -->";
     if ($db) {
         try {
             $stmt = $db->prepare("SELECT * FROM proposals WHERE id = ?");
             $stmt->execute([$id]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            echo "<!-- DEBUG: DB result " . ($result ? "found" : "not found") . " -->";
             if ($result) {
                 return $result;
             }
         } catch (Exception $e) {
-            echo "<!-- DEBUG: DB exception: " . $e->getMessage() . " -->";
+            // Fallback на JSON
         }
     }
 
     // Fallback на JSON файл
     $dataFile = PROJECT_ROOT . '/proposals.json';
-    echo "<!-- DEBUG: JSON file: $dataFile -->";
-    echo "<!-- DEBUG: PROJECT_ROOT defined: " . (defined('PROJECT_ROOT') ? 'yes' : 'no') . " -->";
-    if (defined('PROJECT_ROOT')) {
-        echo "<!-- DEBUG: PROJECT_ROOT value: " . PROJECT_ROOT . " -->";
-    }
-    echo "<!-- DEBUG: File exists: " . (file_exists($dataFile) ? 'yes' : 'no') . " -->";
-
     if (file_exists($dataFile)) {
-        $content = file_get_contents($dataFile);
-        echo "<!-- DEBUG: File content length: " . strlen($content) . " -->";
-        $proposals = json_decode($content, true);
-        echo "<!-- DEBUG: JSON decode: " . (is_array($proposals) ? 'success' : 'failed') . " -->";
-        if (is_array($proposals)) {
-            echo "<!-- DEBUG: Proposals count: " . count($proposals) . " -->";
-            foreach ($proposals as $proposal) {
-                echo "<!-- DEBUG: Checking proposal ID: " . ($proposal['id'] ?? 'no id') . " -->";
-                if (($proposal['id'] ?? 0) == $id) {
-                    echo "<!-- DEBUG: FOUND proposal ID $id -->";
-                    return $proposal;
-                }
+        $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
+        foreach ($proposals as $proposal) {
+            if ($proposal['id'] == $id) {
+                return $proposal;
             }
         }
     }
-    echo "<!-- DEBUG: Proposal ID $id NOT found -->";
     return null;
 }
 
@@ -731,84 +708,6 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         </html>';
         break;
 
-    case '/debug':
-        echo '<pre>';
-        echo 'GET: ' . print_r($_GET, true) . PHP_EOL;
-        echo 'POST: ' . print_r($_POST, true) . PHP_EOL;
-        echo 'FILES: ' . print_r($_FILES, true) . PHP_EOL;
-        echo 'REQUEST_METHOD: ' . $_SERVER['REQUEST_METHOD'] . PHP_EOL;
-
-        // Попробуем создать предложение из POST данных
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $clientName = trim($_POST['client_name'] ?? '');
-            $proposalItems = $_POST['proposal_items'] ?? [];
-            $offerDate = $_POST['offer_date'] ?? date('Y-m-d');
-
-            echo PHP_EOL . '=== TESTING PROPOSAL CREATION ===' . PHP_EOL;
-            echo "Client name: $clientName" . PHP_EOL;
-            echo "Offer date: $offerDate" . PHP_EOL;
-            echo "Proposal items: " . print_r($proposalItems, true) . PHP_EOL;
-
-            if (!empty($proposalItems) && is_array($proposalItems)) {
-                $total = 0;
-                $proposalProducts = [];
-                $validItems = 0;
-
-                foreach ($proposalItems as $item) {
-                    $productId = $item['product_id'] ?? '';
-                    $quantity = floatval($item['quantity'] ?? 0);
-
-                    echo "Processing item: product_id=$productId, quantity=$quantity" . PHP_EOL;
-
-                    if (!empty($productId) && $quantity > 0) {
-                        $product = getProduct($productId);
-                        if ($product) {
-                            echo "Found product: " . $product['name'] . PHP_EOL;
-                            $product['quantity'] = $quantity;
-                            $product['line_total'] = $product['price'] * $quantity;
-                            $proposalProducts[] = $product;
-                            $total += $product['line_total'];
-                            $validItems++;
-                        } else {
-                            echo "Product not found: $productId" . PHP_EOL;
-                        }
-                    }
-                }
-
-                echo "Valid items: $validItems, Total: $total" . PHP_EOL;
-
-                if ($validItems > 0) {
-                    $proposalData = [
-                        'user_id' => 1,
-                        'title' => 'Коммерческое предложение для ' . $clientName,
-                        'offer_number' => generateOfferNumber(),
-                        'offer_date' => $offerDate,
-                        'client_info' => json_encode([
-                            'client_name' => $clientName,
-                            'products' => $proposalProducts
-                        ]),
-                        'status' => 'draft',
-                        'total' => $total
-                    ];
-
-                    echo "Proposal data: " . print_r($proposalData, true) . PHP_EOL;
-
-                    $proposalId = createProposal($proposalData);
-                    echo "CREATED PROPOSAL ID: $proposalId" . PHP_EOL;
-
-                    if ($proposalId) {
-                        echo "SUCCESS! Redirecting to /proposals/$proposalId" . PHP_EOL;
-                        header('Location: /proposals/' . $proposalId);
-                        exit;
-                    } else {
-                        echo "FAILED TO CREATE PROPOSAL" . PHP_EOL;
-                    }
-                }
-            }
-        }
-
-        echo '</pre>';
-        break;
 
     case '/proposals/create':
         $error = '';
@@ -1008,7 +907,6 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">📄 Сформировать КП</button>
-                        <button type="submit" formaction="/debug" class="btn btn-secondary" style="background: #ff6b35;">🐛 Debug</button>
                         <a href="/proposals" class="btn btn-secondary">Отмена</a>
                     </div>
                 </form>
@@ -1369,9 +1267,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         // Проверяем, является ли это маршрутом просмотра предложения /proposals/{id}
         if (preg_match('#^/proposals/(\d+)$#', $uri, $matches)) {
             $proposalId = (int)$matches[1];
-            echo "<!-- DEBUG: Matched route /proposals/{$proposalId} -->";
             $proposal = getProposal($proposalId);
-            echo "<!-- DEBUG: getProposal returned: " . (empty($proposal) ? "null" : "object") . " -->";
 
             if (!$proposal) {
                 http_response_code(404);

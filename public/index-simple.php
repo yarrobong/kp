@@ -239,6 +239,90 @@ switch ($uri) {
         </html>';
         break;
 
+    case '/proposals/create':
+        if (!session('user_id')) {
+            redirect('/login');
+        }
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Создать КП</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/proposals">Мои КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Создать коммерческое предложение</h1>
+                    <a href="/proposals" class="btn btn-secondary">← Назад к списку</a>
+                </div>
+
+                <div class="alert alert-info">
+                    Форма создания КП находится в разработке.
+                    Это демо-версия с базовым интерфейсом.
+                </div>
+
+                <form method="POST" class="proposal-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Название КП</label>
+                            <input type="text" name="title" placeholder="Например: Предложение для ООО Ромашка" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Номер предложения</label>
+                            <input type="text" name="offer_number" placeholder="КП-001">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Дата предложения</label>
+                            <input type="date" name="offer_date" value="' . date('Y-m-d') . '" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Валюта</label>
+                            <select name="currency">
+                                <option value="₽">₽ Рубль</option>
+                                <option value="$">$ Доллар</option>
+                                <option value="€">€ Евро</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Информация о продавце</label>
+                        <textarea name="seller_info" rows="3" placeholder="Название компании, адрес, контакты..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Информация о покупателе</label>
+                        <textarea name="buyer_info" rows="3" placeholder="Название компании клиента, адрес, контакты..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Создать КП</button>
+                        <a href="/proposals" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
+            </main>
+        </body>
+        </html>';
+        break;
+
     case '/templates':
         if (!session('user_id')) {
             redirect('/login');
@@ -289,6 +373,72 @@ switch ($uri) {
                         </div>
                     </div>
                 </div>
+            </main>
+        </body>
+        </html>';
+        break;
+
+    case '/templates/create':
+        if (!session('user_id')) {
+            redirect('/login');
+        }
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Создать шаблон</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор</a>
+                    <div class="navbar-menu">
+                        <a href="/proposals">Мои КП</a>
+                        <a href="/templates">Шаблоны</a>
+                        <a href="/dashboard">Панель</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Создать шаблон КП</h1>
+                    <a href="/templates" class="btn btn-secondary">← Назад к списку</a>
+                </div>
+
+                <div class="alert alert-info">
+                    Форма создания шаблонов находится в разработке.
+                    Это демо-версия с базовым интерфейсом.
+                </div>
+
+                <form method="POST" class="template-form">
+                    <div class="form-group">
+                        <label>Название шаблона</label>
+                        <input type="text" name="title" placeholder="Например: Стандартный шаблон для IT-компаний" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea name="description" rows="3" placeholder="Краткое описание назначения шаблона..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>HTML-контент шаблона</label>
+                        <textarea name="body_html" rows="10" placeholder="<h1>Коммерческое предложение</h1>
+<p>Уважаемый {{client_name}}!</p>
+<p>Предлагаем вам наши услуги...</p>"></textarea>
+                        <small class="hint">Используйте переменные в формате {{variable_name}}</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Создать шаблон</button>
+                        <a href="/templates" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
             </main>
         </body>
         </html>';

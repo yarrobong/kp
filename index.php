@@ -373,13 +373,13 @@ function getProposal($id) {
         foreach ($proposals as $proposal) {
             if ($proposal['id'] == $id) {
                 // Отладка
-                error_log("getProposal: Found proposal ID $id: " . $proposal['title']);
+                file_put_contents(PROJECT_ROOT . '/debug.log', "getProposal: Found proposal ID $id: " . $proposal['title'] . "\n", FILE_APPEND);
                 return $proposal;
             }
         }
     }
     // Отладка
-    error_log("getProposal: Proposal ID $id not found");
+    file_put_contents(PROJECT_ROOT . '/debug.log', "getProposal: Proposal ID $id not found\n", FILE_APPEND);
     return null;
 }
 
@@ -1349,9 +1349,9 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         // Проверяем, является ли это маршрутом просмотра предложения /proposals/{id}
         if (preg_match('#^/proposals/(\d+)$#', $uri, $matches)) {
             $proposalId = (int)$matches[1];
-            error_log("Loading proposal ID: $proposalId");
+            file_put_contents(PROJECT_ROOT . '/debug.log', "Loading proposal ID: $proposalId\n", FILE_APPEND);
             $proposal = getProposal($proposalId);
-            error_log("Proposal result: " . (empty($proposal) ? "NOT FOUND" : "FOUND"));
+            file_put_contents(PROJECT_ROOT . '/debug.log', "Proposal result: " . (empty($proposal) ? "NOT FOUND" : "FOUND") . "\n", FILE_APPEND);
 
             if (!$proposal) {
                 http_response_code(404);

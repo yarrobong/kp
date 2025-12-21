@@ -164,6 +164,41 @@ function updateProduct($id, $data) {
     return false;
 }
 
+function uploadProductImage($file) {
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+
+    // Проверяем тип файла
+    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!in_array($file['type'], $allowedTypes)) {
+        return null;
+    }
+
+    // Проверяем размер файла (макс 5MB)
+    if ($file['size'] > 5 * 1024 * 1024) {
+        return null;
+    }
+
+    // Создаем папку для изображений если её нет
+    $uploadDir = __DIR__ . '/uploads/products/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+
+    // Генерируем уникальное имя файла
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = uniqid('product_', true) . '.' . $extension;
+    $filepath = $uploadDir . $filename;
+
+    // Перемещаем файл
+    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+        return '/uploads/products/' . $filename;
+    }
+
+    return null;
+}
+
 function getProductImage($imagePath) {
     if (!$imagePath || $imagePath === '/css/placeholder-product.svg') {
         // Используем сервис для генерации изображений товаров
@@ -313,11 +348,22 @@ switch ($uri) {
             $category = trim($_POST['category'] ?? '');
             $description = trim($_POST['description'] ?? '');
 
+            // Обрабатываем загруженное изображение
+            $imagePath = '/css/placeholder-product.svg';
+            if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $uploadedImage = uploadProductImage($_FILES['image']);
+                if ($uploadedImage) {
+                    $imagePath = $uploadedImage;
+                } else {
+                    $error = 'Ошибка загрузки изображения. Проверьте формат (JPEG, PNG, GIF, WebP) и размер (до 5MB).';
+                }
+            }
+
             if (empty($name)) {
                 $error = 'Название товара обязательно';
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
-            } else {
+            } elseif (!isset($error)) {
                 // Сохраняем товар
                 try {
                     createProduct([
@@ -326,7 +372,7 @@ switch ($uri) {
                             'price' => $price,
                             'category' => $category,
                             'description' => $description,
-                        'image' => '/css/placeholder-product.svg'
+                        'image' => $imagePath
                     ]);
                     header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно добавлен!'));
                     exit;
@@ -395,6 +441,12 @@ switch ($uri) {
                         <textarea name="description" rows="4" placeholder="Подробное описание товара..."></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Изображение товара (необязательно)</label>
+                        <input type="file" name="image" accept="image/*">
+                        <small style="color: #b0b0b0; font-size: 12px;">Поддерживаемые форматы: JPEG, PNG, GIF, WebP. Максимальный размер: 5MB.</small>
+                    </div>
+
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">💾 Сохранить товар</button>
                         <a href="/products" class="btn btn-secondary">Отмена</a>
@@ -453,30 +505,41 @@ switch ($uri) {
             $success = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $name = trim($_POST['name'] ?? '');
-                $price = floatval($_POST['price'] ?? 0);
-                $category = trim($_POST['category'] ?? '');
-                $description = trim($_POST['description'] ?? '');
+            $name = trim($_POST['name'] ?? '');
+            $price = floatval($_POST['price'] ?? 0);
+            $category = trim($_POST['category'] ?? '');
+            $description = trim($_POST['description'] ?? '');
 
-                if (empty($name)) {
-                    $error = 'Название товара обязательно';
-                } elseif ($price <= 0) {
-                    $error = 'Цена должна быть больше 0';
+            // Обрабатываем загруженное изображение
+            $imagePath = $product['image']; // Сохраняем существующее изображение по умолчанию
+            if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $uploadedImage = uploadProductImage($_FILES['image']);
+                if ($uploadedImage) {
+                    $imagePath = $uploadedImage;
             } else {
-                    // Обновляем товар
-                    try {
-                        updateProduct($productId, [
-                            'name' => $name,
-                            'price' => $price,
-                            'category' => $category,
-                            'description' => $description,
-                            'image' => $product['image'] // Сохраняем существующее изображение
-                        ]);
-                        header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно обновлен!'));
-                        exit;
-                    } catch (Exception $e) {
-                        $error = 'Ошибка обновления товара: ' . $e->getMessage();
-                    }
+                    $error = 'Ошибка загрузки изображения. Проверьте формат (JPEG, PNG, GIF, WebP) и размер (до 5MB).';
+                }
+            }
+
+            if (empty($name)) {
+                $error = 'Название товара обязательно';
+            } elseif ($price <= 0) {
+                $error = 'Цена должна быть больше 0';
+            } elseif (!isset($error)) {
+                // Обновляем товар
+                try {
+                    updateProduct($productId, [
+                        'name' => $name,
+                        'price' => $price,
+                        'category' => $category,
+                        'description' => $description,
+                        'image' => $imagePath
+                    ]);
+                    header('Location: /products?success=' . urlencode('Товар "' . $name . '" успешно обновлен!'));
+                exit;
+                } catch (Exception $e) {
+                    $error = 'Ошибка обновления товара: ' . $e->getMessage();
+                }
             }
         }
 
@@ -534,8 +597,14 @@ switch ($uri) {
                     </div>
 
                     <div class="form-group">
-                            <label>Описание</label>
+                        <label>Описание</label>
                             <textarea name="description" rows="4">' . htmlspecialchars($product['description'] ?? '') . '</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Изображение товара</label>
+                        <input type="file" name="image" accept="image/*">
+                        <small style="color: #b0b0b0; font-size: 12px;">Оставьте пустым, чтобы сохранить текущее изображение. Поддерживаемые форматы: JPEG, PNG, GIF, WebP. Максимальный размер: 5MB.</small>
                     </div>
 
                     <div class="form-actions">

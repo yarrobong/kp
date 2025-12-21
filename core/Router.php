@@ -55,9 +55,6 @@ class Router {
             $uri = '/';
         }
 
-        // Временная отладка
-        error_log("Router: Method=$method, URI='$uri', REQUEST_URI='$requestUri'");
-
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $this->matchPath($route['path'], $uri, $params)) {
                 try {

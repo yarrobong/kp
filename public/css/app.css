@@ -231,6 +231,14 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 32px;
 }
 
+/* Proposals Grid */
+.proposals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
 /* Product Cards */
 .product-image-container {
     width: 100%;
@@ -282,6 +290,72 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .product-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Proposal Cards */
+.proposal-header {
+    margin-bottom: 16px;
+}
+
+.proposal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.proposal-number {
+    font-size: 14px;
+    color: #b0b0b0;
+    font-weight: 500;
+}
+
+.proposal-info {
+    margin-bottom: 16px;
+}
+
+.proposal-client,
+.proposal-date,
+.proposal-total {
+    font-size: 14px;
+    color: #e0e0e0;
+    margin-bottom: 6px;
+}
+
+.proposal-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-draft {
+    background: #424242;
+    color: #e0e0e0;
+}
+
+.status-sent {
+    background: #1976d2;
+    color: #ffffff;
+}
+
+.status-accepted {
+    background: #388e3c;
+    color: #ffffff;
+}
+
+.status-rejected {
+    background: #d32f2f;
+    color: #ffffff;
+}
+
+.proposal-actions {
     margin-top: 16px;
     display: flex;
     gap: 8px;
@@ -401,7 +475,7 @@ h1, h2, h3, h4, h5, h6 {
     .container {
         padding: 16px;
     }
-
+    
     .navbar .container {
         padding: 16px 20px;
     }
@@ -409,7 +483,7 @@ h1, h2, h3, h4, h5, h6 {
     .navbar-brand {
         font-size: 1.5rem;
     }
-
+    
     .navbar-menu {
         flex-direction: column;
         gap: 12px;

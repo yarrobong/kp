@@ -115,9 +115,9 @@ class Router {
 
         // Если имя контроллера уже содержит "Controller", не добавляем суффикс
         if (substr($controllerName, -10) === 'Controller') {
-            $controllerClass = $controllerName;
+            $controllerClass = 'Controllers\\' . $controllerName;
         } else {
-            $controllerClass = $controllerName . 'Controller';
+            $controllerClass = 'Controllers\\' . $controllerName . 'Controller';
         }
 
         $controllerFile = __DIR__ . '/../controllers/' . $controllerClass . '.php';

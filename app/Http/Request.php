@@ -110,6 +110,11 @@ class Request
                str_contains($this->server['HTTP_ACCEPT'] ?? '', 'application/json');
     }
 
+    public function expectsJson()
+    {
+        return $this->isJson();
+    }
+
     public function url()
     {
         return ($this->server['HTTPS'] ?? 'off') === 'on' ? 'https' : 'http'

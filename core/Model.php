@@ -21,7 +21,7 @@ abstract class Model {
                 }
                 $config = require $configPath;
                 $dsn = "mysql:host={$config['host']};dbname={$config['database']};charset={$config['charset']}";
-                self::$db = new PDO($dsn, $config['username'], $config['password'], $config['options']);
+                self::$db = new \PDO($dsn, $config['username'], $config['password'], $config['options']);
             } catch (PDOException $e) {
                 // Fallback to JSON if database connection fails
                 self::$db = false;

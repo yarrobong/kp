@@ -413,13 +413,8 @@ switch ($uri) {
             if (file_exists($dataFile)) {
                 $fileData = json_decode(file_get_contents($dataFile), true);
                 if (is_array($fileData)) {
-                    // Группируем по ID для сессии
-                    $allProducts = [];
-                    foreach ($fileData as $product) {
-                        if (isset($product['id'])) {
-                            $allProducts[$product['id']] = $product;
-                        }
-                    }
+                    // Загружаем все товары из файла
+                    $allProducts = $fileData;
                     // Сохраняем в сессию для быстрого доступа
                     session('products', $allProducts);
                 }
@@ -532,12 +527,7 @@ switch ($uri) {
 
                 // Также сохраняем в файл для надежности
                 $dataFile = __DIR__ . '/../storage/products.json';
-                $allData = [];
-                if (file_exists($dataFile)) {
-                    $allData = json_decode(file_get_contents($dataFile), true) ?: [];
-                }
-                $allData[] = $products[$newId];
-                file_put_contents($dataFile, json_encode($allData));
+                file_put_contents($dataFile, json_encode($products));
 
                 $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
 
@@ -668,11 +658,24 @@ switch ($uri) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
-        // Получить предложения из сессии
+        // Получить предложения из сессии или файла
         $userProposals = [];
         $allProposals = session('proposals', []);
+        $userId = session('user_id');
+
+        // Если в сессии нет предложений, попробуем загрузить из файла
+        if (empty($allProposals) || !is_array($allProposals)) {
+            $dataFile = __DIR__ . '/../storage/proposals.json';
+            if (file_exists($dataFile)) {
+                $fileData = json_decode(file_get_contents($dataFile), true);
+                if (is_array($fileData)) {
+                    $allProposals = $fileData;
+                    session('proposals', $allProposals);
+                }
+            }
+        }
+
         if (is_array($allProposals)) {
-            $userId = session('user_id');
             foreach ($allProposals as $proposal) {
                 if (isset($proposal['user_id']) && $proposal['user_id'] == $userId) {
                     $userProposals[] = $proposal;
@@ -771,6 +774,11 @@ switch ($uri) {
                 ];
 
                 session('proposals', $proposals);
+
+                // Также сохраняем в файл для надежности
+                $dataFile = __DIR__ . '/../storage/proposals.json';
+                file_put_contents($dataFile, json_encode($proposals));
+
                 $success = 'Коммерческое предложение "' . htmlspecialchars($title) . '" успешно создано!';
 
                 // Очистить форму (редирект)

@@ -1,5 +1,8 @@
 <?php
 
+// Определяем корневую директорию проекта
+define('PROJECT_ROOT', dirname(__FILE__));
+
 // Простое приложение для управления товарами
 // Хранение в базе данных
 
@@ -40,7 +43,7 @@ function getProducts($userId = null) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/products.json';
+    $dataFile = PROJECT_ROOT . '/products.json';
     if (!file_exists($dataFile)) {
         return [];
     }
@@ -78,7 +81,7 @@ function createProduct($data) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/products.json';
+    $dataFile = PROJECT_ROOT . '/products.json';
     $products = [];
     if (file_exists($dataFile)) {
         $products = json_decode(file_get_contents($dataFile), true) ?: [];
@@ -122,7 +125,7 @@ function getProduct($id) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/products.json';
+    $dataFile = PROJECT_ROOT . '/products.json';
     if (file_exists($dataFile)) {
         $products = json_decode(file_get_contents($dataFile), true) ?: [];
         foreach ($products as $product) {
@@ -154,7 +157,7 @@ function updateProduct($id, $data) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/products.json';
+    $dataFile = PROJECT_ROOT . '/products.json';
     if (file_exists($dataFile)) {
         $products = json_decode(file_get_contents($dataFile), true) ?: [];
         foreach ($products as &$product) {
@@ -186,7 +189,7 @@ function deleteProduct($id) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/products.json';
+    $dataFile = PROJECT_ROOT . '/products.json';
     if (file_exists($dataFile)) {
         $products = json_decode(file_get_contents($dataFile), true) ?: [];
         $newProducts = [];
@@ -279,7 +282,7 @@ function getProposals($userId = null) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/proposals.json';
+    $dataFile = PROJECT_ROOT . '/proposals.json';
     if (!file_exists($dataFile)) {
         return [];
     }
@@ -319,7 +322,7 @@ function createProposal($data) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/proposals.json';
+    $dataFile = PROJECT_ROOT . '/proposals.json';
     $proposals = [];
     if (file_exists($dataFile)) {
         $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
@@ -361,7 +364,7 @@ function getProposal($id) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/proposals.json';
+    $dataFile = PROJECT_ROOT . '/proposals.json';
     if (file_exists($dataFile)) {
         $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
         foreach ($proposals as $proposal) {
@@ -394,7 +397,7 @@ function updateProposal($id, $data) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/proposals.json';
+    $dataFile = PROJECT_ROOT . '/proposals.json';
     if (file_exists($dataFile)) {
         $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
         foreach ($proposals as &$proposal) {
@@ -427,7 +430,7 @@ function deleteProposal($id) {
     }
 
     // Fallback на JSON файл
-    $dataFile = __DIR__ . '/proposals.json';
+    $dataFile = PROJECT_ROOT . '/proposals.json';
     if (file_exists($dataFile)) {
         $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
         $newProposals = [];

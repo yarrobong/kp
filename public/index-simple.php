@@ -131,7 +131,7 @@ switch ($uri) {
                         <p><strong>Тестовые аккаунты:</strong></p>
                         <p>Админ: admin@example.com / password</p>
                         <p>Пользователь: user@example.com / password</p>
-                        <p><a href="/debug">Отладка</a></p>
+                        <p><a href="/register">Регистрация</a> | <a href="/debug">Отладка</a></p>
                     </div>
                 </div>
             </div>
@@ -221,6 +221,99 @@ switch ($uri) {
         </html>';
         break;
 
+    case '/register':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $password = $_POST['password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            $errors = [];
+
+            // Валидация
+            if (empty($name)) {
+                $errors[] = 'Имя обязательно для заполнения';
+            }
+            if (empty($email)) {
+                $errors[] = 'Email обязателен для заполнения';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Неверный формат email';
+            }
+            if (empty($password)) {
+                $errors[] = 'Пароль обязателен для заполнения';
+            } elseif (strlen($password) < 6) {
+                $errors[] = 'Пароль должен содержать минимум 6 символов';
+            }
+            if ($password !== $confirmPassword) {
+                $errors[] = 'Пароли не совпадают';
+            }
+
+            // Проверка существующего email (пока что простая проверка)
+            if ($email === 'admin@example.com' || $email === 'user@example.com') {
+                $errors[] = 'Этот email уже зарегистрирован';
+            }
+
+            if (empty($errors)) {
+                // В будущем: сохранить в базу данных
+                // Пока что просто редирект на логин с сообщением
+                session('success', 'Регистрация успешна! Теперь вы можете войти.');
+                redirect('/login');
+            } else {
+                $errorMessage = implode('<br>', $errors);
+            }
+        }
+
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Регистрация</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h1>Регистрация</h1>';
+
+        if (isset($errorMessage)) {
+            echo '<div class="alert alert-error">' . $errorMessage . '</div>';
+        }
+
+        echo '
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Имя</label>
+                            <input type="text" name="name" required autofocus>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Пароль</label>
+                            <input type="password" name="password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Подтверждение пароля</label>
+                            <input type="password" name="confirm_password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                    </form>
+
+                    <p class="text-center">
+                        Уже есть аккаунт? <a href="/login">Войти</a>
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>';
+        break;
+
     case '/admin':
         // Проверка на админа (простая проверка по роли)
         if (!session('user_id') || session('user_role') !== 'admin') {
@@ -252,15 +345,10 @@ switch ($uri) {
                     <h1>Админ панель</h1>
                 </div>
 
-                <div class="alert alert-info">
-                    Админская панель находится в разработке.
-                    Здесь будет список всех пользователей и их данных.
-                </div>
-
                 <div class="admin-stats">
                     <div class="stat-card">
                         <h3>Всего пользователей</h3>
-                        <div class="stat-number">1</div>
+                        <div class="stat-number">2</div>
                     </div>
                     <div class="stat-card">
                         <h3>Всего товаров</h3>
@@ -272,17 +360,89 @@ switch ($uri) {
                     </div>
                 </div>
 
-                <div class="admin-sections">
-                    <div class="admin-card">
+                <div class="admin-content">
+                    <div class="admin-section">
                         <h2>👥 Управление пользователями</h2>
-                        <p>Просмотр и управление всеми пользователями системы</p>
-                        <a href="/admin/users" class="btn btn-primary">Пользователи</a>
+
+                        <div class="users-table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Имя</th>
+                                        <th>Email</th>
+                                        <th>Роль</th>
+                                        <th>Дата регистрации</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Администратор</td>
+                                        <td>admin@example.com</td>
+                                        <td><span class="badge badge-success">Админ</span></td>
+                                        <td>' . date('d.m.Y') . '</td>
+                                        <td>
+                                            <form method="POST" action="/admin/users/1/role" style="display: inline;">
+                                                <input type="hidden" name="_token" value="demo">
+                                                <select name="role" onchange="this.form.submit()">
+                                                    <option value="admin" selected>Админ</option>
+                                                    <option value="user">Пользователь</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Пользователь</td>
+                                        <td>user@example.com</td>
+                                        <td><span class="badge badge-secondary">Пользователь</span></td>
+                                        <td>' . date('d.m.Y') . '</td>
+                                        <td>
+                                            <form method="POST" action="/admin/users/2/role" style="display: inline;">
+                                                <input type="hidden" name="_token" value="demo">
+                                                <select name="role" onchange="this.form.submit()">
+                                                    <option value="admin">Админ</option>
+                                                    <option value="user" selected>Пользователь</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 20px;">
+                            <a href="/admin/users" class="btn btn-secondary">Детальное управление</a>
+                        </div>
+
+                        <div class="alert alert-info" style="margin-top: 20px;">
+                            <strong>Примечание:</strong> Изменение ролей пользователей будет работать после настройки базы данных.
+                            Сейчас показаны демо-данные для тестирования интерфейса.
+                        </div>
                     </div>
 
-                    <div class="admin-card">
+                    <div class="admin-section">
                         <h2>📊 Статистика системы</h2>
-                        <p>Общая статистика использования платформы</p>
-                        <a href="/admin/stats" class="btn btn-primary">Статистика</a>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>Активных пользователей</h3>
+                                <div class="stat-number">2</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Всего товаров</h3>
+                                <div class="stat-number">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Создано КП</h3>
+                                <div class="stat-number">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Шаблонов</h3>
+                                <div class="stat-number">0</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -316,6 +476,160 @@ switch ($uri) {
                 .admin-card p {
                     color: #666;
                     margin-bottom: 20px;
+                }
+            </style>
+        </body>
+        </html>';
+        break;
+
+    case '/admin/users':
+        // Проверка на админа
+        if (!session('user_id') || session('user_role') !== 'admin') {
+            redirect('/dashboard');
+        }
+
+        // Обработка изменения роли
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id']) && isset($_POST['role'])) {
+            $userId = (int)$_POST['user_id'];
+            $newRole = $_POST['role'];
+
+            if (in_array($newRole, ['admin', 'user', 'guest'])) {
+                // В будущем: обновить в базе данных
+                session('success', "Роль пользователя ID {$userId} изменена на '{$newRole}'");
+                redirect('/admin');
+            }
+        }
+
+        // Показать страницу управления пользователями
+        echo '<!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Управление пользователями</title>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <body>
+            <nav class="navbar">
+                <div class="container">
+                    <a href="/" class="navbar-brand">КП Генератор - Админ</a>
+                    <div class="navbar-menu">
+                        <a href="/dashboard">Панель</a>
+                        <a href="/admin">Админка</a>
+                        <a href="/logout">Выход</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container">
+                <div class="page-header">
+                    <h1>Управление пользователями</h1>
+                    <a href="/admin" class="btn btn-secondary">← Назад в админку</a>
+                </div>
+
+                <div class="users-management">
+                    <div class="alert alert-info">
+                        Управление ролями пользователей. Здесь можно назначать администраторов и изменять роли.
+                    </div>
+
+                    <div class="users-list">
+                        <h3>Список пользователей</h3>
+
+                        <div class="user-item">
+                            <div class="user-info">
+                                <strong>Администратор</strong><br>
+                                <span class="user-email">admin@example.com</span><br>
+                                <span class="user-role badge badge-success">Администратор</span>
+                            </div>
+                            <div class="user-actions">
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="user_id" value="1">
+                                    <select name="role" onchange="this.form.submit()">
+                                        <option value="admin" selected>Администратор</option>
+                                        <option value="user">Пользователь</option>
+                                        <option value="guest">Гость</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="user-item">
+                            <div class="user-info">
+                                <strong>Пользователь</strong><br>
+                                <span class="user-email">user@example.com</span><br>
+                                <span class="user-role badge badge-secondary">Пользователь</span>
+                            </div>
+                            <div class="user-actions">
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="user_id" value="2">
+                                    <select name="role" onchange="this.form.submit()">
+                                        <option value="admin">Администратор</option>
+                                        <option value="user" selected>Пользователь</option>
+                                        <option value="guest">Гость</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <style>
+                .users-management {
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+
+                .users-list h3 {
+                    margin-bottom: 20px;
+                    color: #333;
+                }
+
+                .user-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    margin-bottom: 15px;
+                    background: #fff;
+                }
+
+                .user-info {
+                    flex-grow: 1;
+                }
+
+                .user-info strong {
+                    font-size: 18px;
+                    color: #333;
+                }
+
+                .user-email {
+                    color: #666;
+                    font-size: 14px;
+                }
+
+                .user-role {
+                    font-size: 12px;
+                    margin-top: 5px;
+                }
+
+                .user-actions {
+                    flex-shrink: 0;
+                }
+
+                .user-actions select {
+                    padding: 8px 12px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    background: #fff;
+                    font-size: 14px;
+                }
+
+                .user-actions select:focus {
+                    outline: none;
+                    border-color: #007bff;
                 }
             </style>
         </body>

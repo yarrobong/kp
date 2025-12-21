@@ -169,25 +169,42 @@ function uploadProductImage($file) {
         return null;
     }
 
-    // Проверяем тип файла
+    // Проверяем тип файла по расширению и MIME типу
     $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!in_array($file['type'], $allowedTypes)) {
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    // Проверяем расширение файла
+    if (!in_array($extension, $allowedExtensions)) {
+        return null;
+    }
+
+    // Проверяем MIME тип (если указан)
+    if (!empty($file['type']) && !in_array($file['type'], $allowedTypes)) {
         return null;
     }
 
     // Проверяем размер файла (макс 5MB)
-    if ($file['size'] > 5 * 1024 * 1024) {
+    if ($file['size'] > 5 * 1024 * 1024 || $file['size'] <= 0) {
+        return null;
+    }
+
+    // Проверяем, что файл действительно является изображением
+    $imageInfo = getimagesize($file['tmp_name']);
+    if (!$imageInfo || !in_array($imageInfo['mime'], $allowedTypes)) {
         return null;
     }
 
     // Создаем папку для изображений если её нет
     $uploadDir = __DIR__ . '/uploads/products/';
     if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
+        if (!mkdir($uploadDir, 0755, true)) {
+            return null;
+        }
     }
 
     // Генерируем уникальное имя файла
-    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = uniqid('product_', true) . '.' . $extension;
     $filepath = $uploadDir . $filename;
 

@@ -36,10 +36,17 @@ class Router {
      */
     public function run() {
         $method = $_SERVER['REQUEST_METHOD'];
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+
+        // Извлекаем путь из URI
+        if (strpos($requestUri, '?') !== false) {
+            $uri = strstr($requestUri, '?', true);
+        } else {
+            $uri = $requestUri;
+        }
 
         // Если URI пустой, устанавливаем корень
-        if (!$uri) {
+        if (!$uri || $uri === '') {
             $uri = '/';
         }
 
@@ -47,7 +54,7 @@ class Router {
         $uri = rtrim($uri, '/');
 
         // Отладка
-        error_log("Router: Method=$method, URI=$uri, REQUEST_URI=" . ($_SERVER['REQUEST_URI'] ?? 'not set'));
+        error_log("Router: Method=$method, URI=$uri, REQUEST_URI=$requestUri");
 
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $this->matchPath($route['path'], $uri, $params)) {

@@ -3,8 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\Http\Request;
-use App\Http\Response;
+use Illuminate\Http\Request;
 
 class Authenticate
 {
@@ -12,10 +11,9 @@ class Authenticate
     {
         if (!session('user_id')) {
             if ($request->expectsJson()) {
-                return Response::json(['error' => 'Unauthorized'], 401);
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-            header('Location: /login');
-            exit;
+            return redirect('/login');
         }
         return $next($request);
     }

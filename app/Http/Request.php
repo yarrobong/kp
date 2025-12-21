@@ -19,20 +19,7 @@ class Request
         $this->server = $_SERVER;
         $this->files = $_FILES;
         $this->cookies = $_COOKIE;
-        
-        // Получаем заголовки (getallheaders может быть недоступна в CLI)
-        if (function_exists('getallheaders')) {
-            $this->headers = \getallheaders() ?: [];
-        } else {
-            // Fallback: получаем заголовки из $_SERVER
-            $this->headers = [];
-            foreach ($_SERVER as $key => $value) {
-                if (strpos($key, 'HTTP_') === 0) {
-                    $header = str_replace('_', '-', substr($key, 5));
-                    $this->headers[strtolower($header)] = $value;
-                }
-            }
-        }
+        $this->headers = getallheaders() ?: [];
     }
 
     public static function capture()

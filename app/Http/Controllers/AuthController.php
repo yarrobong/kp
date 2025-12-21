@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        $this->view('auth.login');
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -26,9 +26,7 @@ class AuthController extends Controller
             if ($request->expectsJson()) {
                 return Response::json(['error' => 'Invalid credentials'], 401);
             }
-            session('error', 'Неверный email или пароль');
-            $this->redirect('/login');
-            return;
+            return redirect('/login')->with('error', 'Неверный email или пароль');
         }
 
         session(['user_id' => $user->id, 'user_name' => $user->name, 'user_role' => $user->role]);
@@ -37,12 +35,12 @@ class AuthController extends Controller
             return Response::json(['message' => 'Success', 'user' => $user]);
         }
 
-        $this->redirect('/proposals');
+        return redirect('/proposals');
     }
 
     public function showRegister()
     {
-        $this->view('auth.register');
+        return view('auth.register');
     }
 
     public function register(Request $request)
@@ -57,9 +55,7 @@ class AuthController extends Controller
             if ($request->expectsJson()) {
                 return Response::json(['errors' => $validator->errors()], 422);
             }
-            session('errors', $validator->errors());
-            $this->redirect('/register');
-            return;
+            return redirect('/register')->withErrors($validator)->withInput();
         }
 
         $user = User::create([
@@ -75,26 +71,18 @@ class AuthController extends Controller
             return Response::json(['message' => 'Registered successfully', 'user' => $user], 201);
         }
 
-        $this->redirect('/proposals');
+        return redirect('/proposals');
     }
 
     public function logout(Request $request)
     {
-        if (session('user_id')) {
-            unset($_SESSION['user_id']);
-        }
-        if (session('user_name')) {
-            unset($_SESSION['user_name']);
-        }
-        if (session('user_role')) {
-            unset($_SESSION['user_role']);
-        }
+        session()->forget(['user_id', 'user_name', 'user_role']);
 
         if ($request->expectsJson()) {
             return Response::json(['message' => 'Logged out']);
         }
 
-        $this->redirect('/login');
+        return redirect('/login');
     }
 }
 

@@ -79,8 +79,7 @@ class FileController extends Controller
             return Response::json(['message' => 'Deleted']);
         }
 
-        session('success', 'Файл удален');
-        redirect_back();
+        return redirect()->back()->with('success', 'Файл удален');
     }
 }
 

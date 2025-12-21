@@ -3,46 +3,20 @@
 if (!function_exists('session')) {
     function session($key = null, $value = null)
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
         if ($key === null) {
             return $_SESSION ?? [];
         }
-        
-        // Если передан массив, устанавливаем все значения
-        if (is_array($key) && $value === null) {
-            foreach ($key as $k => $v) {
-                $_SESSION[$k] = $v;
-            }
-            return;
-        }
-        
         if ($value === null) {
             return $_SESSION[$key] ?? null;
         }
-        
         $_SESSION[$key] = $value;
     }
 }
 
 if (!function_exists('redirect')) {
-    function redirect($path = null)
+    function redirect($path)
     {
-        if ($path === null) {
-            return new \App\Http\Redirect();
-        }
         header('Location: ' . $path);
-        exit;
-    }
-}
-
-if (!function_exists('redirect_back')) {
-    function redirect_back()
-    {
-        $referer = $_SERVER['HTTP_REFERER'] ?? '/';
-        header('Location: ' . $referer);
         exit;
     }
 }
@@ -55,9 +29,7 @@ if (!function_exists('view')) {
         if (file_exists($file)) {
             ob_start();
             include $file;
-            $content = ob_get_clean();
-            echo $content;
-            return;
+            return ob_get_clean();
         }
         throw new Exception("View {$template} not found");
     }

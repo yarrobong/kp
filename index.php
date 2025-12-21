@@ -357,7 +357,10 @@ function getProposal($id) {
         try {
             $stmt = $db->prepare("SELECT * FROM proposals WHERE id = ?");
             $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                return $result;
+            }
         } catch (Exception $e) {
             // Fallback на JSON
         }
@@ -369,10 +372,14 @@ function getProposal($id) {
         $proposals = json_decode(file_get_contents($dataFile), true) ?: [];
         foreach ($proposals as $proposal) {
             if ($proposal['id'] == $id) {
+                // Отладка
+                error_log("getProposal: Found proposal ID $id: " . $proposal['title']);
                 return $proposal;
             }
         }
     }
+    // Отладка
+    error_log("getProposal: Proposal ID $id not found");
     return null;
 }
 

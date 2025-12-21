@@ -342,6 +342,23 @@ function checkUserAccess($resourceUserId, $currentUserId = 1) {
     return $resourceUserId == $currentUserId;
 }
 
+// Проверка реального подключения к базе данных
+function checkDatabaseConnection() {
+    $db = getDB();
+    if (!$db) {
+        return 'disconnected';
+    }
+
+    try {
+        // Проверяем, можем ли мы выполнить запрос к таблице proposals
+        $stmt = $db->query('SELECT COUNT(*) as count FROM proposals');
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return 'connected (proposals: ' . $result['count'] . ')';
+    } catch (Exception $e) {
+        return 'fallback_to_json: ' . $e->getMessage();
+    }
+}
+
 // Простое приложение для управления товарами
 
 // Хранение в базе данных
@@ -1588,7 +1605,7 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
             'version' => '1.0.0',
             'php' => PHP_VERSION,
             'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
-            'database' => getDB() ? 'connected' : 'json_fallback',
+            'database' => checkDatabaseConnection(),
             'files' => [
                 'products.json' => file_exists(PROJECT_ROOT . '/products.json'),
                 'proposals.json' => file_exists(PROJECT_ROOT . '/proposals.json'),

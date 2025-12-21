@@ -1,5 +1,7 @@
 <?php
 
+namespace routes;
+
 class Route
 {
     protected static $routes = [];

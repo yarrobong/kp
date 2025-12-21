@@ -3,8 +3,6 @@
 // Простое приложение для управления товарами
 // Хранение в базе данных
 
-session_start();
-
 // Подключение к БД (с fallback на JSON)
 function getDB() {
     static $db = null;
@@ -106,84 +104,22 @@ function createProduct($data) {
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri = rtrim($uri, '/');
 
+// Простая демо-версия без аутентификации
+$userId = 1; // Фиксированный пользователь для демо
+
 switch ($uri) {
     case '':
     case '/':
-        if (isset($_SESSION['user_id'])) {
-            header('Location: /dashboard');
-        } else {
-            header('Location: /login');
-        }
+        header('Location: /products');
         exit;
 
     case '/login':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
-
-            if ($email === 'admin@example.com' && $password === 'password') {
-                $_SESSION['user_id'] = 1;
-                $_SESSION['user_name'] = 'Администратор';
-                header('Location: /dashboard');
-                exit;
-            } elseif ($email === 'user@example.com' && $password === 'password') {
-                $_SESSION['user_id'] = 2;
-                $_SESSION['user_name'] = 'Пользователь';
-                header('Location: /dashboard');
-                exit;
-            }
-        }
-
-        echo '<!DOCTYPE html>
-        <html lang="ru">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Вход - КП Генератор</title>
-            <link rel="stylesheet" href="/css/app.css">
-        </head>
-        <body>
-            <div class="auth-container">
-                <div class="auth-card">
-                    <h1>Вход в систему</h1>';
-
-        if (isset($_GET['error'])) {
-            echo '<div class="alert alert-error">Неверный email или пароль</div>';
-        }
-
-        echo '<form method="POST">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" required autofocus>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Пароль</label>
-                            <input type="password" name="password" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Войти</button>
-                    </form>
-
-                    <div style="margin-top: 20px; text-align: center;">
-                        <p><strong>Тестовые аккаунты:</strong></p>
-                        <p>admin@example.com / password</p>
-                        <p>user@example.com / password</p>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>';
-        break;
+        header('Location: /products');
+        exit;
 
     case '/dashboard':
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
-            exit;
-        }
-
         // Подсчет товаров
-        $userProducts = getProducts($_SESSION['user_id']);
+        $userProducts = getProducts($userId);
         $userProductsCount = count($userProducts);
 
         echo '<!DOCTYPE html>
@@ -201,14 +137,13 @@ switch ($uri) {
                     <div class="navbar-menu">
                         <a href="/dashboard">Панель</a>
                         <a href="/products">Товары</a>
-                        <a href="/logout">Выход</a>
                     </div>
                 </div>
             </nav>
 
             <main class="container">
                 <div class="page-header">
-                    <h1>Добро пожаловать, ' . htmlspecialchars($_SESSION['user_name']) . '!</h1>
+                    <h1>Добро пожаловать в демо-версию!</h1>
                 </div>
 
                 <div class="dashboard-metrics">
@@ -220,7 +155,7 @@ switch ($uri) {
                 </div>
 
                 <div class="alert alert-success">
-                    Система работает! Товары хранятся в файле products.json
+                    Демо-версия работает! Товары хранятся в JSON файле.
                 </div>
             </main>
         </body>
@@ -228,13 +163,8 @@ switch ($uri) {
         break;
 
     case '/products':
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
-            exit;
-        }
-
-        // Получить товары пользователя из БД
-        $userProducts = getProducts($_SESSION['user_id']);
+        // Получить товары пользователя
+        $userProducts = getProducts($userId);
 
         echo '<!DOCTYPE html>
         <html lang="ru">
@@ -297,10 +227,6 @@ switch ($uri) {
         break;
 
     case '/products/create':
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
-            exit;
-        }
 
         $error = '';
         $success = '';
@@ -316,10 +242,10 @@ switch ($uri) {
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
             } else {
-                // Сохраняем товар в БД
+                // Сохраняем товар
                 try {
                     createProduct([
-                        'user_id' => $_SESSION['user_id'],
+                        'user_id' => $userId,
                         'name' => $name,
                         'price' => $price,
                         'category' => $category,
@@ -404,8 +330,7 @@ switch ($uri) {
         break;
 
     case '/logout':
-        session_destroy();
-        header('Location: /login');
+        header('Location: /products');
         exit;
 
     default:

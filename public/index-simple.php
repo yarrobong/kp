@@ -498,17 +498,24 @@ switch ($uri) {
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
             } else {
-                // Сохраняем товар в сессии
-                $products = session('products', []);
-                if (!is_array($products)) {
-                    $products = [];
+                // Загружаем существующие товары из файла
+                $dataFile = __DIR__ . '/../storage/products.json';
+                $existingProducts = [];
+                if (file_exists($dataFile)) {
+                    $existingProducts = json_decode(file_get_contents($dataFile), true) ?: [];
                 }
-                $newId = count($products) + 1;
 
-                // Debug: проверяем сохранение
-                error_log("Saving product ID $newId for user " . session('user_id'));
+                // Определяем следующий ID
+                $maxId = 0;
+                foreach ($existingProducts as $product) {
+                    if (isset($product['id']) && $product['id'] > $maxId) {
+                        $maxId = $product['id'];
+                    }
+                }
+                $newId = $maxId + 1;
 
-                $products[$newId] = [
+                // Создаем новый товар
+                $newProduct = [
                     'id' => $newId,
                     'user_id' => session('user_id'),
                     'name' => $name,
@@ -519,11 +526,12 @@ switch ($uri) {
                     'created_at' => date('Y-m-d H:i:s')
                 ];
 
-                session('products', $products);
+                // Добавляем к существующим товарам
+                $existingProducts[$newId] = $newProduct;
 
-                // Также сохраняем в файл для надежности
-                $dataFile = __DIR__ . '/../storage/products.json';
-                file_put_contents($dataFile, json_encode($products));
+                // Сохраняем в сессии и файл
+                session('products', $existingProducts);
+                file_put_contents($dataFile, json_encode($existingProducts));
 
                 $success = 'Товар "' . htmlspecialchars($name) . '" успешно добавлен!';
 
@@ -747,14 +755,24 @@ switch ($uri) {
             } elseif (empty($date)) {
                 $error = 'Укажите дату';
             } else {
-                // Сохраняем КП в сессии
-                $proposals = session('proposals', []);
-                if (!is_array($proposals)) {
-                    $proposals = [];
+                // Загружаем существующие предложения из файла
+                $dataFile = __DIR__ . '/../storage/proposals.json';
+                $existingProposals = [];
+                if (file_exists($dataFile)) {
+                    $existingProposals = json_decode(file_get_contents($dataFile), true) ?: [];
                 }
-                $newId = count($proposals) + 1;
 
-                $proposals[$newId] = [
+                // Определяем следующий ID
+                $maxId = 0;
+                foreach ($existingProposals as $proposal) {
+                    if (isset($proposal['id']) && $proposal['id'] > $maxId) {
+                        $maxId = $proposal['id'];
+                    }
+                }
+                $newId = $maxId + 1;
+
+                // Создаем новое предложение
+                $newProposal = [
                     'id' => $newId,
                     'user_id' => session('user_id'),
                     'title' => $title,
@@ -766,11 +784,12 @@ switch ($uri) {
                     'created_at' => date('Y-m-d H:i:s')
                 ];
 
-                session('proposals', $proposals);
+                // Добавляем к существующим предложениям
+                $existingProposals[$newId] = $newProposal;
 
-                // Также сохраняем в файл для надежности
-                $dataFile = __DIR__ . '/../storage/proposals.json';
-                file_put_contents($dataFile, json_encode($proposals));
+                // Сохраняем в сессии и файл
+                session('proposals', $existingProposals);
+                file_put_contents($dataFile, json_encode($existingProposals));
 
                 $success = 'Коммерческое предложение "' . htmlspecialchars($title) . '" успешно создано!';
 

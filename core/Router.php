@@ -125,14 +125,16 @@ class Router {
     private function callController($handler, $params) {
         list($controllerName, $method) = explode('@', $handler);
 
-        // Если имя контроллера уже содержит "Controller", не добавляем суффикс
-        if (substr($controllerName, -10) === 'Controller') {
-            $controllerClass = 'Controllers\\' . $controllerName;
-        } else {
-            $controllerClass = 'Controllers\\' . $controllerName . 'Controller';
+        // Определяем имя файла контроллера (без namespace)
+        $controllerFileName = $controllerName;
+        if (substr($controllerName, -10) !== 'Controller') {
+            $controllerFileName .= 'Controller';
         }
 
-        $controllerFile = __DIR__ . '/../controllers/' . str_replace('\\', '/', $controllerClass) . '.php';
+        $controllerFile = __DIR__ . '/../controllers/' . $controllerFileName . '.php';
+
+        // Определяем полное имя класса с namespace
+        $controllerClass = 'Controllers\\' . $controllerFileName;
 
         if (!file_exists($controllerFile)) {
             throw new \Exception("Controller file not found: $controllerFile");

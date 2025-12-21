@@ -342,6 +342,7 @@ switch ($uri) {
         $error = '';
         $success = '';
 
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $price = floatval($_POST['price'] ?? 0);
@@ -363,10 +364,13 @@ switch ($uri) {
                 $error = 'Название товара обязательно';
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
-            } elseif (!isset($error)) {
+            }
+
+
+            if (empty($error)) {
                 // Сохраняем товар
                 try {
-                    createProduct([
+                    $result = createProduct([
                         'user_id' => $userId,
                             'name' => $name,
                             'price' => $price,
@@ -525,7 +529,9 @@ switch ($uri) {
                 $error = 'Название товара обязательно';
             } elseif ($price <= 0) {
                 $error = 'Цена должна быть больше 0';
-            } elseif (!isset($error)) {
+            }
+
+            if (empty($error)) {
                 // Обновляем товар
                 try {
                     updateProduct($productId, [

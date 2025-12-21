@@ -292,13 +292,43 @@ switch ($uri) {
                 <div class="dashboard-metrics">
                     <div class="metric-card">
                         <div class="metric-icon">📦</div>
-                        <div class="metric-value">0</div>
+                        <div class="metric-value">';
+
+        // Подсчет товаров пользователя
+        $userProductsCount = 0;
+        $allProducts = session('products', []);
+        if (is_array($allProducts)) {
+            $userId = session('user_id');
+            foreach ($allProducts as $product) {
+                if (isset($product['user_id']) && $product['user_id'] == $userId) {
+                    $userProductsCount++;
+                }
+            }
+        }
+        echo $userProductsCount;
+
+        echo '</div>
                         <div class="metric-label">Товаров</div>
                     </div>
 
                     <div class="metric-card">
                         <div class="metric-icon">📄</div>
-                        <div class="metric-value">0</div>
+                        <div class="metric-value">';
+
+        // Подсчет предложений пользователя
+        $userProposalsCount = 0;
+        $allProposals = session('proposals', []);
+        if (is_array($allProposals)) {
+            $userId = session('user_id');
+            foreach ($allProposals as $proposal) {
+                if (isset($proposal['user_id']) && $proposal['user_id'] == $userId) {
+                    $userProposalsCount++;
+                }
+            }
+        }
+        echo $userProposalsCount;
+
+        echo '</div>
                         <div class="metric-label">КП создано</div>
                     </div>
 
@@ -372,18 +402,56 @@ switch ($uri) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
+        // Получить товары из сессии
+        $userProducts = [];
+        $allProducts = session('products', []);
+        if (is_array($allProducts)) {
+            $userId = session('user_id');
+            foreach ($allProducts as $product) {
+                if (isset($product['user_id']) && $product['user_id'] == $userId) {
+                    $userProducts[] = $product;
+                }
+            }
+        }
+
         echo '
 
-                <div class="products-grid">
-                    <div class="product-card" style="text-align: center; padding: 60px 20px;">
+                <div class="products-grid">';
+
+        if (empty($userProducts)) {
+            echo '<div class="product-card" style="text-align: center; padding: 60px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
                         <div class="product-title">Каталог пуст</div>
                         <div class="product-description">Добавьте первый товар</div>
                         <div style="margin-top: 20px;">
                             <a href="/products/create" class="btn btn-primary">+ Добавить товар</a>
                         </div>
-                    </div>
-                </div>
+                    </div>';
+        } else {
+            foreach ($userProducts as $product) {
+                echo '<div class="product-card">
+                        <div class="product-image-container">
+                            <img src="' . htmlspecialchars($product['image'] ?? '/css/placeholder-product.svg') . '" alt="' . htmlspecialchars($product['name']) . '" class="product-image">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-title">' . htmlspecialchars($product['name']) . '</div>
+                            <div class="product-price">₽ ' . number_format($product['price'], 2, ',', ' ') . '</div>
+                            ' . (!empty($product['description']) ? '<div class="product-description">' . htmlspecialchars(substr($product['description'], 0, 100)) . (strlen($product['description']) > 100 ? '...' : '') . '</div>' : '') . '
+                        </div>
+                        <div class="product-actions">
+                            <a href="/products/' . $product['id'] . '" class="btn btn-sm">Просмотр</a>
+                            <a href="/products/' . $product['id'] . '/edit" class="btn btn-sm btn-secondary">Редактировать</a>
+                            <form method="POST" action="/products/' . $product['id'] . '" style="display: inline;">
+                                <input type="hidden" name="_token" value="' . session('_token') . '">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Удалить товар?\')">Удалить</button>
+                            </form>
+                        </div>
+                    </div>';
+            }
+        }
+
+        echo '</div>
 
                 <a href="/products/create" class="fab" title="Добавить товар">+</a>
 
@@ -416,6 +484,9 @@ switch ($uri) {
             } else {
                 // Сохраняем товар в сессии
                 $products = session('products', []);
+                if (!is_array($products)) {
+                    $products = [];
+                }
                 $newId = count($products) + 1;
 
                 $products[$newId] = [
@@ -559,10 +630,24 @@ switch ($uri) {
             echo '<div class="alert alert-success">' . htmlspecialchars($_GET['success']) . '</div>';
         }
 
+        // Получить предложения из сессии
+        $userProposals = [];
+        $allProposals = session('proposals', []);
+        if (is_array($allProposals)) {
+            $userId = session('user_id');
+            foreach ($allProposals as $proposal) {
+                if (isset($proposal['user_id']) && $proposal['user_id'] == $userId) {
+                    $userProposals[] = $proposal;
+                }
+            }
+        }
+
         echo '
 
-                <div class="proposals-list">
-                    <div class="proposal-card" style="text-align: center; padding: 60px 20px;">
+                <div class="proposals-list">';
+
+        if (empty($userProposals)) {
+            echo '<div class="proposal-card" style="text-align: center; padding: 60px 20px;">
                         <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
                         <div class="proposal-header">
                             <h3>Нет предложений</h3>
@@ -573,10 +658,34 @@ switch ($uri) {
                         <div style="margin-top: 20px;">
                             <a href="/proposals/create" class="btn btn-primary">+ Создать КП</a>
                         </div>
-                    </div>
-                </div>
+                    </div>';
+        } else {
+            foreach ($userProposals as $proposal) {
+                echo '<div class="proposal-card">
+                        <div class="proposal-header">
+                            <h3><a href="/proposals/' . $proposal['id'] . '">' . htmlspecialchars($proposal['title']) . '</a></h3>
+                            <span class="badge badge-secondary">Черновик</span>
+                        </div>
+                        <div class="proposal-meta">
+                            <span>Дата: ' . date('d.m.Y', strtotime($proposal['offer_date'])) . '</span>
+                            <span>Номер: ' . htmlspecialchars($proposal['offer_number']) . '</span>
+                        </div>
+                        <div class="proposal-actions">
+                            <a href="/proposals/' . $proposal['id'] . '" class="btn btn-sm">Просмотр</a>
+                            <a href="/proposals/' . $proposal['id'] . '/edit" class="btn btn-sm">Редактировать</a>
+                            <a href="/proposals/' . $proposal['id'] . '/pdf" class="btn btn-sm btn-primary" target="_blank">PDF</a>
+                            <form method="POST" action="/proposals/' . $proposal['id'] . '" style="display: inline;">
+                                <input type="hidden" name="_token" value="' . session('_token') . '">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Удалить КП?\')">Удалить</button>
+                            </form>
+                        </div>
+                    </div>';
+            }
+        }
 
-            </main>
+        echo '</div>
+
             </main>
         </body>
         </html>';
@@ -606,6 +715,9 @@ switch ($uri) {
             } else {
                 // Сохраняем КП в сессии
                 $proposals = session('proposals', []);
+                if (!is_array($proposals)) {
+                    $proposals = [];
+                }
                 $newId = count($proposals) + 1;
 
                 $proposals[$newId] = [

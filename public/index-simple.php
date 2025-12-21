@@ -84,10 +84,16 @@ switch ($uri) {
             // Простая проверка для демо
             if ($email === 'admin@example.com' && $password === 'password') {
                 session('user_id', 1);
-                session('user_name', 'Admin');
+                session('user_name', 'Администратор');
+                session('user_role', 'admin'); // Устанавливаем роль админа
+                redirect('/dashboard');
+            } elseif ($email === 'user@example.com' && $password === 'password') {
+                session('user_id', 2);
+                session('user_name', 'Пользователь');
+                session('user_role', 'user'); // Устанавливаем роль пользователя
                 redirect('/dashboard');
             } else {
-                $error = 'Неверный email или пароль';
+                $error = 'Неверный email или пароль. Попробуйте:<br>Админ: admin@example.com / password<br>Пользователь: user@example.com / password';
             }
         }
 
@@ -121,9 +127,12 @@ switch ($uri) {
                         </div>
                         <button type="submit" class="btn btn-primary">Войти</button>
                     </form>
-                    <p class="text-center">
-                        <a href="/debug">Отладка</a>
-                    </p>
+                    <div class="text-center">
+                        <p><strong>Тестовые аккаунты:</strong></p>
+                        <p>Админ: admin@example.com / password</p>
+                        <p>Пользователь: user@example.com / password</p>
+                        <p><a href="/debug">Отладка</a></p>
+                    </div>
                 </div>
             </div>
         </body>

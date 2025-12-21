@@ -389,22 +389,22 @@ switch ($uri) {
 
         <!-- Toast Notifications Container -->
         <div id="toast-container"></div>
+        </main>
 
         <script>
         // Toast notifications
         function showToast(message, type) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <div class="toast-title">${type === 'success' ? 'Успех' : type === 'error' ? 'Ошибка' : 'Информация'}</div>
-                <div class="toast-message">${message}</div>
-            `;
+            toast.className = 'toast ' + type;
+            toast.innerHTML =
+                '<div class="toast-title">' + (type === 'success' ? 'Успех' : type === 'error' ? 'Ошибка' : 'Информация') + '</div>' +
+                '<div class="toast-message">' + message + '</div>';
 
             container.appendChild(toast);
 
             // Auto remove after 5 seconds
-            setTimeout(() => {
+            setTimeout(function() {
                 toast.remove();
             }, 5000);
         }
@@ -412,17 +412,19 @@ switch ($uri) {
         // Show toast for success messages
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const success = urlParams.get('success');
-            const error = urlParams.get('error');
+            const successMsg = urlParams.get('success');
+            const errorMsg = urlParams.get('error');
 
-            if (success) {
-                showToast(success, 'success');
+            if (successMsg) {
+                showToast(successMsg, 'success');
             }
-            if (error) {
-                showToast(error, 'error');
+            if (errorMsg) {
+                showToast(errorMsg, 'error');
             }
         });
         </script>
+    </body>
+    </html>';
             </main>
         </body>
         </html>';
@@ -598,40 +600,42 @@ switch ($uri) {
 
                 <!-- Toast Notifications Container -->
                 <div id="toast-container"></div>
+            </main>
 
-                <script>
-                // Toast notifications
-                function showToast(message, type) {
-                    const container = document.getElementById('toast-container');
-                    const toast = document.createElement('div');
-                    toast.className = `toast ${type}`;
-                    toast.innerHTML = `
-                        <div class="toast-title">${type === 'success' ? 'Успех' : type === 'error' ? 'Ошибка' : 'Информация'}</div>
-                        <div class="toast-message">${message}</div>
-                    `;
+            <script>
+            // Toast notifications
+            function showToast(message, type) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast ' + type;
+                toast.innerHTML =
+                    '<div class="toast-title">' + (type === 'success' ? 'Успех' : type === 'error' ? 'Ошибка' : 'Информация') + '</div>' +
+                    '<div class="toast-message">' + message + '</div>';
 
-                    container.appendChild(toast);
+                container.appendChild(toast);
 
-                    // Auto remove after 5 seconds
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 5000);
+                // Auto remove after 5 seconds
+                setTimeout(function() {
+                    toast.remove();
+                }, 5000);
+            }
+
+            // Show toast for success messages
+            document.addEventListener('DOMContentLoaded', function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const successMsg = urlParams.get('success');
+                const errorMsg = urlParams.get('error');
+
+                if (successMsg) {
+                    showToast(successMsg, 'success');
                 }
-
-                // Show toast for success messages
-                document.addEventListener('DOMContentLoaded', function() {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const success = urlParams.get('success');
-                    const error = urlParams.get('error');
-
-                    if (success) {
-                        showToast(success, 'success');
-                    }
-                    if (error) {
-                        showToast(error, 'error');
-                    }
-                });
-                </script>
+                if (errorMsg) {
+                    showToast(errorMsg, 'error');
+                }
+            });
+            </script>
+        </body>
+        </html>';
             </main>
         </body>
         </html>';

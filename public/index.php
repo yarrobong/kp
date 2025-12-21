@@ -7,15 +7,23 @@ define('ROOT_DIR', dirname(__DIR__));
 define('PROJECT_ROOT', ROOT_DIR);
 
 // Автозагрузка классов
-spl_autoload_register(function ($className) {
-    // Конвертируем namespace в путь к файлу
-    $file = str_replace('\\', '/', $className);
-    $file = ROOT_DIR . '/' . $file . '.php';
+function autoloadClass($className) {
+    // Простая автозагрузка без namespace
+    $paths = [
+        ROOT_DIR . '/core/' . $className . '.php',
+        ROOT_DIR . '/models/' . $className . '.php',
+        ROOT_DIR . '/controllers/' . $className . '.php',
+    ];
 
-    if (file_exists($file)) {
-        require_once $file;
+    foreach ($paths as $path) {
+        if (file_exists($path)) {
+            require_once $path;
+            return;
+        }
     }
-});
+}
+
+spl_autoload_register('autoloadClass');
 
 // Подключение зависимостей
 require_once ROOT_DIR . '/vendor/autoload.php';

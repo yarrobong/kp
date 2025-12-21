@@ -1354,9 +1354,9 @@ if (php_sapi_name() !== 'cli' && !defined('CLI_MODE')) {
         // Проверяем, является ли это маршрутом просмотра предложения /proposals/{id}
         if (preg_match('#^/proposals/(\d+)$#', $uri, $matches)) {
             $proposalId = (int)$matches[1];
-            file_put_contents(PROJECT_ROOT . '/debug.log', "Loading proposal ID: $proposalId\n", FILE_APPEND);
+            echo "<!-- DEBUG: Matched route /proposals/{$proposalId} -->";
             $proposal = getProposal($proposalId);
-            file_put_contents(PROJECT_ROOT . '/debug.log', "Proposal result: " . (empty($proposal) ? "NOT FOUND" : "FOUND") . "\n", FILE_APPEND);
+            echo "<!-- DEBUG: getProposal returned: " . (empty($proposal) ? "null" : "object") . " -->";
 
             if (!$proposal) {
                 http_response_code(404);

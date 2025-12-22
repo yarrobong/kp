@@ -35,6 +35,7 @@ class AuthController extends \Core\Controller {
      * Обработка входа
      */
     public function authenticate() {
+        echo "METHOD STARTED\n";
         // Отладка
         include __DIR__ . '/../debug_post.php';
 
@@ -48,6 +49,9 @@ class AuthController extends \Core\Controller {
         }
 
         error_log("Auth authenticate called, POST data: " . json_encode($data));
+
+        echo "DEBUG: Data received\n";
+        return;
 
         // Валидация
         if (empty($data['email']) || empty($data['password'])) {
@@ -78,12 +82,9 @@ class AuthController extends \Core\Controller {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
 
-        // Возвращаем успешный JSON ответ вместо редиректа
-        $this->json([
-            'success' => true,
-            'message' => 'Добро пожаловать, ' . $user['name'] . '!',
-            'redirect' => $_GET['redirect'] ?? '/'
-        ]);
+        // Возвращаем простой текст вместо JSON
+        echo 'SUCCESS: Welcome ' . $user['name'];
+        exit;
     }
 
     /**

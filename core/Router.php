@@ -40,6 +40,10 @@ class Router {
         $method = $_SERVER['REQUEST_METHOD'];
         $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 
+        if ($method === 'POST') {
+            error_log("Router POST request: $requestUri");
+        }
+
         // Извлекаем путь из URI
         if (strpos($requestUri, '?') !== false) {
             $uri = strstr($requestUri, '?', true);

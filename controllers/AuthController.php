@@ -4,6 +4,8 @@ namespace Controllers;
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/User.php';
 
+use Models\User;
+
 /**
  * Контроллер аутентификации
  */

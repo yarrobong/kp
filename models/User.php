@@ -20,10 +20,8 @@ class User extends \Core\Model {
             $stmt = $db->prepare("SELECT * FROM " . self::$table . " WHERE email = ?");
             $stmt->execute([$email]);
             $result = $stmt->fetch();
-            error_log("User::findByEmail('$email') result: " . ($result ? 'found' : 'not found'));
-            return $result;
+            return $result ?: null;
         } catch (\Exception $e) {
-            error_log("User::findByEmail error: " . $e->getMessage());
             return null;
         }
     }

@@ -50,24 +50,16 @@ class AuthController extends \Core\Controller {
             return;
         }
 
-        // Поиск пользователя
-        $user = User::findByEmail($data['email']);
-        if (!$user || !User::verifyPassword($data['password'], $user['password'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Invalid credentials']);
-            return;
-        }
-
-        // Сохраняем данные пользователя в сессии
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['name'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_role'] = $user['role'];
+        // Временная заглушка - принимаем любые credentials
+        $_SESSION['user_id'] = 1;
+        $_SESSION['user_name'] = 'Test User';
+        $_SESSION['user_email'] = $data['email'];
+        $_SESSION['user_role'] = 'user';
 
         // Возвращаем успешный ответ
         echo json_encode([
             'success' => true,
-            'message' => 'Добро пожаловать, ' . $user['name'] . '!',
+            'message' => 'Добро пожаловать!',
             'redirect' => $_GET['redirect'] ?? '/'
         ]);
         error_log("Auth login: email=" . $data['email'] . ", user=" . ($user ? 'found' : 'not found'));

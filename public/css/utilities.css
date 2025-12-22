@@ -1,16 +1,6 @@
 /* Утилиты и хелперы */
 
 /* Анимации */
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
 
 @keyframes fadeIn {
     from {
@@ -52,9 +42,6 @@
     .quantity-container,
     .price-container,
     .total-container,
-    .actions-container {
-        justify-content: flex-start;
-    }
 
     .suggestions-dropdown {
         max-height: 150px;

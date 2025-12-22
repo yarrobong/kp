@@ -44,9 +44,9 @@ class HomeController extends \Core\Controller {
      */
     private function checkDatabaseConnection() {
         try {
-            $db = new PDO('mysql:host=localhost;dbname=commercial_proposals;charset=utf8', 'appuser', 'apppassword');
+            $db = new \PDO('mysql:host=localhost;dbname=commercial_proposals;charset=utf8', 'appuser', 'apppassword');
             $stmt = $db->query('SELECT COUNT(*) as count FROM proposals');
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             return 'connected (proposals: ' . $result['count'] . ')';
         } catch (Exception $e) {
             return 'fallback_to_json: ' . $e->getMessage();

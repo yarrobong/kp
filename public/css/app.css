@@ -2115,6 +2115,27 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 2rem;
 }
 
+/* Сообщения об ошибках и успехе */
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ef5350;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.success-message {
+    background: #e8f5e8;
+    color: #2e7d32;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #4caf50;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
 /* Dashboard */
 .dashboard-metrics {
     display: grid;

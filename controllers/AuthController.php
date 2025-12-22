@@ -80,35 +80,6 @@ class AuthController extends \Core\Controller {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
 
-        // Возвращаем успешный ответ
-        echo json_encode([
-            'success' => true,
-            'message' => 'Добро пожаловать, ' . $user['name'] . '!',
-            'redirect' => $_GET['redirect'] ?? '/'
-        ]);
-        error_log("Auth login: email=" . $data['email'] . ", user=" . ($user ? 'found' : 'not found'));
-
-        if (!$user || empty($user['password'])) {
-            error_log("Auth failed: user not found or no password");
-            $this->redirect('/login', 'Неверный email или пароль', 'error');
-            return;
-        }
-
-        if (!User::verifyPassword($data['password'], $user['password'])) {
-            error_log("Auth failed: password verification failed");
-            $this->redirect('/login', 'Неверный email или пароль', 'error');
-            return;
-        }
-
-        // Сохраняем данные пользователя в сессии
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_name'] = $user['name'];
-        $_SESSION['user_email'] = $user['email'];
-        $_SESSION['user_role'] = $user['role'];
-
-        // Возвращаем простой текст вместо JSON
-        echo 'SUCCESS: Welcome ' . $user['name'];
-        exit;
     }
 
     /**
@@ -134,23 +105,27 @@ class AuthController extends \Core\Controller {
 
         // Валидация
         if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
-            $this->redirect('/register', 'Заполните все поля', 'error');
+            http_response_code(400);
+            echo json_encode(['error' => 'Заполните все поля']);
             return;
         }
 
         if ($data['password'] !== $data['password_confirmation']) {
-            $this->redirect('/register', 'Пароли не совпадают', 'error');
+            http_response_code(400);
+            echo json_encode(['error' => 'Пароли не совпадают']);
             return;
         }
 
         if (strlen($data['password']) < 6) {
-            $this->redirect('/register', 'Пароль должен содержать минимум 6 символов', 'error');
+            http_response_code(400);
+            echo json_encode(['error' => 'Пароль должен содержать минимум 6 символов']);
             return;
         }
 
         // Проверяем, существует ли пользователь с таким email
         if (User::findByEmail($data['email'])) {
-            $this->redirect('/register', 'Пользователь с таким email уже существует', 'error');
+            http_response_code(409);
+            echo json_encode(['error' => 'Пользователь с таким email уже существует']);
             return;
         }
 
@@ -171,9 +146,14 @@ class AuthController extends \Core\Controller {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_role'] = $user['role'];
 
-            $this->redirect('/', 'Регистрация прошла успешно!', 'success');
+            echo json_encode([
+                'success' => true,
+                'message' => 'Регистрация прошла успешно!',
+                'redirect' => '/'
+            ]);
         } else {
-            $this->redirect('/register', 'Ошибка при регистрации', 'error');
+            http_response_code(500);
+            echo json_encode(['error' => 'Ошибка при регистрации']);
         }
     }
 

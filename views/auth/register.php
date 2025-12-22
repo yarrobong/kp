@@ -2,7 +2,10 @@
     <div class="auth-card">
         <h1>Регистрация</h1>
 
-        <form method="POST" action="/register" class="auth-form">
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        <div id="success-message" class="success-message" style="display: none;"></div>
+
+        <form id="register-form" class="auth-form">
             <div class="form-group">
                 <label for="name">Имя</label>
                 <input type="text" id="name" name="name" required
@@ -35,3 +38,53 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const errorDiv = document.getElementById('error-message');
+    const successDiv = document.getElementById('success-message');
+    const submitBtn = this.querySelector('button[type="submit"]');
+
+    // Скрываем предыдущие сообщения
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    // Отключаем кнопку
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Регистрация...';
+
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Успешная регистрация
+            successDiv.textContent = data.message;
+            successDiv.style.display = 'block';
+
+            // Перенаправляем через 2 секунды
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 2000);
+        } else {
+            // Ошибка регистрации
+            errorDiv.textContent = data.error || 'Произошла ошибка';
+            errorDiv.style.display = 'block';
+        }
+    } catch (error) {
+        errorDiv.textContent = 'Ошибка сети. Попробуйте еще раз.';
+        errorDiv.style.display = 'block';
+    } finally {
+        // Включаем кнопку обратно
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Зарегистрироваться';
+    }
+});
+</script>

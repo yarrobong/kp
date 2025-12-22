@@ -36,8 +36,15 @@ class AuthController extends \Core\Controller {
      */
     public function authenticate() {
         $data = $_POST;
-        error_log("Auth authenticate called, raw POST data: " . json_encode($data));
-        error_log("Auth authenticate called, getPostData: " . json_encode($this->getPostData()));
+
+        // Если $_POST пустой, попробуем прочитать из php://input
+        if (empty($data)) {
+            $input = file_get_contents('php://input');
+            error_log("Raw input: " . $input);
+            parse_str($input, $data);
+        }
+
+        error_log("Auth authenticate called, POST data: " . json_encode($data));
 
         // Валидация
         if (empty($data['email']) || empty($data['password'])) {

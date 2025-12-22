@@ -12,6 +12,7 @@
 @import url('/css/components/cards.css');
 
 /* Страницы */
+@import url('/css/pages/home.css');
 @import url('/css/pages/auth.css');
 @import url('/css/pages/products.css');
 @import url('/css/pages/proposals.css');

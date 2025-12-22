@@ -36,7 +36,6 @@ class AuthController extends \Core\Controller {
      */
     public function authenticate() {
         try {
-            echo "DEBUG: Authenticate called\n";
             $data = $_POST;
 
         // Если $_POST пустой, попробуем прочитать из php://input

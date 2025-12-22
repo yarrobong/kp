@@ -430,37 +430,616 @@
     box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
 }
 
-/* Создание предложений */
+/* СТРАНИЦА СОЗДАНИЯ ПРЕДЛОЖЕНИЙ - УЛЬТРА СОВРЕМЕННЫЙ ДИЗАЙН */
+
+/* Hero секция создания */
+.create-hero {
+    position: relative;
+    background:
+        linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 25%, #0d0d0d 50%, #1a1a1a 75%, #0a0a0a 100%),
+        radial-gradient(circle at 50% 50%, rgba(25, 118, 210, 0.08) 0%, transparent 70%);
+    border-radius: 24px;
+    padding: 4rem 2.5rem;
+    margin-bottom: 3rem;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: heroFadeIn 1s ease-out;
+}
+
+.create-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        conic-gradient(from 45deg at 50% 50%, rgba(34, 197, 94, 0.08) 0deg, rgba(168, 85, 247, 0.08) 120deg, rgba(245, 158, 11, 0.08) 240deg, rgba(34, 197, 94, 0.08) 360deg),
+        radial-gradient(circle at 30% 70%, rgba(25, 118, 210, 0.06) 0%, transparent 60%),
+        radial-gradient(circle at 70% 30%, rgba(34, 197, 94, 0.04) 0%, transparent 60%);
+    animation: rotateGradient 25s linear infinite;
+    opacity: 0.8;
+}
+
+.create-hero h1 {
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    z-index: 2;
+    letter-spacing: -0.02em;
+    animation: titleGlow 1.5s ease-out;
+}
+
+.create-hero p {
+    text-align: center;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: #c0c0c0;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 2;
+    animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+/* Основная форма создания */
 .proposal-form {
     max-width: 100%;
+    animation: formFadeIn 1s ease-out 0.4s both;
 }
 
-.products-selection {
+/* Секции формы - ЭЛИТНЫЙ ДИЗАЙН */
+.form-section {
+    background:
+        linear-gradient(135deg, #1a1a1a 0%, #202020 50%, #1a1a1a 100%),
+        radial-gradient(circle at 50% 50%, rgba(25, 118, 210, 0.02) 0%, transparent 70%);
+    border-radius: 24px;
+    padding: 3rem;
+    margin-bottom: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+    animation: sectionSlideIn 0.8s ease-out both;
+    animation-delay: calc(var(--section-index, 0) * 0.2s);
+}
+
+.form-section:nth-child(1) { --section-index: 0; }
+.form-section:nth-child(2) { --section-index: 1; }
+.form-section:nth-child(3) { --section-index: 2; }
+
+.form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1976d2, #22c55e, #f59e0b, #a855f7);
+    background-size: 300% 100%;
+    animation: gradientSlide 4s ease-in-out infinite;
+    border-radius: 24px 24px 0 0;
+}
+
+.form-section h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ffffff;
     margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.product-rows {
+.form-section h2::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #1976d2, #22c55e);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(25, 118, 210, 0.5);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.form-section h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* Поля формы - ПРЕМИУМ */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
     margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
 }
 
-.product-row {
-    background: #1a1a1a;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #333;
+.form-group {
+    position: relative;
+    animation: fieldSlideIn 0.6s ease-out both;
+    animation-delay: calc(var(--field-index, 0) * 0.1s);
+}
+
+.form-group:nth-child(1) { --field-index: 0; }
+.form-group:nth-child(2) { --field-index: 1; }
+.form-group:nth-child(3) { --field-index: 2; }
+.form-group:nth-child(4) { --field-index: 3; }
+
+.form-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #c0c0c0;
+    margin-bottom: 0.75rem;
     position: relative;
 }
 
+.form-group label::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #1976d2, #22c55e);
+    transition: width 0.3s ease;
+}
+
+.form-group:focus-within label::after {
+    width: 100%;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: rgba(25, 118, 210, 0.5);
+    box-shadow:
+        0 0 0 4px rgba(25, 118, 210, 0.1),
+        0 8px 25px rgba(25, 118, 210, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.form-input::placeholder {
+    color: #888;
+    opacity: 0.7;
+}
+
+/* Выбор товаров - ПРО АНИМАЦИИ */
+.products-selection {
+    position: relative;
+    z-index: 2;
+}
+
+/* Таблица товаров - ЭЛИТНЫЙ ДИЗАЙН */
+.products-table-container {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    margin-bottom: 2rem;
+    animation: tableFadeIn 0.8s ease-out 0.6s both;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    position: relative;
+}
+
+.products-table thead {
+    background: linear-gradient(135deg, rgba(25, 118, 210, 0.1), rgba(34, 197, 94, 0.1));
+    position: relative;
+}
+
+.products-table thead::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.products-table th {
+    padding: 1.5rem 1rem;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.products-table th:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.products-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    animation: rowSlideIn 0.6s ease-out both;
+    animation-delay: calc(var(--row-index, 0) * 0.1s);
+}
+
+.products-table tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.products-table tbody tr:hover {
+    background: rgba(25, 118, 210, 0.05);
+    transform: scale(1.01);
+    box-shadow: 0 4px 20px rgba(25, 118, 210, 0.1);
+}
+
+.products-table td {
+    padding: 1.5rem 1rem;
+    color: #c0c0c0;
+    font-size: 0.95rem;
+    position: relative;
+}
+
+/* Поиск товаров в таблице */
 .product-search-row {
-    display: grid;
-    grid-template-columns: 3fr 1fr 1fr 1fr auto;
-    gap: 1rem;
-    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    animation: searchRowSlideIn 0.8s ease-out 0.4s both;
+}
+
+.product-search-row .form-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.product-search-row .form-input:focus {
+    border-color: rgba(25, 118, 210, 0.4);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .search-container {
     position: relative;
+}
+
+.search-container::before {
+    content: '🔍';
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+/* Дропдаун с подсказками */
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    z-index: 1000;
+    max-height: 250px;
+    overflow-y: auto;
+    animation: dropdownFadeIn 0.3s ease-out;
+}
+
+.suggestion-item {
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background: rgba(25, 118, 210, 0.1);
+    transform: translateX(4px);
+}
+
+.suggestion-item:hover::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #1976d2, #22c55e);
+    border-radius: 0 2px 2px 0;
+}
+
+.suggestion-name {
+    flex: 1;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.suggestion-name mark {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.suggestion-price {
+    color: #22c55e;
+    font-weight: 700;
+    margin-left: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Поля количества и цены */
+.quantity-container,
+.price-container,
+.total-container,
+.actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-input,
+.price-input {
+    width: 100%;
+    max-width: 100px;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ffffff;
+    text-align: center;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.quantity-input:focus,
+.price-input:focus {
+    border-color: rgba(25, 118, 210, 0.4);
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.price-display,
+.row-total {
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.row-total {
+    color: #22c55e;
+    font-size: 1.1rem;
+}
+
+.actions-container {
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.actions-container .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    min-width: auto;
+}
+
+/* Кнопка добавления товара */
+.form-actions-inline {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    position: relative;
+    z-index: 2;
+}
+
+.form-actions-inline .btn {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.form-actions-inline .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.form-actions-inline .btn:hover::before {
+    left: 100%;
+}
+
+.form-actions-inline .btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(34, 197, 94, 0.4);
+}
+
+/* Итоговая секция - ПРЕМИУМ */
+.total-section {
+    background:
+        linear-gradient(135deg, #1a1a1a 0%, #202020 50%, #1a1a1a 100%),
+        radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.1);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    animation: totalSectionGlow 1s ease-out 0.8s both;
+}
+
+.total-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(25, 118, 210, 0.05));
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.total-section:hover::before {
+    opacity: 1;
+}
+
+.total-section strong {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f59e0b, #d97706, #22c55e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: totalAmountPulse 2s ease-in-out infinite;
+}
+
+.total-section p {
+    color: #c0c0c0;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Основные действия формы */
+.form-actions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+    animation: actionsSlideUp 1s ease-out 1s both;
+}
+
+.form-actions .btn {
+    padding: 1.25rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    min-width: 180px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-actions .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.form-actions .btn:hover::before {
+    left: 100%;
+}
+
+.form-actions .btn-primary {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: white;
+    border: none;
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.3);
+}
+
+.form-actions .btn-primary:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(25, 118, 210, 0.4);
+}
+
+.form-actions .btn-secondary {
+    background: transparent;
+    color: #c0c0c0;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.form-actions .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    transform: translateY(-2px);
 }
 
 .product-search-input {
@@ -781,6 +1360,129 @@
     100% {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* НОВЫЕ ЭПИЧНЫЕ АНИМАЦИИ ДЛЯ СОЗДАНИЯ ПРЕДЛОЖЕНИЙ */
+
+@keyframes formFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sectionSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fieldSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes tableFadeIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes rowSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes searchRowSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes dropdownFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes totalSectionGlow {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+        box-shadow: 0 0 0 rgba(245, 158, 11, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 8px 32px rgba(245, 158, 11, 0.1);
+    }
+}
+
+@keyframes totalAmountPulse {
+    0%, 100% {
+        filter: brightness(1) drop-shadow(0 0 0 rgba(245, 158, 11, 0));
+    }
+    50% {
+        filter: brightness(1.1) drop-shadow(0 0 10px rgba(245, 158, 11, 0.3));
+    }
+}
+
+@keyframes actionsSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
     }
 }
 

@@ -1,12 +1,19 @@
-<div class="page-header">
-    <h1>Создать коммерческое предложение</h1>
-    <a href="/proposals" class="btn btn-secondary">← Назад к списку</a>
+<!-- Hero секция создания -->
+<div class="create-hero">
+    <h1>📝 Создать коммерческое предложение</h1>
+    <p>Создайте профессиональное коммерческое предложение для вашего клиента с подбором товаров и автоматическим расчетом суммы</p>
+    <a href="/proposals" class="btn btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Назад к списку
+    </a>
 </div>
 
 <form method="POST" action="/proposals" class="proposal-form">
     <!-- Информация о клиенте -->
     <div class="form-section">
-        <h2>Информация о клиенте</h2>
+        <h2>👤 Информация о клиенте</h2>
         <div class="form-row">
             <div class="form-group">
                 <label for="client_name">Имя клиента *</label>
@@ -23,7 +30,7 @@
 
     <!-- Выбор товаров -->
     <div class="form-section">
-        <h2>Выбор товаров</h2>
+        <h2>🛍️ Выбор товаров</h2>
         <div class="products-selection">
             <!-- Таблица товаров -->
             <div class="products-table-container">
@@ -44,21 +51,35 @@
             </div>
 
             <div class="form-actions-inline">
-                <button type="button" id="add-product-btn" class="btn btn-primary">➕ Добавить товар</button>
+                <button type="button" id="add-product-btn" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Добавить товар
+                </button>
             </div>
 
             <div class="total-section">
-                <div class="total-row">
-                    <strong>Итого: <span id="total-amount">0</span> ₽</strong>
-                </div>
+                <strong>💰 Итого: <span id="total-amount">0</span> ₽</strong>
+                <p>Общая сумма предложения</p>
             </div>
         </div>
     </div>
 
     <!-- Кнопки действий -->
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Создать предложение</button>
-        <a href="/proposals" class="btn btn-secondary">Отмена</a>
+        <button type="submit" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Создать предложение
+        </button>
+        <a href="/proposals" class="btn btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Отмена
+        </a>
     </div>
 </form>
 

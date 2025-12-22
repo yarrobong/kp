@@ -1513,33 +1513,6 @@ h1, h2, h3, h4, h5, h6 {
 /* Cards */
 .proposal-card,
 .template-card,
-.product-card {
-    background: #2d2d2d;
-    border: 1px solid #333333;
-    border-radius: 16px;
-    padding: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.product-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #1976d2, #42a5f5, #1976d2);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.product-card:hover::before {
-    opacity: 1;
-}
 
 .proposal-card:hover,
 .template-card:hover {
@@ -1581,6 +1554,7 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
     height: 100%;
+    max-width: 100%;
 }
 
 /* Product card animations */
@@ -1609,7 +1583,8 @@ h1, h2, h3, h4, h5, h6 {
 .product-image {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 180px;
+    flex-shrink: 0;
     overflow: hidden;
     background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
 }
@@ -1645,6 +1620,7 @@ h1, h2, h3, h4, h5, h6 {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0; /* Позволяет flex элементам сжиматься */
 }
 
 .product-header {
@@ -1690,6 +1666,10 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 1.5;
     flex: 1;
     margin-bottom: 1rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
 .product-meta {

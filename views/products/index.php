@@ -124,14 +124,15 @@ function deleteProduct(productId, productName) {
 document.addEventListener('DOMContentLoaded', function() {
     const cards = document.querySelectorAll('.product-card');
     cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
+        // Сбрасываем любые inline стили, которые могут мешать
+        card.style.opacity = '';
+        card.style.transform = '';
 
-        setTimeout(() => {
-            card.style.transition = 'all 0.3s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
+        // Добавляем класс для анимации
+        card.classList.add('fade-in');
+
+        // Задержка для staggered эффекта
+        card.style.animationDelay = `${index * 0.1}s`;
     });
 });
 </script>

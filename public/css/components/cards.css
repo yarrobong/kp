@@ -11,6 +11,7 @@
     height: 100%;
     opacity: 0;
     transform: translateY(20px);
+    padding: 20px;
 }
 
 .product-card.fade-in {
@@ -124,7 +125,7 @@
 
 .product-meta {
     margin-top: auto;
-    padding-top: 0.75rem;
+    padding: 0.75rem;
     border-top: 1px solid #333;
 }
 
@@ -138,7 +139,7 @@
 }
 
 .product-actions {
-    padding: 1rem 1.5rem 1.5rem;
+    padding: 1rem 0rem 0rem;
     border-top: 1px solid #333;
     display: flex;
     justify-content: space-between;

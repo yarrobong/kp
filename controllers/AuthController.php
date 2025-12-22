@@ -50,20 +50,27 @@ class AuthController extends \Core\Controller {
             return;
         }
 
-        // Поиск пользователя
-        $user = User::findByEmail($data['email']);
+        // Прямой запрос к базе данных для диагностики
+        try {
+            $db = new \PDO('mysql:host=localhost;dbname=commercial_proposals;charset=utf8', 'appuser', 'apppassword');
+            $stmt = $db->prepare('SELECT * FROM users WHERE email = ?');
+            $stmt->execute([$data['email']]);
+            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        // Проверяем, что пользователь найден и имеет пароль
-        if (!$user || !isset($user['password']) || empty($user['password'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Пользователь не найден']);
-            return;
-        }
+            if (!$user) {
+                http_response_code(401);
+                echo json_encode(['error' => 'Пользователь не найден']);
+                return;
+            }
 
-        // Проверяем пароль
-        if (!User::verifyPassword($data['password'], $user['password'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Неверный пароль']);
+            if (!password_verify($data['password'], $user['password'])) {
+                http_response_code(401);
+                echo json_encode(['error' => 'Неверный пароль']);
+                return;
+            }
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Ошибка сервера: ' . $e->getMessage()]);
             return;
         }
 

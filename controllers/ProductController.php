@@ -328,8 +328,16 @@ class ProductController extends \Core\Controller {
 
         // Создаем директорию для загрузок если не существует
         $uploadDir = __DIR__ . '/../../public/uploads/products/';
+        error_log("Upload dir path: " . $uploadDir);
+        error_log("Upload dir exists: " . (is_dir($uploadDir) ? 'yes' : 'no'));
+        error_log("Current dir: " . __DIR__);
+
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            $mkdirResult = mkdir($uploadDir, 0755, true);
+            error_log("mkdir result: " . ($mkdirResult ? 'success' : 'failed'));
+            if (!$mkdirResult) {
+                error_log("mkdir error: " . error_get_last()['message']);
+            }
         }
 
         // Генерируем уникальное имя файла

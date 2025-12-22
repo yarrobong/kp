@@ -42,6 +42,13 @@ $router = new Router();
 // Маршруты
 $router->get('/', 'HomeController@index');
 $router->get('/health', 'HomeController@health');
+
+// Обработка ботов и сканеров
+$router->any('/webhook.php', function() {
+    http_response_code(404);
+    exit;
+});
+
 $router->get('/test', function() {
     echo "Test route works!";
 });

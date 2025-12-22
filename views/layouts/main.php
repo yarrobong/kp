@@ -18,7 +18,7 @@
             <a href="/" class="navbar-brand">КП Генератор</a>
             <div class="navbar-menu">
                 <?php
-                $user = \AuthController::getCurrentUser();
+                $user = \Controllers\AuthController::getCurrentUser();
                 if ($user) {
                     echo '<a href="/products" class="' . isActivePage('/products') . '">Товары</a>';
                     echo '<a href="/proposals" class="' . isActivePage('/proposals') . '">КП</a>';

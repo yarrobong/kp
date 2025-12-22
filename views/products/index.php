@@ -36,7 +36,7 @@
     </div>
     <?php else: ?>
     <?php foreach ($products as $product): ?>
-    <div class="product-card">
+    <div class="product-card fade-in">
         <div class="product-image">
             <?php if (!empty($product['image']) && $product['image'] !== '/css/placeholder-product.svg'): ?>
                 <img src="<?php echo htmlspecialchars($product['image']); ?>"
@@ -124,13 +124,6 @@ function deleteProduct(productId, productName) {
 document.addEventListener('DOMContentLoaded', function() {
     const cards = document.querySelectorAll('.product-card');
     cards.forEach((card, index) => {
-        // Сбрасываем любые inline стили, которые могут мешать
-        card.style.opacity = '';
-        card.style.transform = '';
-
-        // Добавляем класс для анимации
-        card.classList.add('fade-in');
-
         // Задержка для staggered эффекта
         card.style.animationDelay = `${index * 0.1}s`;
     });

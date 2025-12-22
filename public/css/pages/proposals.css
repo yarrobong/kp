@@ -1,0 +1,292 @@
+/* Создание предложений */
+.proposal-form {
+    max-width: 100%;
+}
+
+.products-selection {
+    margin-bottom: 2rem;
+}
+
+.product-rows {
+    margin-bottom: 2rem;
+}
+
+.product-row {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #333;
+    position: relative;
+}
+
+.product-search-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-container {
+    position: relative;
+}
+
+.product-search-input {
+    width: 100%;
+    padding-right: 2.5rem;
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background: #2a2a2a;
+}
+
+.suggestion-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.suggestion-name mark {
+    background: #4caf50;
+    color: white;
+    padding: 0.1rem 0.2rem;
+    border-radius: 2px;
+}
+
+.suggestion-price {
+    color: #4caf50;
+    font-weight: 600;
+    margin-left: 1rem;
+}
+
+.quantity-container,
+.price-container,
+.total-container,
+.actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-input {
+    width: 80px;
+    text-align: center;
+}
+
+.price-display,
+.row-total {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.95rem;
+}
+
+.row-total {
+    color: #4caf50;
+    font-size: 1rem;
+}
+
+.actions-container {
+    justify-content: flex-end;
+}
+
+.total-section {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #333;
+    text-align: right;
+}
+
+.total-section strong {
+    font-size: 1.25rem;
+    color: #4caf50;
+}
+
+/* Просмотр предложений */
+.proposal-detail {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.proposal-info-section,
+.client-info-section,
+.products-section,
+.proposal-meta-section {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+}
+
+.proposal-info-section h2,
+.client-info-section h2,
+.products-section h2,
+.proposal-meta-section h3 {
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #b0b0b0;
+    font-size: 0.875rem;
+}
+
+.info-value {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.client-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.client-label {
+    font-weight: 600;
+    color: #b0b0b0;
+}
+
+.client-value {
+    color: #ffffff;
+}
+
+/* Таблицы в предложениях */
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.products-table th,
+.products-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #333;
+}
+
+.products-table th {
+    background: #2a2a2a;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.products-table td {
+    color: #b0b0b0;
+}
+
+.table-header {
+    background: #2a2a2a;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.table-row {
+    border-bottom: 1px solid #333;
+}
+
+.product-name-cell {
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.product-price-cell,
+.product-quantity-cell,
+.product-total-cell {
+    text-align: center;
+}
+
+.proposal-total-section {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    background: #2a2a2a;
+    border-radius: 8px;
+}
+
+.total-row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.total-label {
+    font-size: 1.125rem;
+    color: #b0b0b0;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4caf50;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #333;
+}
+
+.meta-item:last-child {
+    border-bottom: none;
+}
+
+.meta-label {
+    font-weight: 600;
+    color: #b0b0b0;
+}
+
+.meta-value {
+    color: #ffffff;
+}

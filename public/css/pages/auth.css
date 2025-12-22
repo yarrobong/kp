@@ -1,0 +1,65 @@
+/* Авторизация */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #1a1a1a;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card h1 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.auth-card p {
+    text-align: center;
+    color: #b0b0b0;
+    margin-bottom: 2rem;
+}
+
+.auth-form {
+    margin-bottom: 2rem;
+}
+
+.auth-links {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+}
+
+.auth-links a {
+    color: #1976d2;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+.security-warning {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: #92400e;
+}
+
+.security-warning strong {
+    color: #78350f;
+}

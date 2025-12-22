@@ -1,0 +1,175 @@
+/* Утилиты и хелперы */
+
+/* Анимации */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive утилиты */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .product-search-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .quantity-container,
+    .price-container,
+    .total-container,
+    .actions-container {
+        justify-content: flex-start;
+    }
+
+    .suggestions-dropdown {
+        max-height: 150px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .proposal-detail {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .info-grid,
+    .meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .navbar-menu {
+        gap: 1rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Печать */
+@media print {
+    .navbar,
+    .btn,
+    .notification,
+    .modal {
+        display: none !important;
+    }
+
+    .main-content {
+        padding: 0;
+    }
+
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .product-card,
+    .proposal-card {
+        break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+    }
+}
+
+/* Темная тема (уже используется по умолчанию) */
+:root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2a2a2a;
+    --bg-tertiary: #333333;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-muted: #666666;
+    --border-color: #333333;
+    --accent-color: #1976d2;
+    --success-color: #4caf50;
+    --danger-color: #ef4444;
+}
+
+/* Focus стили для accessibility */
+.btn:focus,
+.form-input:focus,
+.product-search-input:focus {
+    outline: 2px solid #1976d2;
+    outline-offset: 2px;
+}
+
+/* Скрытые элементы */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Loading состояние */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

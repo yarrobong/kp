@@ -1,189 +1,119 @@
-<!-- Hero секция личного кабинета -->
-<div class="user-hero">
-    <div class="container">
-        <h1>👋 Добро пожаловать!</h1>
-        <p class="user-welcome">
-            <?php echo htmlspecialchars($user['name']); ?>, управляйте своими товарами и предложениями
-        </p>
-        <div class="user-quick-actions">
-            <a href="/products/create" class="btn btn-primary">
-                <span class="btn-icon">📦</span>
-                Добавить товар
-            </a>
-            <a href="/proposals/create" class="btn btn-secondary">
-                <span class="btn-icon">📄</span>
-                Создать КП
-            </a>
-            <a href="/user/edit" class="btn btn-secondary">
-                <span class="btn-icon">⚙️</span>
-                Настройки
-            </a>
-        </div>
-    </div>
+<div class="page-header">
+    <h1>Личный кабинет</h1>
+    <a href="/" class="btn btn-secondary">← На главную</a>
 </div>
 
 <!-- Статистика пользователя -->
-<div class="container">
-    <div class="user-stats">
-        <div class="stat-card">
-            <div class="stat-icon">📦</div>
-            <div class="stat-number"><?php echo $stats['products']['total']; ?></div>
-            <div class="stat-label">Моих товаров</div>
-        </div>
+<div class="user-stats">
+    <div class="stat-card">
+        <div class="stat-number"><?php echo $stats['products']['total']; ?></div>
+        <div class="stat-label">Моих товаров</div>
+    </div>
 
-        <div class="stat-card">
-            <div class="stat-icon">📄</div>
-            <div class="stat-number"><?php echo $stats['proposals']['total']; ?></div>
-            <div class="stat-label">Моих предложений</div>
-        </div>
+    <div class="stat-card">
+        <div class="stat-number"><?php echo $stats['proposals']['total']; ?></div>
+        <div class="stat-label">Моих предложений</div>
     </div>
 </div>
 
-<!-- Dashboard -->
-<div class="container">
-    <div class="user-dashboard">
-        <!-- Основной контент -->
-        <div class="main-content">
-            <!-- Недавняя активность -->
-            <div class="recent-activity">
-                <h2>📊 Недавняя активность</h2>
-                <div class="activity-list">
+<!-- Информация о пользователе -->
+<div class="user-section">
+    <h2>Информация о профиле</h2>
+    <div class="user-info">
+        <div class="info-row">
+            <span class="info-label">Имя:</span>
+            <span class="info-value"><?php echo htmlspecialchars($user['name']); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span class="info-value"><?php echo htmlspecialchars($user['email']); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Роль:</span>
+            <span class="info-value">
+                <span class="role-badge role-<?php echo $user['role']; ?>">
+                    <?php echo $user['role'] === 'admin' ? 'Администратор' : 'Пользователь'; ?>
+                </span>
+            </span>
+        </div>
+    </div>
+    <div style="margin-top: 2rem;">
+        <a href="/user/edit" class="btn btn-primary">Редактировать профиль</a>
+    </div>
+</div>
+
+<!-- Недавние товары -->
+<?php if (!empty($recentProducts)): ?>
+<div class="user-section">
+    <h2>Недавние товары</h2>
+    <div class="products-grid">
+        <?php foreach ($recentProducts as $product): ?>
+        <div class="product-card">
+            <div class="product-image">
+                <img src="<?php echo htmlspecialchars($product['image']); ?>"
+                     alt="<?php echo htmlspecialchars($product['name']); ?>">
+            </div>
+            <div class="product-info">
+                <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
+                <p class="product-description"><?php echo htmlspecialchars($product['description']); ?></p>
+                <div class="product-meta">
+                    <span class="product-price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</span>
+                    <?php if (!empty($product['category'])): ?>
+                    <span class="product-category"><?php echo htmlspecialchars($product['category']); ?></span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="product-actions">
+                <a href="/products/<?php echo $product['id']; ?>" class="btn btn-small">Просмотр</a>
+                <a href="/products/<?php echo $product['id']; ?>/edit" class="btn btn-small btn-secondary">Редактировать</a>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <div style="margin-top: 2rem; text-align: center;">
+        <a href="/user/products" class="btn btn-secondary">Все товары</a>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Недавние предложения -->
+<?php if (!empty($recentProposals)): ?>
+<div class="user-section">
+    <h2>Недавние предложения</h2>
+    <div class="proposals-list">
+        <?php foreach ($recentProposals as $proposal): ?>
+        <div class="proposal-card">
+            <div class="proposal-header">
+                <h3><?php echo htmlspecialchars($proposal['title']); ?></h3>
+                <span class="status-badge status-<?php echo htmlspecialchars($proposal['status']); ?>">
                     <?php
-                    $activities = [];
+                    $statusLabels = [
+                        'draft' => 'Черновик',
+                        'sent' => 'Отправлено',
+                        'accepted' => 'Принято',
+                        'rejected' => 'Отклонено'
+                    ];
+                    echo $statusLabels[$proposal['status']] ?? $proposal['status'];
+                    ?>
+                </span>
+            </div>
 
-                    // Последние товары
-                    if (!empty($recentProducts)) {
-                        foreach (array_slice($recentProducts, 0, 2) as $product) {
-                            $activities[] = [
-                                'type' => 'product',
-                                'icon' => '📦',
-                                'title' => 'Добавлен товар: ' . htmlspecialchars($product['name']),
-                                'description' => 'Цена: ' . number_format($product['price'], 0, ',', ' ') . ' ₽',
-                                'time' => date('d.m.Y H:i', strtotime($product['created_at'])),
-                                'link' => '/products/' . $product['id']
-                            ];
-                        }
-                    }
+            <div class="proposal-meta">
+                <span>Номер: <?php echo htmlspecialchars($proposal['offer_number']); ?></span>
+                <span>Дата: <?php echo htmlspecialchars($proposal['offer_date']); ?></span>
+                <span>Сумма: <?php echo number_format($proposal['total'], 0, ',', ' '); ?> ₽</span>
+            </div>
 
-                    // Последние предложения
-                    if (!empty($recentProposals)) {
-                        foreach (array_slice($recentProposals, 0, 2) as $proposal) {
-                            $statusLabels = [
-                                'draft' => 'Черновик',
-                                'sent' => 'Отправлено',
-                                'accepted' => 'Принято',
-                                'rejected' => 'Отклонено'
-                            ];
-                            $activities[] = [
-                                'type' => 'proposal',
-                                'icon' => '📄',
-                                'title' => 'Создано предложение: ' . htmlspecialchars($proposal['title']),
-                                'description' => 'Сумма: ' . number_format($proposal['total'], 0, ',', ' ') . ' ₽',
-                                'time' => date('d.m.Y H:i', strtotime($proposal['created_at'])),
-                                'link' => '/proposals/' . $proposal['id']
-                            ];
-                        }
-                    }
-
-                    // Сортировка по времени (новые сверху)
-                    usort($activities, function($a, $b) {
-                        return strtotime($b['time']) - strtotime($a['time']);
-                    });
-
-                    // Ограничение до 4 элементов
-                    $activities = array_slice($activities, 0, 4);
-
-                    if (empty($activities)): ?>
-                        <div class="activity-item">
-                            <div class="activity-icon">📝</div>
-                            <div class="activity-content">
-                                <h4>Начните работу</h4>
-                                <p>Добавьте свой первый товар или создайте коммерческое предложение</p>
-                                <div class="activity-time">Добро пожаловать!</div>
-                            </div>
-                        </div>
-                    <?php else:
-                        foreach ($activities as $activity): ?>
-                            <a href="<?php echo $activity['link']; ?>" class="activity-item">
-                                <div class="activity-icon"><?php echo $activity['icon']; ?></div>
-                                <div class="activity-content">
-                                    <h4><?php echo $activity['title']; ?></h4>
-                                    <p><?php echo $activity['description']; ?></p>
-                                    <div class="activity-time"><?php echo $activity['time']; ?></div>
-                                </div>
-                            </a>
-                        <?php endforeach;
-                    endif; ?>
-                </div>
+            <div class="proposal-actions">
+                <a href="/proposals/<?php echo $proposal['id']; ?>" class="btn btn-small">Просмотр</a>
+                <a href="/proposals/<?php echo $proposal['id']; ?>/edit" class="btn btn-small btn-secondary">Редактировать</a>
+                <a href="/proposals/<?php echo $proposal['id']; ?>/pdf" class="btn btn-small btn-success">PDF</a>
             </div>
         </div>
-
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Профиль пользователя -->
-            <div class="user-profile">
-                <div class="user-avatar">
-                    <?php echo strtoupper(substr(htmlspecialchars($user['name']), 0, 1)); ?>
-                </div>
-                <h2><?php echo htmlspecialchars($user['name']); ?></h2>
-                <div class="user-info">
-                    <div class="info-row">
-                        <span class="info-label">Email</span>
-                        <span class="info-value"><?php echo htmlspecialchars($user['email']); ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Роль</span>
-                        <span class="info-value">
-                            <span class="role-badge role-<?php echo $user['role']; ?>">
-                                <?php echo $user['role'] === 'admin' ? '👑 Администратор' : '👤 Пользователь'; ?>
-                            </span>
-                        </span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Регистрация</span>
-                        <span class="info-value"><?php echo date('d.m.Y', strtotime($user['created_at'] ?? 'now')); ?></span>
-                    </div>
-                </div>
-                <div style="margin-top: 2rem;">
-                    <a href="/user/edit" class="btn btn-primary" style="width: 100%;">⚙️ Настройки профиля</a>
-                </div>
-            </div>
-
-            <!-- Быстрые действия -->
-            <div class="quick-actions">
-                <h3>🚀 Быстрые действия</h3>
-                <div class="quick-actions-grid">
-                    <a href="/products" class="quick-action-btn">
-                        <div class="quick-action-icon">📦</div>
-                        <div class="quick-action-content">
-                            <h4>Мои товары</h4>
-                            <p>Управление каталогом товаров</p>
-                        </div>
-                    </a>
-                    <a href="/proposals" class="quick-action-btn">
-                        <div class="quick-action-icon">📄</div>
-                        <div class="quick-action-content">
-                            <h4>Мои КП</h4>
-                            <p>Просмотр коммерческих предложений</p>
-                        </div>
-                    </a>
-                    <a href="/products/create" class="quick-action-btn">
-                        <div class="quick-action-icon">➕</div>
-                        <div class="quick-action-content">
-                            <h4>Новый товар</h4>
-                            <p>Добавить товар в каталог</p>
-                        </div>
-                    </a>
-                    <a href="/proposals/create" class="quick-action-btn">
-                        <div class="quick-action-icon">📝</div>
-                        <div class="quick-action-content">
-                            <h4>Новое КП</h4>
-                            <p>Создать коммерческое предложение</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
+        <?php endforeach; ?>
+    </div>
+    <div style="margin-top: 2rem; text-align: center;">
+        <a href="/user/proposals" class="btn btn-secondary">Все предложения</a>
     </div>
 </div>
-
+<?php endif; ?>

@@ -121,5 +121,6 @@ async function loadStats() {
     }
 }
 
-loadStats();
+// Запуск после загрузки DOM
+document.addEventListener('DOMContentLoaded', loadStats);
 </script>

@@ -7,23 +7,29 @@ define('ROOT_DIR', dirname(__DIR__));
 define('PROJECT_ROOT', ROOT_DIR);
 
 // Автозагрузка классов
-function autoloadClass($className) {
-    // Простая автозагрузка без namespace
-    $paths = [
-        ROOT_DIR . '/core/' . $className . '.php',
-        ROOT_DIR . '/models/' . $className . '.php',
-        ROOT_DIR . '/controllers/' . $className . '.php',
-    ];
-
-    foreach ($paths as $path) {
-        if (file_exists($path)) {
-            require_once $path;
-            return;
+spl_autoload_register(function ($className) {
+    $prefix = 'Controllers\\';
+    $base_dir = ROOT_DIR . '/controllers/';
+    $len = strlen($prefix);
+    if (strncmp($prefix, $className, $len) !== 0) {
+        $prefix = 'Models\\';
+        $base_dir = ROOT_DIR . '/models/';
+        $len = strlen($prefix);
+        if (strncmp($prefix, $className, $len) !== 0) {
+            $prefix = 'Core\\';
+            $base_dir = ROOT_DIR . '/core/';
+            $len = strlen($prefix);
+            if (strncmp($prefix, $className, $len) !== 0) {
+                return;
+            }
         }
     }
-}
-
-spl_autoload_register('autoloadClass');
+    $relativeClass = substr($className, $len);
+    $file = $base_dir . str_replace('\\', '/', $relativeClass) . '.php';
+    if (file_exists($file)) {
+        require $file;
+    }
+});
 
 // Подключение зависимостей
 require_once ROOT_DIR . '/vendor/autoload.php';

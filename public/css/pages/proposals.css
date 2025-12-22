@@ -133,8 +133,28 @@
 /* Просмотр предложений */
 .proposal-detail {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
+}
+
+/* Layout для секций предложения */
+.proposal-info-section {
+    grid-column: 1;
+}
+
+.client-info-section {
+    grid-column: 2;
+}
+
+.products-section {
+    grid-column: 1 / -1; /* Занимает всю ширину (обе колонки) */
+    width: 100%;
+}
+
+.proposal-meta-section {
+    grid-column: 1 / -1; /* Занимает всю ширину (обе колонки) */
+    width: 100%;
+    margin-top: 1rem;
 }
 
 .proposal-info-section,
@@ -289,4 +309,29 @@
 
 .meta-value {
     color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .proposal-detail {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* На мобильных все секции идут вертикально */
+    .proposal-info-section,
+    .client-info-section,
+    .products-section,
+    .proposal-meta-section {
+        grid-column: 1;
+    }
+
+    .products-table {
+        font-size: 0.875rem;
+    }
+
+    .info-grid,
+    .meta-grid {
+        grid-template-columns: 1fr;
+    }
 }

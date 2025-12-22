@@ -2537,7 +2537,101 @@ h1, h2, h3, h4, h5, h6 {
     gap: 2rem;
 }
 
-/* Proposal cards */
+/* Product rows for proposal creation */
+.product-rows {
+    margin-bottom: 2rem;
+}
+
+.product-row {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #333;
+    transition: all 0.3s ease;
+}
+
+.product-row:hover {
+    border-color: #555;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.row-fields {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.field-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.field-group label {
+    font-size: 0.875rem;
+    color: #b0b0b0;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.field-group.actions {
+    justify-content: flex-end;
+    padding-bottom: 1.75rem;
+}
+
+.price-display,
+.row-total {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    padding: 0.75rem;
+    background: #2a2a2a;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid #444;
+}
+
+.row-total {
+    color: #4caf50;
+    font-weight: 700;
+}
+
+.form-actions-inline {
+    margin-bottom: 1.5rem;
+}
+
+.total-section {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #333;
+    text-align: right;
+}
+
+.total-section strong {
+    font-size: 1.25rem;
+    color: #4caf50;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .row-fields {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .field-group.actions {
+        align-items: center;
+        padding-bottom: 0;
+    }
+
+    .product-row {
+        padding: 1rem;
+    }
+}
+
+/* Legacy Proposal cards */
 .proposal-card {
     background: #1a1a1a;
     border-radius: 12px;

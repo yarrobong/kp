@@ -226,9 +226,10 @@ class ProposalController extends \Core\Controller {
         $items = [];
 
         if (isset($data['proposal_items']) && is_array($data['proposal_items'])) {
-            foreach ($data['proposal_items'] as $productId => $item) {
-                if (!empty($item['quantity']) && $item['quantity'] > 0) {
-                    $product = Product::findWithFallback($productId);
+            foreach ($data['proposal_items'] as $rowId => $item) {
+                // Проверяем, что выбран товар и указано количество
+                if (!empty($item['product_id']) && !empty($item['quantity']) && $item['quantity'] > 0) {
+                    $product = Product::findWithFallback($item['product_id']);
                     if ($product) {
                         $items[] = [
                             'id' => $product['id'],

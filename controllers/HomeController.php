@@ -48,7 +48,7 @@ class HomeController extends \Core\Controller {
             $stmt = $db->query('SELECT COUNT(*) as count FROM proposals');
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             return 'connected (proposals: ' . $result['count'] . ')';
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return 'fallback_to_json: ' . $e->getMessage();
         }
     }

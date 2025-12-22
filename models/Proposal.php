@@ -42,7 +42,7 @@ class Proposal extends \Core\Model {
                 'total' => $total,
                 'by_status' => $byStatus
             ];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return ['total' => 0, 'by_status' => []];
         }
     }
@@ -106,7 +106,7 @@ class Proposal extends \Core\Model {
             $result = $stmt->fetch();
             $count = $result['count'] + 1;
             return "KP-{$date}-" . str_pad($count, 3, '0', STR_PAD_LEFT);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return "KP-{$date}-001";
         }
     }

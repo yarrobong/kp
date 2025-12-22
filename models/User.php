@@ -20,7 +20,7 @@ class User extends \Core\Model {
             $stmt = $db->prepare("SELECT * FROM " . self::$table . " WHERE email = ?");
             $stmt->execute([$email]);
             return $stmt->fetch();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return null;
         }
     }

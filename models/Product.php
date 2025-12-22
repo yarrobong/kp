@@ -42,7 +42,7 @@ class Product extends \Core\Model {
                 'total' => $total,
                 'by_category' => $byCategory
             ];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return ['total' => 0, 'by_category' => []];
         }
     }
@@ -63,7 +63,7 @@ class Product extends \Core\Model {
             $stmt = $db->prepare($sql);
             $stmt->execute($params);
             return $stmt->fetchAll();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return [];
         }
     }
@@ -79,7 +79,7 @@ class Product extends \Core\Model {
             $stmt = $db->prepare("SELECT * FROM " . self::$table . " WHERE user_id = ? AND category = ? ORDER BY created_at DESC");
             $stmt->execute([$userId, $category]);
             return $stmt->fetchAll();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return [];
         }
     }

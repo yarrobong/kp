@@ -327,7 +327,7 @@ class ProductController extends \Core\Controller {
         }
 
         // Создаем директорию для загрузок если не существует
-        $uploadDir = dirname(__DIR__, 2) . '/public/uploads/products/';
+        $uploadDir = dirname(__DIR__) . '/../public/uploads/products/';
         error_log("Upload dir path: " . $uploadDir);
         error_log("Upload dir exists: " . (is_dir($uploadDir) ? 'yes' : 'no'));
         error_log("Current dir: " . __DIR__);

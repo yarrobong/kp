@@ -36,13 +36,8 @@ class AuthController extends \Core\Controller {
      */
     public function authenticate() {
         try {
+            // PHP автоматически заполняет $_POST для multipart/form-data
             $data = $_POST;
-
-        // Если $_POST пустой, попробуем прочитать из php://input
-        if (empty($data)) {
-            $input = file_get_contents('php://input');
-            parse_str($input, $data);
-        }
 
         // Валидация
         if (empty($data['email']) || empty($data['password'])) {

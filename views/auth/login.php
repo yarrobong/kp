@@ -2,6 +2,13 @@
     <div class="auth-card">
         <h1>Вход в систему</h1>
 
+        <!-- Предупреждение о безопасности -->
+        <div class="security-warning">
+            <strong>⚠️ Предупреждение безопасности:</strong>
+            Этот сайт использует незащищенное соединение (HTTP). Ваши учетные данные могут быть перехвачены.
+            Для безопасного использования рекомендуется использовать HTTPS.
+        </div>
+
         <div id="error-message" class="error-message" style="display: none;"></div>
         <div id="success-message" class="success-message" style="display: none;"></div>
 

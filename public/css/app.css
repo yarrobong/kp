@@ -2115,6 +2115,22 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 2rem;
 }
 
+/* Предупреждение о безопасности */
+.security-warning {
+    background: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ffeaa7;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.security-warning strong {
+    color: #d4a017;
+}
+
 /* Сообщения об ошибках и успехе */
 .error-message {
     background: #ffebee;

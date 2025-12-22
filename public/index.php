@@ -44,7 +44,11 @@ $router->get('/', 'HomeController@index');
 $router->get('/health', 'HomeController@health');
 
 // Обработка ботов и сканеров
-$router->any('/webhook.php', function() {
+$router->post('/webhook.php', function() {
+    http_response_code(404);
+    exit;
+});
+$router->get('/webhook.php', function() {
     http_response_code(404);
     exit;
 });

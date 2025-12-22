@@ -36,6 +36,9 @@ $router = new Router();
 // Маршруты
 $router->get('/', 'HomeController@index');
 $router->get('/health', 'HomeController@health');
+$router->get('/test', function() {
+    echo "Test route works!";
+});
 
 // Маршруты аутентификации
 $router->get('/login', 'AuthController@login');

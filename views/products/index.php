@@ -39,8 +39,10 @@
     <div class="product-card fade-in">
         <div class="product-image-container">
             <?php if (!empty($product['image']) && $product['image'] !== '/css/placeholder-product.svg'): ?>
-                <img class="product-image" src="<?php echo htmlspecialchars($product['image']); ?>"
-                     alt="<?php echo htmlspecialchars($product['name']); ?>">
+                <div class="product-image">
+                    <img src="<?php echo htmlspecialchars($product['image']); ?>"
+                         alt="<?php echo htmlspecialchars($product['name']); ?>">
+                </div>
             <?php else: ?>
                 <div class="product-placeholder">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -28,8 +28,12 @@ class ProductController extends \Core\Controller {
         // Только авторизованные пользователи могут видеть товары
         $user = AuthController::getCurrentUser();
         if (!$user) {
-            header('Location: /login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
-            exit;
+            $this->render('auth/redirect', [
+                'title' => 'Требуется авторизация',
+                'redirectUrl' => '/login?redirect=' . urlencode($_SERVER['REQUEST_URI']),
+                'message' => 'Для просмотра товаров необходимо войти в систему.'
+            ]);
+            return;
         }
 
         // Для авторизованных пользователей показываем их товары

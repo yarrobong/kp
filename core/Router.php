@@ -37,7 +37,6 @@ class Router {
      * Запуск роутинга
      */
     public function run() {
-        error_log("Router run: " . $_SERVER['REQUEST_METHOD'] . " " . ($_SERVER['REQUEST_URI'] ?? '/'));
         $method = $_SERVER['REQUEST_METHOD'];
         $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 
@@ -58,17 +57,12 @@ class Router {
             $uri = '/';
         }
 
-        error_log("Looking for route: $method $uri");
-        error_log("Total routes: " . count($this->routes));
-
         foreach ($this->routes as $route) {
-            error_log("Checking route: " . $route['method'] . " " . $route['path']);
             if ($route['method'] === $method && $this->matchPath($route['path'], $uri, $params)) {
-                error_log("Route matched: " . $route['path']);
                 try {
                     $this->callHandler($route['handler'], $params);
                     return;
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     error_log("Router error: " . $e->getMessage());
                     $this->error500($e->getMessage());
                     return;
@@ -86,16 +80,11 @@ class Router {
     private function matchPath($routePath, $requestUri, &$params) {
         $params = [];
 
-        error_log("Matching: '$routePath' vs '$requestUri'");
-
         // Преобразуем параметры маршрута {id} в регулярные выражения
         $pattern = preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $routePath);
         $pattern = '#^' . $pattern . '$#';
 
-        error_log("Pattern: $pattern");
-
         if (preg_match($pattern, $requestUri, $matches)) {
-            error_log("Match found!");
             foreach ($matches as $key => $value) {
                 if (is_string($key)) {
                     $params[$key] = $value;
@@ -104,7 +93,6 @@ class Router {
             return true;
         }
 
-        error_log("No match");
         return false;
     }
 

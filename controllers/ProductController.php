@@ -36,13 +36,19 @@ class ProductController extends \Core\Controller {
             return;
         }
 
+        // Отладка
+        error_log("ProductController: user found: " . json_encode($user));
+
         // Для авторизованных пользователей показываем их товары
+        error_log("ProductController: user_id = " . ($user['id'] ?? 'null'));
         if ($search) {
             $products = Product::search($search, $user['id']);
         } elseif ($category) {
             $products = Product::getByCategory($category, $user['id']);
         } else {
+            error_log("ProductController: calling Product::getAll with user_id = " . $user['id']);
             $products = Product::getAll($user['id']);
+            error_log("ProductController: Product::getAll returned " . count($products) . " products");
         }
 
         $this->render('products/index', [

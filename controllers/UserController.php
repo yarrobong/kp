@@ -1,6 +1,10 @@
 <?php
 namespace Controllers;
 
+use Models\Product;
+use Models\Proposal;
+use Models\User;
+
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Product.php';

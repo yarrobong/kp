@@ -24,6 +24,13 @@
 
 .search-input {
     flex: 1;
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.search-input .form-input {
+    flex: 1;
 }
 
 .active-filters {

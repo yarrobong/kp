@@ -38,28 +38,100 @@
     <?php foreach ($products as $product): ?>
     <div class="product-card">
         <div class="product-image">
-            <img src="<?php echo htmlspecialchars($product['image']); ?>"
-                 alt="<?php echo htmlspecialchars($product['name']); ?>">
+            <?php if (!empty($product['image']) && $product['image'] !== '/css/placeholder-product.svg'): ?>
+                <img src="<?php echo htmlspecialchars($product['image']); ?>"
+                     alt="<?php echo htmlspecialchars($product['name']); ?>">
+            <?php else: ?>
+                <div class="product-placeholder">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 16V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18H19C20.1046 18 21 17.1046 21 16Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 10L9 12L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="16" cy="10" r="2" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span>Нет фото</span>
+                </div>
+            <?php endif; ?>
         </div>
-        <div class="product-info">
-            <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
-            <p class="product-description"><?php echo htmlspecialchars($product['description']); ?></p>
+
+        <div class="product-content">
+            <div class="product-header">
+                <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
+                <div class="product-price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</div>
+            </div>
+
+            <?php if (!empty($product['category'])): ?>
+            <div class="product-category"><?php echo htmlspecialchars($product['category']); ?></div>
+            <?php endif; ?>
+
+            <div class="product-description">
+                <?php
+                $description = htmlspecialchars($product['description'] ?? '');
+                echo strlen($description) > 120 ? substr($description, 0, 120) . '...' : $description;
+                ?>
+            </div>
+
             <div class="product-meta">
-                <span class="product-price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</span>
-                <?php if (!empty($product['category'])): ?>
-                <span class="product-category"><?php echo htmlspecialchars($product['category']); ?></span>
+                <small class="product-date">Добавлен: <?php echo date('d.m.Y', strtotime($product['created_at'])); ?></small>
+                <?php if (isset($product['updated_at']) && $product['updated_at'] !== $product['created_at']): ?>
+                <small class="product-updated">Обновлен: <?php echo date('d.m.Y', strtotime($product['updated_at'])); ?></small>
                 <?php endif; ?>
             </div>
         </div>
+
         <div class="product-actions">
-            <a href="/products/<?php echo $product['id']; ?>" class="btn btn-small">Просмотр</a>
+            <a href="/products/<?php echo $product['id']; ?>" class="btn btn-small btn-outline">Просмотр</a>
             <?php if ($user && ($user['role'] === 'admin' || $product['user_id'] == $user['id'])): ?>
-            <a href="/products/<?php echo $product['id']; ?>/edit" class="btn btn-small btn-secondary">Редактировать</a>
-            <a href="/products/<?php echo $product['id']; ?>/delete" class="btn btn-small btn-danger"
-               onclick="return confirm('Вы уверены, что хотите удалить этот товар?')">Удалить</a>
+            <div class="action-buttons">
+                <a href="/products/<?php echo $product['id']; ?>/edit" class="btn btn-small btn-secondary" title="Редактировать">
+                    ✏️
+                </a>
+                <button onclick="deleteProduct(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name']); ?>')"
+                        class="btn btn-small btn-danger" title="Удалить">
+                    🗑️
+                </button>
+            </div>
             <?php endif; ?>
         </div>
     </div>
     <?php endforeach; ?>
     <?php endif; ?>
 </div>
+
+<script>
+function deleteProduct(productId, productName) {
+    if (confirm(`Вы уверены, что хотите удалить товар "${productName}"?\n\nЭто действие нельзя отменить.`)) {
+        // Создаем форму для отправки POST запроса
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/products/${productId}/delete`;
+
+        // Добавляем CSRF токен если есть
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Добавляем анимацию для карточек при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>

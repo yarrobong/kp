@@ -35,33 +35,41 @@ class AuthController extends \Core\Controller {
      * Обработка входа
      */
     public function authenticate() {
-        echo "METHOD STARTED\n";
-        // Отладка
-        include __DIR__ . '/../debug_post.php';
-
         $data = $_POST;
 
         // Если $_POST пустой, попробуем прочитать из php://input
         if (empty($data)) {
             $input = file_get_contents('php://input');
-            error_log("Raw input: " . $input);
             parse_str($input, $data);
         }
 
-        error_log("Auth authenticate called, POST data: " . json_encode($data));
-
-        echo "DEBUG: Data received\n";
-        return;
-
         // Валидация
         if (empty($data['email']) || empty($data['password'])) {
-            error_log("Auth validation failed: missing email or password");
-            $this->redirect('/login', 'Заполните все поля', 'error');
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing email or password']);
             return;
         }
 
         // Поиск пользователя
         $user = User::findByEmail($data['email']);
+        if (!$user || !User::verifyPassword($data['password'], $user['password'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid credentials']);
+            return;
+        }
+
+        // Сохраняем данные пользователя в сессии
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_role'] = $user['role'];
+
+        // Возвращаем успешный ответ
+        echo json_encode([
+            'success' => true,
+            'message' => 'Добро пожаловать, ' . $user['name'] . '!',
+            'redirect' => $_GET['redirect'] ?? '/'
+        ]);
         error_log("Auth login: email=" . $data['email'] . ", user=" . ($user ? 'found' : 'not found'));
 
         if (!$user || empty($user['password'])) {

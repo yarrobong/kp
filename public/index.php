@@ -39,6 +39,10 @@ $router->get('/health', 'HomeController@health');
 $router->get('/test', function() {
     echo "Test route works!";
 });
+$router->post('/test-post', function() {
+    $data = $_POST;
+    echo "POST data received: " . json_encode($data);
+});
 
 // Маршруты аутентификации
 $router->get('/login', 'AuthController@login');

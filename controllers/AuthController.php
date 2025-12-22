@@ -35,8 +35,9 @@ class AuthController extends \Core\Controller {
      * Обработка входа
      */
     public function authenticate() {
-        $data = $this->getPostData();
-        error_log("Auth authenticate called, POST data: " . json_encode($data));
+        $data = $_POST;
+        error_log("Auth authenticate called, raw POST data: " . json_encode($data));
+        error_log("Auth authenticate called, getPostData: " . json_encode($this->getPostData()));
 
         // Валидация
         if (empty($data['email']) || empty($data['password'])) {
@@ -67,11 +68,12 @@ class AuthController extends \Core\Controller {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
 
-        error_log("Auth success: user " . $user['name'] . " logged in");
-
-        // Редирект на запрошенную страницу или на главную
-        $redirect = $_GET['redirect'] ?? '/';
-        $this->redirect($redirect, 'Добро пожаловать, ' . $user['name'] . '!', 'success');
+        // Возвращаем успешный JSON ответ вместо редиректа
+        $this->json([
+            'success' => true,
+            'message' => 'Добро пожаловать, ' . $user['name'] . '!',
+            'redirect' => $_GET['redirect'] ?? '/'
+        ]);
     }
 
     /**

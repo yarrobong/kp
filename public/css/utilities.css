@@ -96,25 +96,36 @@
     }
 
     .product-card,
-    .proposal-card {
+    .proposal-card,
+    .proposal-info-section,
+    .client-info-section,
+    .products-section,
+    .proposal-meta-section {
         break-inside: avoid;
         box-shadow: none !important;
         border: 1px solid #ccc !important;
+        background: white !important;
+        color: black !important;
     }
 }
 
-/* Темная тема (уже используется по умолчанию) */
+/* Темная тема */
 :root {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2a2a2a;
-    --bg-tertiary: #333333;
-    --text-primary: #ffffff;
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #2a2a2a;
+    --bg-quaternary: #333333;
+    --text-primary: #e0e0e0;
     --text-secondary: #b0b0b0;
     --text-muted: #666666;
     --border-color: #333333;
+    --border-light: #555555;
     --accent-color: #1976d2;
-    --success-color: #4caf50;
+    --accent-hover: #1565c0;
+    --success-color: #22c55e;
+    --success-bg: #1b2d1b;
     --danger-color: #ef4444;
+    --danger-bg: #2d1b1b;
 }
 
 /* Focus стили для accessibility */

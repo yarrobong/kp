@@ -164,7 +164,7 @@
     background: #1a1a1a;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     border: 1px solid #333;
 }
 
@@ -238,6 +238,10 @@
     color: #b0b0b0;
 }
 
+.products-table td {
+    color: #b0b0b0;
+}
+
 .table-header {
     background: #2a2a2a;
     font-weight: 600;
@@ -263,8 +267,9 @@
     display: flex;
     justify-content: flex-end;
     padding: 1.5rem;
-    background: #2a2a2a;
+    background: #1a1a1a;
     border-radius: 8px;
+    border: 1px solid #333;
 }
 
 .total-row {

@@ -330,6 +330,13 @@ class ProposalController extends \Core\Controller {
     private function generatePdf($html, $filename) {
         require_once __DIR__ . '/../vendor/tecnickcom/tcpdf/tcpdf.php';
 
+        // Определяем константы TCPDF если они не определены
+        if (!defined('PDF_PAGE_ORIENTATION')) {
+            define('PDF_PAGE_ORIENTATION', 'P');
+            define('PDF_UNIT', 'mm');
+            define('PDF_PAGE_FORMAT', 'A4');
+        }
+
         $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
         $pdf->SetCreator('КП Генератор');

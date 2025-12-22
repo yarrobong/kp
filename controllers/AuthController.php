@@ -45,7 +45,16 @@ class AuthController extends \Core\Controller {
 
         // Поиск пользователя
         $user = User::findByEmail($data['email']);
-        if (!$user || !User::verifyPassword($data['password'], $user['password'])) {
+        error_log("Auth login: email=" . $data['email'] . ", user=" . ($user ? 'found' : 'not found'));
+
+        if (!$user || empty($user['password'])) {
+            error_log("Auth failed: user not found or no password");
+            $this->redirect('/login', 'Неверный email или пароль', 'error');
+            return;
+        }
+
+        if (!User::verifyPassword($data['password'], $user['password'])) {
+            error_log("Auth failed: password verification failed");
             $this->redirect('/login', 'Неверный email или пароль', 'error');
             return;
         }

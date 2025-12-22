@@ -35,7 +35,9 @@ class AuthController extends \Core\Controller {
      * Обработка входа
      */
     public function authenticate() {
-        $data = $_POST;
+        try {
+            echo "DEBUG: Authenticate called\n";
+            $data = $_POST;
 
         // Если $_POST пустой, попробуем прочитать из php://input
         if (empty($data)) {
@@ -80,6 +82,16 @@ class AuthController extends \Core\Controller {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
 
+        // Возвращаем успешный ответ
+        echo json_encode([
+            'success' => true,
+            'message' => 'Добро пожаловать, ' . $user['name'] . '!',
+            'redirect' => $_GET['redirect'] ?? '/'
+        ]);
+
+        } catch (\Exception $e) {
+            echo "FATAL ERROR: " . $e->getMessage() . "\n";
+        }
     }
 
     /**

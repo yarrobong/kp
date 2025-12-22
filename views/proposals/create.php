@@ -30,7 +30,7 @@
             </div>
 
             <div class="form-actions-inline">
-                <button type="button" id="add-product-btn" class="btn btn-secondary">Добавить еще товар</button>
+                <button type="button" id="add-product-btn" class="btn btn-primary">➕ Добавить товар</button>
             </div>
 
             <div class="total-section">
@@ -59,8 +59,7 @@ class ProposalForm {
 
     init() {
         this.bindEvents();
-        this.addInitialProductRow(); // Добавляем первую строку товара
-        this.updateTotal();
+        this.addProductRow(); // Добавляем первую пустую строку товара
     }
 
     bindEvents() {
@@ -68,80 +67,224 @@ class ProposalForm {
         document.getElementById('add-product-btn').addEventListener('click', () => {
             this.addProductRow();
         });
-
-        // Удаление товара из списка
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-product')) {
-                const row = e.target.closest('.product-row');
-                this.removeProductRow(row);
-            }
-        });
-
-        // Изменение товара в выпадающем списке
-        document.addEventListener('change', (e) => {
-            if (e.target.classList.contains('product-select')) {
-                this.updateProductInfo(e.target);
-            }
-        });
-
-        // Изменение количества
-        document.addEventListener('input', (e) => {
-            if (e.target.classList.contains('quantity-input')) {
-                this.updateRowTotal(e.target.closest('.product-row'));
-                this.updateTotal();
-            }
-        });
     }
 
-    addInitialProductRow() {
-        this.addProductRow();
-    }
 
-    addProductRow() {
+    addProductRow(selectedProduct = null) {
         const container = document.getElementById('product-rows');
         const row = document.createElement('div');
         row.className = 'product-row';
         row.dataset.rowId = ++this.rowCounter;
 
-        // Создаем опции для выпадающего списка
-        const options = this.products.map(product =>
-            `<option value="${product.id}" data-price="${product.price}" data-name="${product.name.replace(/"/g, '&quot;')}">
-                ${product.name} - ${this.formatPrice(product.price)}
-            </option>`
-        ).join('');
+        const productData = selectedProduct || { id: '', name: '', price: 0 };
+        const quantity = selectedProduct ? 1 : '';
+        const total = selectedProduct ? productData.price : 0;
 
         row.innerHTML = `
-            <div class="row-fields">
-                <div class="field-group">
-                    <label>Товар</label>
-                    <select class="product-select form-input" name="proposal_items[${this.rowCounter}][product_id]" required>
-                        <option value="">Выберите товар...</option>
-                        ${options}
-                    </select>
+            <div class="product-search-row">
+                <div class="search-container">
+                    <input type="text" class="product-search-input form-input"
+                           placeholder="Начните вводить название товара..."
+                           value="${productData.name}"
+                           autocomplete="off">
+                    <div class="suggestions-dropdown" style="display: none;">
+                        <!-- Предложения товаров будут здесь -->
+                    </div>
+                    <input type="hidden" class="product-id-input" name="proposal_items[${this.rowCounter}][product_id]" value="${productData.id}">
                 </div>
-                <div class="field-group">
-                    <label>Количество</label>
-                    <input type="number" class="quantity-input form-input" name="proposal_items[${this.rowCounter}][quantity]"
-                           value="1" min="1" max="999" required>
+                <div class="quantity-container">
+                    <input type="number" class="quantity-input form-input" placeholder="Кол-во"
+                           name="proposal_items[${this.rowCounter}][quantity]"
+                           value="${quantity}" min="1" max="999" ${selectedProduct ? 'required' : ''}>
                 </div>
-                <div class="field-group">
-                    <label>Цена за шт.</label>
-                    <div class="price-display">0 ₽</div>
+                <div class="price-container">
+                    <span class="price-display">${this.formatPrice(productData.price)}</span>
                 </div>
-                <div class="field-group">
-                    <label>Сумма</label>
-                    <div class="row-total">0 ₽</div>
+                <div class="total-container">
+                    <span class="row-total">${this.formatPrice(total)}</span>
                 </div>
-                <div class="field-group actions">
+                <div class="actions-container">
                     <button type="button" class="btn btn-small btn-danger remove-product" title="Удалить товар">
-                        🗑️
+                        ✕
                     </button>
                 </div>
             </div>
         `;
 
         container.appendChild(row);
+
+        // Привязываем события для новой строки
+        this.bindRowEvents(row);
+
+        if (selectedProduct) {
+            this.updateTotal();
+        }
+    }
+
+    bindRowEvents(row) {
+        const searchInput = row.querySelector('.product-search-input');
+        const suggestions = row.querySelector('.suggestions-dropdown');
+        const quantityInput = row.querySelector('.quantity-input');
+        const removeBtn = row.querySelector('.remove-product');
+
+        // Поиск товаров
+        searchInput.addEventListener('input', (e) => {
+            this.handleProductSearch(e.target, suggestions);
+        });
+
+        // Фокус на поле поиска
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.trim()) {
+                this.handleProductSearch(searchInput, suggestions);
+            }
+        });
+
+        // Клик вне поля поиска
+        document.addEventListener('click', (e) => {
+            if (!row.contains(e.target)) {
+                suggestions.style.display = 'none';
+            }
+        });
+
+        // Изменение количества
+        quantityInput.addEventListener('input', () => {
+            this.updateRowTotal(row);
+            this.updateTotal();
+        });
+
+        // Удаление строки
+        removeBtn.addEventListener('click', () => {
+            this.removeProductRow(row);
+        });
+
+        // Клавиатурная навигация
+        searchInput.addEventListener('keydown', (e) => {
+            this.handleKeyboardNavigation(e, suggestions, row);
+        });
+    }
+
+    handleProductSearch(input, suggestions) {
+        const query = input.value.toLowerCase().trim();
+        suggestions.innerHTML = '';
+
+        if (query.length < 1) {
+            suggestions.style.display = 'none';
+            return;
+        }
+
+        const matches = this.products.filter(product =>
+            product.name.toLowerCase().includes(query)
+        ).slice(0, 5); // Ограничим до 5 результатов
+
+        if (matches.length > 0) {
+            matches.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.dataset.productId = product.id;
+                item.dataset.productName = product.name;
+                item.dataset.productPrice = product.price;
+                item.innerHTML = `
+                    <div class="suggestion-name">${this.highlightMatch(product.name, query)}</div>
+                    <div class="suggestion-price">${this.formatPrice(product.price)}</div>
+                `;
+
+                item.addEventListener('click', () => {
+                    this.selectProductFromSearch(product, input.closest('.product-row'));
+                });
+
+                suggestions.appendChild(item);
+            });
+            suggestions.style.display = 'block';
+        } else {
+            suggestions.style.display = 'none';
+        }
+    }
+
+    highlightMatch(text, query) {
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    selectProductFromSearch(product, row) {
+        const searchInput = row.querySelector('.product-search-input');
+        const idInput = row.querySelector('.product-id-input');
+        const priceDisplay = row.querySelector('.price-display');
+        const quantityInput = row.querySelector('.quantity-input');
+        const suggestions = row.querySelector('.suggestions-dropdown');
+
+        // Заполняем поля
+        searchInput.value = product.name;
+        idInput.value = product.id;
+        priceDisplay.textContent = this.formatPrice(product.price);
+
+        // Устанавливаем количество по умолчанию
+        if (!quantityInput.value || quantityInput.value === '0') {
+            quantityInput.value = '1';
+        }
+
+        // Скрываем предложения
+        suggestions.style.display = 'none';
+
+        // Пересчитываем сумму
+        this.updateRowTotal(row);
         this.updateTotal();
+
+        // Добавляем required к количеству
+        quantityInput.required = true;
+    }
+
+    handleKeyboardNavigation(e, suggestions, row) {
+        const items = suggestions.querySelectorAll('.suggestion-item');
+        const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
+
+        if (visibleItems.length === 0) return;
+
+        let activeIndex = -1;
+        visibleItems.forEach((item, index) => {
+            if (item.classList.contains('active')) {
+                activeIndex = index;
+                item.classList.remove('active');
+            }
+        });
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, visibleItems.length - 1);
+                visibleItems[activeIndex].classList.add('active');
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                visibleItems[activeIndex].classList.add('active');
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (activeIndex >= 0) {
+                    const product = {
+                        id: visibleItems[activeIndex].dataset.productId,
+                        name: visibleItems[activeIndex].dataset.productName,
+                        price: parseFloat(visibleItems[activeIndex].dataset.productPrice)
+                    };
+                    this.selectProductFromSearch(product, row);
+                }
+                break;
+            case 'Escape':
+                suggestions.style.display = 'none';
+                break;
+        }
+    }
+
+    updateRowTotal(row) {
+        const quantityInput = row.querySelector('.quantity-input');
+        const priceText = row.querySelector('.price-display').textContent;
+        const totalDisplay = row.querySelector('.row-total');
+
+        const quantity = parseInt(quantityInput.value) || 0;
+        const price = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+        const total = price * quantity;
+
+        totalDisplay.textContent = this.formatPrice(total);
     }
 
     removeProductRow(row) {
@@ -195,6 +338,11 @@ class ProposalForm {
         });
 
         document.getElementById('total-amount').textContent = this.formatPrice(total);
+    }
+
+    updateProductInfo(selectElement) {
+        // Этот метод больше не нужен для нового интерфейса
+        // Оставлен для совместимости
     }
 
     formatPrice(price) {

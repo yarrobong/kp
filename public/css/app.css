@@ -2631,8 +2631,129 @@ h1, h2, h3, h4, h5, h6 {
     color: #4caf50;
 }
 
+/* Product search and selection styles */
+.product-search-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #333;
+    position: relative;
+}
+
+.search-container {
+    position: relative;
+}
+
+.product-search-input {
+    width: 100%;
+    padding-right: 2.5rem;
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background: #2a2a2a;
+}
+
+.suggestion-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.suggestion-name mark {
+    background: #4caf50;
+    color: white;
+    padding: 0.1rem 0.2rem;
+    border-radius: 2px;
+}
+
+.suggestion-price {
+    color: #4caf50;
+    font-weight: 600;
+    margin-left: 1rem;
+}
+
+.quantity-container,
+.price-container,
+.total-container,
+.actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-input {
+    width: 80px;
+    text-align: center;
+}
+
+.price-display,
+.row-total {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.95rem;
+}
+
+.row-total {
+    color: #4caf50;
+    font-size: 1rem;
+}
+
+.actions-container {
+    justify-content: flex-end;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .product-search-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .quantity-container,
+    .price-container,
+    .total-container,
+    .actions-container {
+        justify-content: flex-start;
+    }
+
+    .suggestions-dropdown {
+        max-height: 150px;
+    }
+
     .row-fields {
         grid-template-columns: 1fr;
         gap: 1rem;

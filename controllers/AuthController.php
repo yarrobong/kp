@@ -36,9 +36,11 @@ class AuthController extends \Core\Controller {
      */
     public function authenticate() {
         $data = $this->getPostData();
+        error_log("Auth authenticate called, POST data: " . json_encode($data));
 
         // Валидация
         if (empty($data['email']) || empty($data['password'])) {
+            error_log("Auth validation failed: missing email or password");
             $this->redirect('/login', 'Заполните все поля', 'error');
             return;
         }
@@ -64,6 +66,8 @@ class AuthController extends \Core\Controller {
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
+
+        error_log("Auth success: user " . $user['name'] . " logged in");
 
         // Редирект на запрошенную страницу или на главную
         $redirect = $_GET['redirect'] ?? '/';

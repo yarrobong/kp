@@ -42,7 +42,7 @@ abstract class Model {
             $stmt = $db->prepare("SELECT * FROM " . static::$table . " WHERE id = ?");
             $stmt->execute([$id]);
             return $stmt->fetch();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return null;
         }
     }
@@ -72,7 +72,7 @@ abstract class Model {
             $stmt = $db->prepare($query);
             $stmt->execute($params);
             return $stmt->fetchAll();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return [];
         }
     }
@@ -93,7 +93,7 @@ abstract class Model {
             $stmt->execute(array_values($data));
 
             return $db->lastInsertId();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("Create failed: " . $e->getMessage());
             return false;
         }
@@ -118,7 +118,7 @@ abstract class Model {
             $query = "UPDATE " . static::$table . " SET " . implode(',', $set) . " WHERE id = ?";
             $stmt = $db->prepare($query);
             return $stmt->execute($params);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("Update failed: " . $e->getMessage());
             return false;
         }
@@ -134,7 +134,7 @@ abstract class Model {
         try {
             $stmt = $db->prepare("DELETE FROM " . static::$table . " WHERE id = ?");
             return $stmt->execute([$id]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log("Delete failed: " . $e->getMessage());
             return false;
         }

@@ -28,41 +28,65 @@
     <div class="form-section">
         <h2>Выбор товаров</h2>
         <div class="products-selection">
-            <div class="add-product-row">
-                <button type="button" id="add-product-btn" class="btn btn-secondary">Добавить товар</button>
+            <!-- Таблица товаров -->
+            <div class="products-table-container">
+                <table class="products-table" id="products-table">
+                    <thead>
+                        <tr class="table-header">
+                            <th>Наименование товара</th>
+                            <th>Цена</th>
+                            <th>Количество</th>
+                            <th>Сумма</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-rows">
+                        <!-- Предзаполненные товары -->
+                        <?php $rowCounter = 0; ?>
+                        <?php foreach ($clientInfo['products'] as $product): ?>
+                        <tr class="product-row" data-product-id="<?php echo $product['id']; ?>">
+                            <td class="product-name-cell">
+                                <div class="search-container">
+                                    <input type="text" class="product-search-input form-input"
+                                           placeholder="Начните вводить название товара..."
+                                           value="<?php echo htmlspecialchars($product['name']); ?>"
+                                           autocomplete="off">
+                                    <div class="suggestions-dropdown" style="display: none;">
+                                        <!-- Предложения товаров будут здесь -->
+                                    </div>
+                                    <input type="hidden" class="product-id-input" name="proposal_items[<?php echo ++$rowCounter; ?>][product_id]" value="<?php echo $product['id']; ?>">
+                                </div>
+                            </td>
+                            <td class="product-price-cell">
+                                <span class="price-display"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</span>
+                            </td>
+                            <td class="product-quantity-cell">
+                                <input type="number" class="quantity-input form-input"
+                                       name="proposal_items[<?php echo $rowCounter; ?>][quantity]"
+                                       value="<?php echo $product['quantity']; ?>" min="1" max="999" required>
+                            </td>
+                            <td class="product-total-cell">
+                                <span class="row-total"><?php echo number_format($product['total'], 0, ',', ' '); ?> ₽</span>
+                            </td>
+                            <td class="product-actions-cell">
+                                <button type="button" class="btn btn-small btn-danger remove-product" title="Удалить товар">
+                                    ✕
+                                </button>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
 
-            <div id="products-table" class="products-table">
-                <div class="table-header">
-                    <div>Наименование товара</div>
-                    <div>Цена</div>
-                    <div>Количество</div>
-                    <div>Сумма</div>
-                    <div>Действия</div>
-                </div>
-
-                <!-- Предзаполненные товары -->
-                <?php $rowCounter = 0; ?>
-                <?php foreach ($clientInfo['products'] as $product): ?>
-                <div class="product-row" data-product-id="<?php echo $product['id']; ?>">
-                    <div class="product-name"><?php echo htmlspecialchars($product['name']); ?></div>
-                    <div class="product-price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</div>
-                    <div class="product-quantity">
-                        <input type="number" class="quantity-input" value="<?php echo $product['quantity']; ?>" min="1" max="999">
-                        <input type="hidden" name="proposal_items[<?php echo $product['id']; ?>][product_id]" value="<?php echo $product['id']; ?>">
-                        <input type="hidden" name="proposal_items[<?php echo $product['id']; ?>][quantity]" value="<?php echo $product['quantity']; ?>">
-                    </div>
-                    <div class="product-total"><?php echo number_format($product['total'], 0, ',', ' '); ?> ₽</div>
-                    <div class="product-actions">
-                        <button type="button" class="btn btn-small btn-danger remove-product">Удалить</button>
-                    </div>
-                </div>
-                <?php $rowCounter++; ?>
-                <?php endforeach; ?>
+            <div class="form-actions-inline">
+                <button type="button" id="add-product-btn" class="btn btn-primary">➕ Добавить товар</button>
             </div>
 
             <div class="total-section">
-                <strong>Итого: <span id="total-amount"><?php echo number_format($proposal['total'], 0, ',', ' '); ?></span> ₽</strong>
+                <div class="total-row">
+                    <strong>Итого: <span id="total-amount"><?php echo number_format($proposal['total'], 0, ',', ' '); ?></span> ₽</strong>
+                </div>
             </div>
         </div>
     </div>
@@ -76,68 +100,14 @@
     </div>
 </form>
 
-<!-- Модальное окно для выбора товара -->
-<div id="product-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Выберите товар</h3>
-            <button type="button" class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="product-search">
-                <input type="text" id="product-search" placeholder="Поиск товаров..."
-                       class="form-input">
-            </div>
-            <div id="product-list" class="product-list">
-                <?php foreach ($products as $product): ?>
-                <div class="product-item" data-product-id="<?php echo $product['id']; ?>"
-                     data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
-                     data-product-price="<?php echo $product['price']; ?>">
-                    <div class="product-info">
-                        <strong><?php echo htmlspecialchars($product['name']); ?></strong>
-                        <div class="product-meta">
-                            <?php echo htmlspecialchars($product['description']); ?>
-                            <span class="price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-small select-product">Выбрать</button>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 // Управление товарами в предложении
 class ProposalForm {
     constructor() {
         this.products = <?php echo json_encode($products); ?>;
-        this.selectedProducts = new Map();
         this.rowCounter = <?php echo $rowCounter; ?>;
 
-        // Инициализируем существующие товары
-        this.initExistingProducts();
-
         this.init();
-    }
-
-    initExistingProducts() {
-        const rows = document.querySelectorAll('.product-row');
-        rows.forEach(row => {
-            const productId = row.dataset.productId;
-            const product = this.products.find(p => p.id == productId);
-            if (product) {
-                const quantityInput = row.querySelector('.quantity-input');
-                const quantity = parseInt(quantityInput.value) || 1;
-
-                this.selectedProducts.set(productId, {
-                    ...product,
-                    quantity: quantity,
-                    rowId: ++this.rowCounter
-                });
-            }
-        });
     }
 
     init() {
@@ -146,165 +116,298 @@ class ProposalForm {
     }
 
     bindEvents() {
-        // Добавление товара
+        // Добавление новой строки товара
         document.getElementById('add-product-btn').addEventListener('click', () => {
-            this.showProductModal();
-        });
-
-        // Модальное окно
-        document.querySelector('.modal-close').addEventListener('click', () => {
-            this.hideProductModal();
-        });
-
-        document.getElementById('product-modal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                this.hideProductModal();
-            }
-        });
-
-        // Поиск товаров
-        document.getElementById('product-search').addEventListener('input', (e) => {
-            this.searchProducts(e.target.value);
-        });
-
-        // Выбор товара
-        document.querySelectorAll('.select-product').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const productItem = e.target.closest('.product-item');
-                const productId = productItem.dataset.productId;
-                this.selectProduct(productId);
-            });
+            this.addProductRow();
         });
 
         // Удаление товара из списка
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('remove-product')) {
-                const row = e.target.closest('.product-row');
-                const productId = row.dataset.productId;
-                this.removeProduct(productId);
+                const row = e.target.closest('tr');
+                this.removeProductRow(row);
             }
         });
 
         // Изменение количества
         document.addEventListener('input', (e) => {
             if (e.target.classList.contains('quantity-input')) {
-                const row = e.target.closest('.product-row');
-                const productId = row.dataset.productId;
-                const quantity = parseInt(e.target.value) || 0;
-                this.updateQuantity(productId, quantity);
+                const row = e.target.closest('tr');
+                this.updateRowTotal(row);
+                this.updateTotal();
+            }
+        });
+
+        // Поиск товаров в существующих строках
+        document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('product-search-input')) {
+                const row = e.target.closest('tr');
+                this.handleProductSearch(e.target, row.querySelector('.suggestions-dropdown'));
+            }
+        });
+
+        // Фокус на поле поиска
+        document.addEventListener('focus', (e) => {
+            if (e.target.classList.contains('product-search-input')) {
+                const row = e.target.closest('tr');
+                const suggestions = row.querySelector('.suggestions-dropdown');
+                if (e.target.value.trim()) {
+                    this.handleProductSearch(e.target, suggestions);
+                }
+            }
+        }, true);
+
+        // Клик вне поля поиска
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                document.querySelectorAll('.suggestions-dropdown').forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
             }
         });
     }
 
-    showProductModal() {
-        document.getElementById('product-modal').style.display = 'block';
+    addProductRow(selectedProduct = null) {
+        const container = document.getElementById('product-rows');
+        const row = document.createElement('tr');
+        row.className = 'product-row';
+        row.dataset.rowId = ++this.rowCounter;
+
+        const productData = selectedProduct || { id: '', name: '', price: 0 };
+        const quantity = selectedProduct ? 1 : '';
+        const total = selectedProduct ? productData.price : 0;
+
+        row.innerHTML = `
+            <td class="product-name-cell">
+                <div class="search-container">
+                    <input type="text" class="product-search-input form-input"
+                           placeholder="Начните вводить название товара..."
+                           value="${productData.name}"
+                           autocomplete="off">
+                    <div class="suggestions-dropdown" style="display: none;">
+                        <!-- Предложения товаров будут здесь -->
+                    </div>
+                    <input type="hidden" class="product-id-input" name="proposal_items[${this.rowCounter}][product_id]" value="${productData.id}">
+                </div>
+            </td>
+            <td class="product-price-cell">
+                <span class="price-display">${this.formatPrice(productData.price)}</span>
+            </td>
+            <td class="product-quantity-cell">
+                <input type="number" class="quantity-input form-input"
+                       name="proposal_items[${this.rowCounter}][quantity]"
+                       value="${quantity}" min="1" max="999" ${selectedProduct ? 'required' : ''}>
+            </td>
+            <td class="product-total-cell">
+                <span class="row-total">${this.formatPrice(total)}</span>
+            </td>
+            <td class="product-actions-cell">
+                <button type="button" class="btn btn-small btn-danger remove-product" title="Удалить товар">
+                    ✕
+                </button>
+            </td>
+        `;
+
+        container.appendChild(row);
+
+        // Привязываем события для новой строки
+        this.bindRowEvents(row);
+
+        if (selectedProduct) {
+            this.updateTotal();
+        }
     }
 
-    hideProductModal() {
-        document.getElementById('product-modal').style.display = 'none';
-    }
+    bindRowEvents(row) {
+        const searchInput = row.querySelector('.product-search-input');
+        const suggestions = row.querySelector('.suggestions-dropdown');
 
-    searchProducts(query) {
-        const items = document.querySelectorAll('.product-item');
-        const lowerQuery = query.toLowerCase();
+        // Поиск товаров
+        searchInput.addEventListener('input', (e) => {
+            this.handleProductSearch(e.target, suggestions);
+        });
 
-        items.forEach(item => {
-            const name = item.dataset.productName.toLowerCase();
-            const visible = name.includes(lowerQuery);
-            item.style.display = visible ? 'flex' : 'none';
+        // Фокус на поле поиска
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.trim()) {
+                this.handleProductSearch(searchInput, suggestions);
+            }
+        });
+
+        // Клавиатурная навигация
+        searchInput.addEventListener('keydown', (e) => {
+            this.handleKeyboardNavigation(e, suggestions, row);
         });
     }
 
-    selectProduct(productId) {
-        if (this.selectedProducts.has(productId)) {
-            alert('Этот товар уже добавлен');
+    handleProductSearch(input, suggestions) {
+        const query = input.value.toLowerCase().trim();
+        suggestions.innerHTML = '';
+
+        if (query.length < 1) {
+            suggestions.style.display = 'none';
             return;
         }
 
-        const product = this.products.find(p => p.id == productId);
-        if (!product) return;
+        const matches = this.products.filter(product =>
+            product.name.toLowerCase().includes(query)
+        ).slice(0, 10);
 
-        this.selectedProducts.set(productId, {
-            ...product,
-            quantity: 1,
-            rowId: ++this.rowCounter
+        if (matches.length > 0) {
+            matches.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.dataset.productId = product.id;
+                item.dataset.productName = product.name;
+                item.dataset.productPrice = product.price;
+                item.innerHTML = `
+                    <div class="suggestion-name">${this.highlightMatch(product.name, query)}</div>
+                    <div class="suggestion-price">${this.formatPrice(product.price)}</div>
+                `;
+
+                item.addEventListener('click', () => {
+                    this.selectProductFromSearch(product, input.closest('tr'));
+                });
+
+                suggestions.appendChild(item);
+            });
+            suggestions.style.display = 'block';
+        } else {
+            suggestions.style.display = 'none';
+        }
+    }
+
+    highlightMatch(text, query) {
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    selectProductFromSearch(product, row) {
+        const searchInput = row.querySelector('.product-search-input');
+        const idInput = row.querySelector('.product-id-input');
+        const priceDisplay = row.querySelector('.price-display');
+        const quantityInput = row.querySelector('.quantity-input');
+        const suggestions = row.querySelector('.suggestions-dropdown');
+
+        // Заполняем поля
+        searchInput.value = product.name;
+        idInput.value = product.id;
+        priceDisplay.textContent = this.formatPrice(product.price);
+
+        // Устанавливаем количество по умолчанию
+        if (!quantityInput.value || quantityInput.value === '0') {
+            quantityInput.value = '1';
+        }
+
+        // Скрываем предложения
+        suggestions.style.display = 'none';
+
+        // Пересчитываем сумму
+        this.updateRowTotal(row);
+        this.updateTotal();
+
+        // Добавляем required к количеству
+        quantityInput.required = true;
+    }
+
+    handleKeyboardNavigation(e, suggestions, row) {
+        const items = suggestions.querySelectorAll('.suggestion-item');
+        const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
+
+        if (visibleItems.length === 0) return;
+
+        let activeIndex = -1;
+        visibleItems.forEach((item, index) => {
+            if (item.classList.contains('active')) {
+                activeIndex = index;
+                item.classList.remove('active');
+            }
         });
 
-        this.addProductRow(product);
-        this.updateTotal();
-        this.hideProductModal();
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, visibleItems.length - 1);
+                visibleItems[activeIndex].classList.add('active');
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                visibleItems[activeIndex].classList.add('active');
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (activeIndex >= 0) {
+                    const product = {
+                        id: visibleItems[activeIndex].dataset.productId,
+                        name: visibleItems[activeIndex].dataset.productName,
+                        price: parseFloat(visibleItems[activeIndex].dataset.productPrice)
+                    };
+                    this.selectProductFromSearch(product, row);
+                }
+                break;
+            case 'Escape':
+                suggestions.style.display = 'none';
+                break;
+        }
     }
 
-    addProductRow(product) {
-        const table = document.getElementById('products-table');
-        const row = document.createElement('div');
-        row.className = 'product-row';
-        row.dataset.productId = product.id;
+    updateRowTotal(row) {
+        const quantityInput = row.querySelector('.quantity-input');
+        const priceText = row.querySelector('.price-display').textContent;
+        const totalDisplay = row.querySelector('.row-total');
 
-        row.innerHTML = `
-            <div class="product-name">${product.name}</div>
-            <div class="product-price">${this.formatPrice(product.price)}</div>
-            <div class="product-quantity">
-                <input type="number" class="quantity-input" value="1" min="1" max="999">
-                <input type="hidden" name="proposal_items[${product.id}][product_id]" value="${product.id}">
-            </div>
-            <div class="product-total">${this.formatPrice(product.price)}</div>
-            <div class="product-actions">
-                <button type="button" class="btn btn-small btn-danger remove-product">Удалить</button>
-            </div>
-        `;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const price = this.parsePrice(priceText) || 0;
+        const total = price * quantity;
 
-        table.appendChild(row);
+        totalDisplay.textContent = this.formatPrice(total);
     }
 
-    removeProduct(productId) {
-        const row = document.querySelector(`.product-row[data-product-id="${productId}"]`);
-        if (row) {
+    removeProductRow(row) {
+        // Не удаляем если это последняя строка
+        const rows = document.querySelectorAll('.product-row');
+        if (rows.length > 1) {
             row.remove();
+            this.updateTotal();
+        } else {
+            // Очищаем строку вместо удаления
+            this.clearProductRow(row);
         }
-        this.selectedProducts.delete(productId);
-        this.updateTotal();
     }
 
-    updateQuantity(productId, quantity) {
-        if (this.selectedProducts.has(productId)) {
-            const product = this.selectedProducts.get(productId);
-            product.quantity = quantity;
+    clearProductRow(row) {
+        const searchInput = row.querySelector('.product-search-input');
+        const idInput = row.querySelector('.product-id-input');
+        const priceDisplay = row.querySelector('.price-display');
+        const quantityInput = row.querySelector('.quantity-input');
+        const totalDisplay = row.querySelector('.row-total');
 
-            const row = document.querySelector(`.product-row[data-product-id="${productId}"]`);
-            if (row) {
-                const totalCell = row.querySelector('.product-total');
-                const quantityInput = row.querySelector('.quantity-input');
+        searchInput.value = '';
+        idInput.value = '';
+        priceDisplay.textContent = this.formatPrice(0);
+        quantityInput.value = '';
+        totalDisplay.textContent = this.formatPrice(0);
+        quantityInput.required = false;
 
-                if (quantityInput) {
-                    quantityInput.value = quantity;
-                }
-
-                // Обновляем hidden input для количества
-                let quantityHidden = row.querySelector('input[name*="quantity"]');
-                if (!quantityHidden) {
-                    quantityHidden = document.createElement('input');
-                    quantityHidden.type = 'hidden';
-                    quantityHidden.name = `proposal_items[${productId}][quantity]`;
-                    row.querySelector('.product-quantity').appendChild(quantityHidden);
-                }
-                quantityHidden.value = quantity;
-
-                if (totalCell) {
-                    totalCell.textContent = this.formatPrice(product.price * quantity);
-                }
-            }
-        }
         this.updateTotal();
     }
 
     updateTotal() {
         let total = 0;
-        this.selectedProducts.forEach(product => {
-            total += product.price * product.quantity;
+        const rows = document.querySelectorAll('.product-row');
+
+        rows.forEach(row => {
+            const totalText = row.querySelector('.row-total').textContent;
+            const amount = this.parsePrice(totalText) || 0;
+            total += amount;
         });
 
         document.getElementById('total-amount').textContent = this.formatPrice(total);
+    }
+
+    parsePrice(priceText) {
+        return parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
     }
 
     formatPrice(price) {

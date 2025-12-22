@@ -1332,7 +1332,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .product-image {
     width: 100%;
-    height: 100%;
+    height: 65%;
     object-fit: cover;
     transition: transform 0.4s ease;
 }
@@ -1477,6 +1477,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .products-table {
@@ -1492,14 +1493,47 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .products-table th {
-    background: #2d2d2d;
+    background: linear-gradient(135deg, #2d2d2d, #333333);
     font-weight: 600;
     color: #ffffff;
     font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .products-table td {
     color: #e0e0e0;
+    vertical-align: middle;
+}
+
+.products-table .product-name-cell {
+    min-width: 300px;
+    position: relative;
+}
+
+.products-table .product-price-cell {
+    min-width: 120px;
+    text-align: right;
+}
+
+.products-table .product-quantity-cell {
+    min-width: 100px;
+    text-align: center;
+}
+
+.products-table .product-total-cell {
+    min-width: 120px;
+    text-align: right;
+    font-weight: 600;
+    color: #4caf50;
+}
+
+.products-table .product-actions-cell {
+    min-width: 80px;
+    text-align: center;
 }
 
 .products-table .unit-price,
@@ -1516,6 +1550,159 @@ h1, h2, h3, h4, h5, h6 {
 .products-table .total-row td {
     padding: 16px;
     border-top: 2px solid #1976d2;
+}
+
+/* Search container in table */
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+.product-search-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: #2d2d2d;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.product-search-input:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    background: #333333;
+}
+
+.quantity-input {
+    width: 80px;
+    padding: 8px 12px;
+    background: #2d2d2d;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.quantity-input:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    background: #333333;
+}
+
+/* Suggestions dropdown */
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #2d2d2d;
+    border: 1px solid #555;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s ease;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background: #1976d2;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.suggestion-price {
+    color: #4caf50;
+    font-weight: 600;
+    margin-left: 12px;
+}
+
+.suggestion-item mark {
+    background: #ffeb3b;
+    color: #000;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+/* Price and total displays */
+.price-display,
+.row-total {
+    font-weight: 600;
+    color: #4caf50;
+    font-size: 14px;
+}
+
+/* Form actions inline */
+.form-actions-inline {
+    margin: 16px 0;
+    text-align: left;
+}
+
+/* Total section improvements */
+.total-section {
+    margin-top: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #2d2d2d, #333333);
+    border-radius: 8px;
+    border: 1px solid #555;
+    text-align: right;
+}
+
+.total-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.total-row strong {
+    font-size: 18px;
+    color: #4caf50;
+    font-weight: 700;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    .products-table-container {
+        overflow-x: auto;
+    }
+
+    .products-table {
+        min-width: 600px;
+    }
+
+    .products-table th,
+    .products-table td {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .product-name-cell {
+        min-width: 200px;
+    }
 }
 
 .product-search {

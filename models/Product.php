@@ -21,6 +21,37 @@ class Product extends \Core\Model {
     }
 
     /**
+     * Получить все товары с fallback на JSON
+     */
+    public static function getAllWithFallback($userId = null) {
+        try {
+            $products = self::getAll($userId);
+            if (!empty($products)) {
+                return $products;
+            }
+        } catch (\Exception $e) {
+            // Database connection failed, fallback to JSON
+        }
+
+        // Fallback to JSON
+        $dataFile = __DIR__ . '/../products.json';
+        if (file_exists($dataFile)) {
+            $products = json_decode(file_get_contents($dataFile), true);
+            if (is_array($products)) {
+                // Filter by user_id if specified
+                if ($userId) {
+                    $products = array_filter($products, function($product) use ($userId) {
+                        return $product['user_id'] == $userId;
+                    });
+                }
+                return array_values($products);
+            }
+        }
+
+        return [];
+    }
+
+    /**
      * Получить статистику товаров пользователя
      */
     public static function getUserStats($userId) {

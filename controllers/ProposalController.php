@@ -29,7 +29,7 @@ class ProposalController extends \Core\Controller {
      * Форма создания предложения
      */
     public function create() {
-        $products = Product::getAll();
+        $products = Product::getAllWithFallback();
 
         $this->render('proposals/create', [
             'title' => 'Создать предложение',
@@ -123,7 +123,7 @@ class ProposalController extends \Core\Controller {
             return;
         }
 
-        $products = Product::getAll();
+        $products = Product::getAllWithFallback();
         $clientInfo = json_decode($proposal['client_info'], true);
 
         $this->render('proposals/edit', [

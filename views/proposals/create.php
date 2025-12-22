@@ -25,8 +25,22 @@
     <div class="form-section">
         <h2>Выбор товаров</h2>
         <div class="products-selection">
-            <div id="product-rows" class="product-rows">
-                <!-- Строки товаров будут добавляться сюда -->
+            <!-- Таблица товаров -->
+            <div class="products-table-container">
+                <table class="products-table" id="products-table">
+                    <thead>
+                        <tr class="table-header">
+                            <th>Наименование товара</th>
+                            <th>Цена</th>
+                            <th>Количество</th>
+                            <th>Сумма</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-rows">
+                        <!-- Строки товаров будут добавляться сюда -->
+                    </tbody>
+                </table>
             </div>
 
             <div class="form-actions-inline">
@@ -34,7 +48,9 @@
             </div>
 
             <div class="total-section">
-                <strong>Итого: <span id="total-amount">0</span> ₽</strong>
+                <div class="total-row">
+                    <strong>Итого: <span id="total-amount">0</span> ₽</strong>
+                </div>
             </div>
         </div>
     </div>
@@ -69,10 +85,9 @@ class ProposalForm {
         });
     }
 
-
     addProductRow(selectedProduct = null) {
         const container = document.getElementById('product-rows');
-        const row = document.createElement('div');
+        const row = document.createElement('tr');
         row.className = 'product-row';
         row.dataset.rowId = ++this.rowCounter;
 
@@ -81,7 +96,7 @@ class ProposalForm {
         const total = selectedProduct ? productData.price : 0;
 
         row.innerHTML = `
-            <div class="product-search-row">
+            <td class="product-name-cell">
                 <div class="search-container">
                     <input type="text" class="product-search-input form-input"
                            placeholder="Начните вводить название товара..."
@@ -92,23 +107,23 @@ class ProposalForm {
                     </div>
                     <input type="hidden" class="product-id-input" name="proposal_items[${this.rowCounter}][product_id]" value="${productData.id}">
                 </div>
-                <div class="quantity-container">
-                    <input type="number" class="quantity-input form-input" placeholder="Кол-во"
-                           name="proposal_items[${this.rowCounter}][quantity]"
-                           value="${quantity}" min="1" max="999" ${selectedProduct ? 'required' : ''}>
-                </div>
-                <div class="price-container">
-                    <span class="price-display">${this.formatPrice(productData.price)}</span>
-                </div>
-                <div class="total-container">
-                    <span class="row-total">${this.formatPrice(total)}</span>
-                </div>
-                <div class="actions-container">
-                    <button type="button" class="btn btn-small btn-danger remove-product" title="Удалить товар">
-                        ✕
-                    </button>
-                </div>
-            </div>
+            </td>
+            <td class="product-price-cell">
+                <span class="price-display">${this.formatPrice(productData.price)}</span>
+            </td>
+            <td class="product-quantity-cell">
+                <input type="number" class="quantity-input form-input"
+                       name="proposal_items[${this.rowCounter}][quantity]"
+                       value="${quantity}" min="1" max="999" ${selectedProduct ? 'required' : ''}>
+            </td>
+            <td class="product-total-cell">
+                <span class="row-total">${this.formatPrice(total)}</span>
+            </td>
+            <td class="product-actions-cell">
+                <button type="button" class="btn btn-small btn-danger remove-product" title="Удалить товар">
+                    ✕
+                </button>
+            </td>
         `;
 
         container.appendChild(row);
@@ -174,7 +189,7 @@ class ProposalForm {
 
         const matches = this.products.filter(product =>
             product.name.toLowerCase().includes(query)
-        ).slice(0, 5); // Ограничим до 5 результатов
+        ).slice(0, 10); // Увеличиваем до 10 результатов
 
         if (matches.length > 0) {
             matches.forEach((product, index) => {
@@ -189,7 +204,7 @@ class ProposalForm {
                 `;
 
                 item.addEventListener('click', () => {
-                    this.selectProductFromSearch(product, input.closest('.product-row'));
+                    this.selectProductFromSearch(product, input.closest('tr'));
                 });
 
                 suggestions.appendChild(item);
@@ -281,7 +296,7 @@ class ProposalForm {
         const totalDisplay = row.querySelector('.row-total');
 
         const quantity = parseInt(quantityInput.value) || 0;
-        const price = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+        const price = this.parsePrice(priceText) || 0;
         const total = price * quantity;
 
         totalDisplay.textContent = this.formatPrice(total);
@@ -294,37 +309,26 @@ class ProposalForm {
             row.remove();
             this.updateTotal();
         } else {
-            alert('Должен остаться хотя бы один товар');
+            // Очищаем строку вместо удаления
+            this.clearProductRow(row);
         }
     }
 
-    updateProductInfo(selectElement) {
-        const row = selectElement.closest('.product-row');
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
-        const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
-        const quantity = parseInt(row.querySelector('.quantity-input').value) || 1;
-
-        // Обновляем отображение цены
-        row.querySelector('.price-display').textContent = this.formatPrice(price);
-
-        // Обновляем сумму строки
-        this.updateRowTotal(row);
-        this.updateTotal();
-    }
-
-    updateRowTotal(row) {
-        const select = row.querySelector('.product-select');
+    clearProductRow(row) {
+        const searchInput = row.querySelector('.product-search-input');
+        const idInput = row.querySelector('.product-id-input');
+        const priceDisplay = row.querySelector('.price-display');
         const quantityInput = row.querySelector('.quantity-input');
         const totalDisplay = row.querySelector('.row-total');
 
-        if (select && quantityInput && totalDisplay) {
-            const selectedOption = select.options[select.selectedIndex];
-            const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
-            const quantity = parseInt(quantityInput.value) || 0;
-            const total = price * quantity;
+        searchInput.value = '';
+        idInput.value = '';
+        priceDisplay.textContent = this.formatPrice(0);
+        quantityInput.value = '';
+        totalDisplay.textContent = this.formatPrice(0);
+        quantityInput.required = false;
 
-            totalDisplay.textContent = this.formatPrice(total);
-        }
+        this.updateTotal();
     }
 
     updateTotal() {
@@ -333,16 +337,16 @@ class ProposalForm {
 
         rows.forEach(row => {
             const totalText = row.querySelector('.row-total').textContent;
-            const amount = parseFloat(totalText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            const amount = this.parsePrice(totalText) || 0;
             total += amount;
         });
 
         document.getElementById('total-amount').textContent = this.formatPrice(total);
     }
 
-    updateProductInfo(selectElement) {
-        // Этот метод больше не нужен для нового интерфейса
-        // Оставлен для совместимости
+    parsePrice(priceText) {
+        // Парсим цену из формата "1 234 ₽" в число
+        return parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
     }
 
     formatPrice(price) {
@@ -355,3 +359,4 @@ document.addEventListener('DOMContentLoaded', () => {
     new ProposalForm();
 });
 </script>
+

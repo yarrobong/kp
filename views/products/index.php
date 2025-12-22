@@ -37,9 +37,9 @@
     <?php else: ?>
     <?php foreach ($products as $product): ?>
     <div class="product-card fade-in">
-        <div class="product-image">
+        <div class="product-image-container">
             <?php if (!empty($product['image']) && $product['image'] !== '/css/placeholder-product.svg'): ?>
-                <img src="<?php echo htmlspecialchars($product['image']); ?>"
+                <img class="product-image" src="<?php echo htmlspecialchars($product['image']); ?>"
                      alt="<?php echo htmlspecialchars($product['name']); ?>">
             <?php else: ?>
                 <div class="product-placeholder">
@@ -53,11 +53,8 @@
             <?php endif; ?>
         </div>
 
-        <div class="product-content">
-            <div class="product-header">
-                <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
-                <div class="product-price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</div>
-            </div>
+        <div class="product-info">
+            <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
 
             <?php if (!empty($product['category'])): ?>
             <div class="product-category"><?php echo htmlspecialchars($product['category']); ?></div>
@@ -71,10 +68,7 @@
             </div>
 
             <div class="product-meta">
-                <small class="product-date">Добавлен: <?php echo date('d.m.Y', strtotime($product['created_at'])); ?></small>
-                <?php if (isset($product['updated_at']) && $product['updated_at'] !== $product['created_at']): ?>
-                <small class="product-updated">Обновлен: <?php echo date('d.m.Y', strtotime($product['updated_at'])); ?></small>
-                <?php endif; ?>
+                <div class="product-price"><?php echo number_format($product['price'], 0, ',', ' '); ?> ₽</div>
             </div>
         </div>
 

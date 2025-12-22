@@ -35,6 +35,9 @@ class AuthController extends \Core\Controller {
      * Обработка входа
      */
     public function authenticate() {
+        // Отладка
+        include __DIR__ . '/../debug_post.php';
+
         $data = $_POST;
 
         // Если $_POST пустой, попробуем прочитать из php://input

@@ -1,76 +1,216 @@
-/* Личный кабинет пользователя - Современный дизайн */
+/* Личный кабинет - Современный дашборд */
 
-/* Hero секция личного кабинета */
-.user-hero {
+/* Приветственный хедер */
+.dashboard-header {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid #333;
     position: relative;
-    padding: 4rem 0;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
-    text-align: center;
     overflow: hidden;
 }
 
-.user-hero::before {
+.dashboard-header::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-        radial-gradient(circle at 30% 70%, rgba(25, 118, 210, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 70% 30%, rgba(22, 199, 94, 0.1) 0%, transparent 50%);
-    animation: float 15s ease-in-out infinite;
+    background:
+        radial-gradient(circle at 20% 80%, rgba(25, 118, 210, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
 }
 
-.user-hero .container {
+.welcome-section {
     position: relative;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
-.user-hero h1 {
-    font-size: clamp(2rem, 4vw, 3rem);
+.welcome-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1976d2, #22c55e);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.welcome-content {
+    flex: 1;
+}
+
+.welcome-content h1 {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #ffffff, #b0b0b0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.user-welcome {
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
+.welcome-subtitle {
+    font-size: clamp(1rem, 2vw, 1.2rem);
     color: #b0b0b0;
-    margin-bottom: 2rem;
-    font-weight: 300;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
 }
 
-.user-quick-actions {
+.welcome-actions {
     display: flex;
     gap: 1rem;
-    justify-content: center;
     flex-wrap: wrap;
-    margin-top: 2rem;
 }
 
-.user-quick-actions .btn {
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
+.welcome-actions .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Быстрые действия */
+.quick-actions {
+    margin-bottom: 2rem;
+}
+
+.quick-actions h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-/* Статистика пользователя */
-.user-stats {
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.action-card {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid #333;
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #1976d2, #22c55e);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.action-card:hover::before {
+    transform: scaleX(1);
+}
+
+.action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: #555;
+}
+
+.action-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1976d2, #22c55e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
+}
+
+.action-icon svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.action-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.action-content p {
+    font-size: 0.9rem;
+    color: #b0b0b0;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Статистика */
+.stats-overview {
+    margin-bottom: 2rem;
+}
+
+.stats-overview h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin: 3rem 0;
+    gap: 1.5rem;
 }
 
 .stat-card {
     background: #1a1a1a;
     border-radius: 16px;
     padding: 2rem;
-    text-align: center;
     border: 1px solid #333;
     transition: all 0.3s ease;
     position: relative;
@@ -94,28 +234,9 @@
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     border-color: #555;
-}
-
-.stat-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #1976d2, #22c55e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.stat-label {
-    font-size: 1rem;
-    color: #b0b0b0;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .stat-icon {
@@ -129,266 +250,400 @@
     justify-content: center;
     font-size: 1.5rem;
     color: white;
-}
-
-/* Основные секции */
-.user-dashboard {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    margin: 3rem 0;
-}
-
-.main-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-/* Профиль пользователя */
-.user-profile {
-    background: #1a1a1a;
-    border-radius: 16px;
-    padding: 2rem;
-    border: 1px solid #333;
-}
-
-.user-avatar {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #1976d2, #22c55e);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: white;
-    margin: 0 auto 1.5rem;
     box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
 }
 
-.user-profile h2 {
+.stat-content {
     text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #1976d2, #22c55e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: #b0b0b0;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Профиль */
+.profile-section {
+    margin-bottom: 2rem;
+}
+
+.profile-section h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
     color: #ffffff;
     margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-}
-
-.user-info {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #333;
+    gap: 0.5rem;
 }
 
-.info-row:last-child {
-    border-bottom: none;
-}
-
-.info-label {
-    font-weight: 600;
-    color: #b0b0b0;
-}
-
-.info-value {
-    color: #ffffff;
-    text-align: right;
-}
-
-/* Быстрые действия */
-.quick-actions {
+.profile-card {
     background: #1a1a1a;
     border-radius: 16px;
     padding: 2rem;
     border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
-.quick-actions h3 {
-    color: #ffffff;
-    margin-bottom: 1.5rem;
-    font-size: 1.3rem;
-}
-
-.quick-actions-grid {
-    display: grid;
+.profile-header {
+    display: flex;
+    align-items: center;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.quick-action-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 8px;
-    color: #ffffff;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.quick-action-btn:hover {
-    background: #333;
-    border-color: #555;
-    transform: translateY(-2px);
-}
-
-.quick-action-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #1976d2, #22c55e);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
+.profile-avatar {
     flex-shrink: 0;
 }
 
-.quick-action-content h4 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1rem;
-    font-weight: 600;
+.avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1976d2, #22c55e);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
 }
 
-.quick-action-content p {
-    margin: 0;
-    font-size: 0.85rem;
+.profile-info {
+    flex: 1;
+}
+
+.profile-info h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+}
+
+.profile-info p {
+    font-size: 0.9rem;
     color: #b0b0b0;
+    margin: 0;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-user {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.role-admin {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.profile-actions {
+    flex-shrink: 0;
 }
 
 /* Недавняя активность */
 .recent-activity {
-    background: #1a1a1a;
-    border-radius: 16px;
-    padding: 2rem;
-    border: 1px solid #333;
+    margin-bottom: 2rem;
 }
 
 .recent-activity h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
     color: #ffffff;
     margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.activity-list {
-    display: flex;
-    flex-direction: column;
+.activity-grid {
+    display: grid;
     gap: 1rem;
 }
 
 .activity-item {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #333;
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem;
-    background: #2a2a2a;
-    border-radius: 8px;
-    border: 1px solid #333;
     transition: all 0.3s ease;
 }
 
 .activity-item:hover {
-    background: #333;
+    background: #222;
     border-color: #555;
+    transform: translateX(4px);
 }
 
 .activity-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #1976d2, #22c55e);
-    border-radius: 8px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
     flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.product-icon {
+    background: linear-gradient(135deg, #1976d2, #22c55e);
+    color: white;
+}
+
+.proposal-icon {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+}
+
+.activity-icon svg {
+    width: 20px;
+    height: 20px;
 }
 
 .activity-content {
     flex: 1;
 }
 
-.activity-content h4 {
-    margin: 0 0 0.25rem 0;
+.activity-title {
     font-size: 0.95rem;
+    font-weight: 600;
     color: #ffffff;
+    margin-bottom: 0.25rem;
+}
+
+.activity-description {
+    font-size: 0.85rem;
+    color: #b0b0b0;
+    margin-bottom: 0.25rem;
+}
+
+.activity-meta {
+    font-size: 0.8rem;
+    color: #888;
     font-weight: 500;
 }
 
-.activity-content p {
-    margin: 0;
-    font-size: 0.8rem;
-    color: #b0b0b0;
+.activity-actions {
+    flex-shrink: 0;
 }
 
-.activity-time {
-    font-size: 0.75rem;
-    color: #666;
+/* Советы по использованию */
+.tips-section {
+    margin-bottom: 2rem;
+}
+
+.tips-section h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.tip-card {
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid #333;
+    position: relative;
+    overflow: hidden;
+}
+
+.tip-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+}
+
+.tip-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+}
+
+.tip-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.tip-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+}
+
+.tip-card p {
+    font-size: 0.9rem;
+    color: #b0b0b0;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Пустое состояние активности */
+.empty-activity {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #1a1a1a;
+    border-radius: 16px;
+    border: 1px solid #333;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #6b7280, #9ca3af);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(107, 114, 128, 0.2);
+}
+
+.empty-icon svg {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+.empty-activity h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+}
+
+.empty-activity p {
+    font-size: 1rem;
+    color: #b0b0b0;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Анимации */
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(1deg); }
+    66% { transform: translateY(5px) rotate(-1deg); }
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .user-dashboard {
-        grid-template-columns: 1fr;
-    }
-    
-    .user-hero h1 {
-        font-size: 2.5rem;
-    }
-    
-    .user-quick-actions {
+    .welcome-section {
         flex-direction: column;
-        align-items: center;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .actions-grid,
+    .tips-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
 }
 
 @media (max-width: 768px) {
-    .user-hero {
-        padding: 3rem 0;
+    .dashboard-header {
+        padding: 2rem 1.5rem;
     }
-    
-    .user-hero h1 {
+
+    .welcome-content h1 {
         font-size: 2rem;
     }
-    
-    .user-welcome {
-        font-size: 1.1rem;
+
+    .welcome-actions {
+        justify-content: center;
     }
-    
-    .user-stats {
+
+    .actions-grid,
+    .tips-grid,
+    .stats-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
     }
-    
-    .stat-card {
-        padding: 1.5rem;
+
+    .action-card,
+    .tip-card {
+        padding: 1.25rem;
     }
-    
-    .stat-number {
-        font-size: 2.5rem;
+
+    .profile-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
     }
-    
+
     .activity-item {
         flex-direction: column;
         text-align: center;
         gap: 0.75rem;
     }
-    
-    .activity-content {
-        text-align: center;
+
+    .stat-number {
+        font-size: 2rem;
     }
 }

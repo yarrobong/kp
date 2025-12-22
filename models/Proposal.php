@@ -142,9 +142,13 @@ class Proposal extends \Core\Model {
      * Получить все предложения с fallback на JSON
      */
     public static function getAllWithFallback($userId = null) {
-        $proposals = self::getAll($userId);
-        if (!empty($proposals)) {
-            return $proposals;
+        try {
+            $proposals = self::getAll($userId);
+            if (!empty($proposals)) {
+                return $proposals;
+            }
+        } catch (\Exception $e) {
+            // Database connection failed, fallback to JSON
         }
 
         // Fallback to JSON
@@ -152,7 +156,13 @@ class Proposal extends \Core\Model {
         if (file_exists($dataFile)) {
             $proposals = json_decode(file_get_contents($dataFile), true);
             if (is_array($proposals)) {
-                return $proposals;
+                // Filter by user_id if specified
+                if ($userId) {
+                    $proposals = array_filter($proposals, function($proposal) use ($userId) {
+                        return $proposal['user_id'] == $userId;
+                    });
+                }
+                return array_values($proposals);
             }
         }
 

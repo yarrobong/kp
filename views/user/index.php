@@ -39,7 +39,7 @@
 
 <!-- Быстрые действия -->
 <div class="quick-actions">
-    <h2>🚀 Быстрые действия</h2>
+    <h2>Быстрые действия</h2>
     <div class="actions-grid">
         <a href="/products/create" class="action-card">
             <div class="action-icon">
@@ -145,7 +145,7 @@
 
 <!-- Профиль -->
 <div class="profile-section">
-    <h2>👤 Профиль</h2>
+    <h2>Профиль</h2>
     <div class="profile-card">
         <div class="profile-header">
             <div class="profile-avatar">

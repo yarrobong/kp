@@ -1,0 +1,40 @@
+# Конфигурация деплоя для КП Генератора
+# Этот файл содержит настройки для автоматической синхронизации
+
+# Настройки Git
+GIT_REMOTE="origin"
+GIT_BRANCH="main"
+
+# Настройки Production деплоя
+DEPLOY_TO_PRODUCTION=false
+PRODUCTION_SERVER=""
+PRODUCTION_USER="deploy"
+PRODUCTION_PATH="/var/www/kp-generator"
+
+# Настройки SSH
+SSH_KEY_PATH="~/.ssh/id_rsa"
+
+# Настройки уведомлений
+ENABLE_NOTIFICATIONS=true
+
+# Исключаемые файлы (регулярные выражения)
+EXCLUDE_PATTERNS=(
+    ".git/"
+    "node_modules/"
+    "*.log"
+    ".DS_Store"
+    "temp/"
+    "uploads/"
+    "*.tmp"
+    "*.swp"
+    "*.bak"
+)
+
+# Автоматический коммит при изменениях
+AUTO_COMMIT_ENABLED=true
+AUTO_COMMIT_MESSAGE="Автоматический коммит изменений %DATE%"
+
+# Таймауты
+GIT_TIMEOUT=30
+DEPLOY_TIMEOUT=300
+SSH_TIMEOUT=10

@@ -1,20 +1,39 @@
-/vendor/
-/node_modules/
-.env
-.env.backup
-.env.production
-.phpunit.result.cache
-/storage/*.key
-/storage/logs/*
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/framework/views/*
-/storage/app/public/*
-!storage/app/public/.gitkeep
-/public/hot
-/public/storage
-/public/build
+# Временные файлы
+*.tmp
+*.temp
+*.log
+*.swp
+*.bak
+.DS_Store
 
+# Директории
+temp/
+logs/
+uploads/
+!uploads/.gitkeep
 
+# Файлы конфигурации
+.deploy_config.local
+.env.local
 
-.cursor/
+# Node.js (если используется)
+node_modules/
+npm-debug.log*
+
+# Composer
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Бэкапы баз данных
+backup_*.sql
+
+# Архивы деплоя
+kp-deploy-*.tar.gz

@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>📦 Мои товары</h1>
+    <h1>Мои товары</h1>
     <div class="header-actions">
         <a href="/products/create" class="btn btn-primary">➕ Добавить товар</a>
         <a href="/user" class="btn btn-secondary">← Личный кабинет</a>
@@ -8,7 +8,7 @@
 
 <?php if (empty($products)): ?>
     <div class="empty-state">
-        <div class="empty-state-icon">📦</div>
+        <div class="empty-state-icon"></div>
         <h2>У вас пока нет товаров</h2>
         <p>Начните с добавления первого товара в ваш каталог</p>
         <a href="/products/create" class="btn btn-primary">Добавить первый товар</a>

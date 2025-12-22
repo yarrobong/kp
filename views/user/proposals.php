@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>📄 Мои предложения</h1>
+    <h1>Мои предложения</h1>
     <div class="header-actions">
         <a href="/proposals/create" class="btn btn-primary">➕ Создать КП</a>
         <a href="/user" class="btn btn-secondary">← Личный кабинет</a>
@@ -8,7 +8,7 @@
 
 <?php if (empty($proposals)): ?>
     <div class="empty-state">
-        <div class="empty-state-icon">📄</div>
+        <div class="empty-state-icon"></div>
         <h2>У вас пока нет предложений</h2>
         <p>Создайте свое первое коммерческое предложение</p>
         <a href="/proposals/create" class="btn btn-primary">Создать первое КП</a>
@@ -129,7 +129,7 @@
                 <?php if ($proposal['status'] === 'draft'): ?>
                 <a href="/proposals/<?php echo $proposal['id']; ?>/edit" class="btn btn-small btn-secondary">✏ Редактировать</a>
                 <?php endif; ?>
-                <a href="/proposals/<?php echo $proposal['id']; ?>/pdf" class="btn btn-small btn-success" target="_blank">📄 PDF</a>
+                <a href="/proposals/<?php echo $proposal['id']; ?>/pdf" class="btn btn-small btn-success" target="_blank">PDF</a>
                 <?php if ($proposal['status'] === 'draft'): ?>
                 <button onclick="deleteProposal(<?php echo $proposal['id']; ?>, '<?php echo htmlspecialchars($proposal['title']); ?>')"
                         class="btn btn-small btn-danger">🗑 Удалить</button>

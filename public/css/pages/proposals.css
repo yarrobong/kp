@@ -256,7 +256,7 @@
 }
 
 .proposal-products span::before {
-    content: '📦';
+    content: '';
     font-size: 1rem;
 }
 
@@ -354,7 +354,7 @@
 }
 
 .proposals-list .empty-state::before {
-    content: '📄';
+    content: '';
     position: absolute;
     top: 2rem;
     left: 50%;
@@ -748,7 +748,7 @@
 }
 
 .search-container::before {
-    content: '🔍';
+    content: '';
     position: absolute;
     right: 0.75rem;
     top: 50%;

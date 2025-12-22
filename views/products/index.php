@@ -1,6 +1,6 @@
 <!-- Hero секция товаров -->
 <div class="products-hero">
-    <h1>🛍️ Каталог товаров</h1>
+    <h1>Каталог товаров</h1>
     <p>Откройте для себя наш премиум каталог товаров с передовыми технологиями и инновационными решениями</p>
     <?php if ($user): ?>
     <a href="/products/create" class="btn btn-primary">
@@ -29,7 +29,7 @@
 
     <?php if ($search || $category): ?>
     <div class="active-filters">
-        <span>🎯 Активные фильтры:</span>
+        <span>Активные фильтры:</span>
         <?php if ($search): ?>
         <span class="filter-tag" style="--tag-index: 0;">Поиск: "<?php echo htmlspecialchars($search); ?>"</span>
         <?php endif; ?>
@@ -47,7 +47,7 @@
 <div class="products-grid">
     <?php if (empty($products)): ?>
     <div class="empty-state">
-        <h3><?php echo $search ? '🤔 Товары не найдены' : '📦 Каталог пуст'; ?></h3>
+        <h3><?php echo $search ? 'Товары не найдены' : 'Каталог пуст'; ?></h3>
         <p><?php echo $search ? 'Попробуйте изменить поисковый запрос или сбросьте фильтры' : 'Добавьте первый товар в каталог и начните продавать!'; ?></p>
         <a href="/products/create" class="btn btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -92,7 +92,7 @@
                 <?php if (!empty($product['category'])): ?>
                 <span>📁 <?php echo htmlspecialchars($product['category']); ?></span>
                 <?php endif; ?>
-                <span>🕒 <?php echo date('d.m.Y', strtotime($product['created_at'])); ?></span>
+                <span><?php echo date('d.m.Y', strtotime($product['created_at'])); ?></span>
             </div>
 
             <div class="product-actions">

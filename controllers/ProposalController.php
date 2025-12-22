@@ -8,21 +8,43 @@ use TCPDF;
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../models/Proposal.php';
 require_once __DIR__ . '/../models/Product.php';
+require_once __DIR__ . '/../controllers/AuthController.php';
 
 /**
  * Контроллер коммерческих предложений
  */
 class ProposalController extends \Core\Controller {
 
+    public function __construct() {
+        // Проверяем авторизацию для создания/редактирования предложений
+        $action = $_SERVER['REQUEST_URI'] ?? '';
+        if (strpos($action, '/proposals/create') !== false ||
+            strpos($action, '/proposals/') !== false && strpos($action, '/edit') !== false) {
+            AuthController::requireAuth();
+        }
+    }
+
     /**
      * Список всех предложений
      */
     public function index() {
-        $proposals = Proposal::getAllWithFallback();
+        // Только авторизованные пользователи могут видеть предложения
+        $user = AuthController::getCurrentUser();
+        if (!$user) {
+            $this->render('auth/redirect', [
+                'title' => 'Требуется авторизация',
+                'redirectUrl' => '/login?redirect=' . urlencode($_SERVER['REQUEST_URI']),
+                'message' => 'Для просмотра предложений необходимо войти в систему.'
+            ]);
+            return;
+        }
+
+        $proposals = Proposal::getAllWithFallback($user['id']);
 
         $this->render('proposals/index', [
             'title' => 'Коммерческие предложения',
-            'proposals' => $proposals
+            'proposals' => $proposals,
+            'user' => $user
         ]);
     }
 
@@ -30,11 +52,13 @@ class ProposalController extends \Core\Controller {
      * Форма создания предложения
      */
     public function create() {
-        $products = Product::getAllWithFallback();
+        $user = AuthController::getCurrentUser();
+        $products = Product::getAllWithFallback($user['id']);
 
         $this->render('proposals/create', [
             'title' => 'Создать предложение',
-            'products' => $products
+            'products' => $products,
+            'user' => $user
         ]);
     }
 
@@ -42,6 +66,7 @@ class ProposalController extends \Core\Controller {
      * Сохранение нового предложения
      */
     public function store() {
+        $user = AuthController::getCurrentUser();
         $data = $this->getPostData();
 
         // Валидация
@@ -64,6 +89,7 @@ class ProposalController extends \Core\Controller {
 
         // Подготовка данных предложения
         $proposalData = [
+            'user_id' => $user['id'],
             'title' => 'Коммерческое предложение для ' . $data['client_name'],
             'offer_date' => $data['offer_date'],
             'client_info' => json_encode([
@@ -92,9 +118,16 @@ class ProposalController extends \Core\Controller {
             return;
         }
 
+        $user = AuthController::getCurrentUser();
         $proposal = Proposal::findWithFallback($id);
         if (!$proposal) {
             $this->error404('Предложение не найдено');
+            return;
+        }
+
+        // Проверяем права доступа
+        if (!$this->canAccessProposal($proposal, $user)) {
+            $this->error403('Доступ к предложению запрещен');
             return;
         }
 
@@ -104,7 +137,8 @@ class ProposalController extends \Core\Controller {
         $this->render('proposals/show', [
             'title' => $proposal['title'],
             'proposal' => $proposal,
-            'clientInfo' => $clientInfo
+            'clientInfo' => $clientInfo,
+            'user' => $user
         ]);
     }
 
@@ -118,20 +152,28 @@ class ProposalController extends \Core\Controller {
             return;
         }
 
+        $user = AuthController::getCurrentUser();
         $proposal = Proposal::findWithFallback($id);
         if (!$proposal) {
             $this->error404('Предложение не найдено');
             return;
         }
 
-        $products = Product::getAllWithFallback();
+        // Проверяем права доступа (владелец или админ)
+        if (!$this->canAccessProposal($proposal, $user)) {
+            $this->error403('Доступ к предложению запрещен');
+            return;
+        }
+
+        $products = Product::getAllWithFallback($user['id']);
         $clientInfo = json_decode($proposal['client_info'], true);
 
         $this->render('proposals/edit', [
             'title' => 'Редактировать предложение',
             'proposal' => $proposal,
             'clientInfo' => $clientInfo,
-            'products' => $products
+            'products' => $products,
+            'user' => $user
         ]);
     }
 
@@ -142,6 +184,19 @@ class ProposalController extends \Core\Controller {
         $id = $params['id'] ?? null;
         if (!$id) {
             $this->error404();
+            return;
+        }
+
+        $user = AuthController::getCurrentUser();
+        $proposal = Proposal::findWithFallback($id);
+        if (!$proposal) {
+            $this->error404('Предложение не найдено');
+            return;
+        }
+
+        // Проверяем права доступа
+        if (!$this->canEditProposal($proposal, $user)) {
+            $this->error403('Доступ к редактированию предложения запрещен');
             return;
         }
 
@@ -186,6 +241,19 @@ class ProposalController extends \Core\Controller {
             return;
         }
 
+        $user = AuthController::getCurrentUser();
+        $proposal = Proposal::findWithFallback($id);
+        if (!$proposal) {
+            $this->error404('Предложение не найдено');
+            return;
+        }
+
+        // Проверяем права доступа
+        if (!$this->canEditProposal($proposal, $user)) {
+            $this->error403('Доступ к удалению предложения запрещен');
+            return;
+        }
+
         $success = Proposal::deleteProposal($id);
 
         if ($success) {
@@ -205,9 +273,16 @@ class ProposalController extends \Core\Controller {
             return;
         }
 
+        $user = AuthController::getCurrentUser();
         $proposal = Proposal::findWithFallback($id);
         if (!$proposal) {
             $this->error404('Предложение не найдено');
+            return;
+        }
+
+        // Проверяем права доступа
+        if (!$this->canAccessProposal($proposal, $user)) {
+            $this->error403('Доступ к предложению запрещен');
             return;
         }
 
@@ -346,5 +421,35 @@ class ProposalController extends \Core\Controller {
 
         $pdf->Output($filename . '.pdf', 'D');
         exit;
+    }
+
+    /**
+     * Проверить права доступа к предложению
+     */
+    private function canAccessProposal($proposal, $user) {
+        if (!$user) return false;
+
+        // Админ может видеть все предложения
+        if ($user['role'] === 'admin') {
+            return true;
+        }
+
+        // Пользователь может видеть только свои предложения
+        return $proposal['user_id'] == $user['id'];
+    }
+
+    /**
+     * Проверить права редактирования предложения
+     */
+    private function canEditProposal($proposal, $user) {
+        if (!$user) return false;
+
+        // Админ может редактировать все предложения
+        if ($user['role'] === 'admin') {
+            return true;
+        }
+
+        // Пользователь может редактировать только свои предложения
+        return $proposal['user_id'] == $user['id'];
     }
 }

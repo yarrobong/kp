@@ -166,6 +166,83 @@ async function loadStats() {
     }
 }
 
+// Якорное меню - подсветка активной секции
+function initAnchorNav() {
+    const anchorLinks = document.querySelectorAll('.anchor-nav a');
+    const sections = document.querySelectorAll('section[id]');
+
+    function highlightActiveSection() {
+        const scrollPosition = window.scrollY + 100;
+
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                anchorLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }
+
+    // Плавная прокрутка к секциям
+    anchorLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+
+            if (targetSection) {
+                const offsetTop = targetSection.offsetTop - 80; // Учитываем высоту меню
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // Обновление активной секции при скролле
+    window.addEventListener('scroll', highlightActiveSection);
+    highlightActiveSection(); // Вызываем сразу для начальной позиции
+}
+
+// Анимации при появлении элементов
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+
+    // Наблюдаем за секциями
+    document.querySelectorAll('section').forEach(section => {
+        observer.observe(section);
+    });
+
+    // Наблюдаем за карточками фич
+    document.querySelectorAll('.feature-card').forEach((card, index) => {
+        card.style.transitionDelay = `${index * 0.1}s`;
+        observer.observe(card);
+    });
+}
+
 // Запуск после загрузки DOM
-document.addEventListener('DOMContentLoaded', loadStats);
+document.addEventListener('DOMContentLoaded', function() {
+    loadStats();
+    initAnchorNav();
+    initScrollAnimations();
+});
 </script>

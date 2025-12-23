@@ -48,8 +48,30 @@ class ProductController extends \Core\Controller {
             $products = Product::getAll($user['id']);
         }
 
+        $pageTitle = 'Товары';
+        if ($search) {
+            $pageTitle = "Поиск товаров: $search";
+        } elseif ($category) {
+            $pageTitle = "Товары категории: $category";
+        }
+
+        $description = 'Управление каталогом товаров в системе КП Генератор. Добавляйте, редактируйте и удаляйте товары для создания коммерческих предложений.';
+        $keywords = 'товары, каталог товаров, управление товарами, добавление товаров, редактирование товаров, категории товаров';
+
+        if ($search) {
+            $description = "Результаты поиска товаров по запросу '$search'. Найдено " . count($products) . " товаров.";
+            $keywords .= ", поиск товаров, $search";
+        }
+
         $this->render('products/index', [
-            'title' => 'Товары',
+            'title' => $pageTitle . ' - КП Генератор',
+            'description' => $description,
+            'keywords' => $keywords,
+            'robots' => 'index, follow',
+            'og_type' => 'website',
+            'og_title' => $pageTitle,
+            'og_description' => $description,
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             'products' => $products,
             'search' => $search,
             'category' => $category,
@@ -139,8 +161,32 @@ class ProductController extends \Core\Controller {
             return;
         }
 
+        // Структурированные данные для товара
+        $structuredData = [
+            "@type" => "Product",
+            "name" => $product['name'],
+            "description" => $product['description'],
+            "category" => $product['category'],
+            "offers" => [
+                "@type" => "Offer",
+                "price" => $product['price'],
+                "priceCurrency" => "RUB",
+                "availability" => "https://schema.org/InStock"
+            ],
+            "image" => $product['image'] ?: '/css/placeholder-product.svg'
+        ];
+
         $this->render('products/show', [
-            'title' => $product['name'],
+            'title' => $product['name'] . ' - Купить в КП Генератор',
+            'description' => $product['description'] . ' Цена: ' . number_format($product['price'], 0, ',', ' ') . ' ₽. ' . ($product['category'] ? 'Категория: ' . $product['category'] . '.' : ''),
+            'keywords' => $product['name'] . ', ' . $product['category'] . ', купить, цена, ' . number_format($product['price'], 0, ',', ' ') . ' руб',
+            'robots' => 'index, follow',
+            'og_type' => 'product',
+            'og_title' => $product['name'],
+            'og_description' => $product['description'] . ' - ' . number_format($product['price'], 0, ',', ' ') . ' ₽',
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+            'og_image' => $product['image'] ?: '/css/placeholder-product.svg',
+            'structured_data' => $structuredData,
             'product' => $product,
             'user' => $user
         ]);

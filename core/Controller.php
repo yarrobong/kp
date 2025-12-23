@@ -88,7 +88,14 @@ abstract class Controller {
     protected function error404($message = 'Страница не найдена') {
         http_response_code(404);
         $this->render('errors/404', [
-            'title' => '404 - Страница не найдена',
+            'title' => '404 - Страница не найдена | КП Генератор',
+            'description' => 'Запрашиваемая страница не найдена. Вернитесь на главную страницу или воспользуйтесь поиском товаров.',
+            'keywords' => '404, страница не найдена, ошибка, поиск товаров, КП генератор',
+            'robots' => 'noindex, nofollow', // Не индексируем страницу ошибки
+            'og_type' => 'website',
+            'og_title' => '404 - Страница не найдена',
+            'og_description' => 'Запрашиваемая страница не существует. Вернитесь на главную страницу.',
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             'message' => $message
         ]);
     }

@@ -42,6 +42,14 @@ $router = new Router();
 // Маршруты
 $router->get('/', 'HomeController@index');
 $router->get('/health', 'HomeController@health');
+$router->get('/debug', function() {
+    require_once '../debug_auth.php';
+    exit;
+});
+$router->get('/test-login', function() {
+    require_once '../test_login.php';
+    exit;
+});
 
 // Обработка ботов и сканеров
 $router->post('/webhook.php', function() {

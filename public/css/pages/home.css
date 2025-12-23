@@ -649,6 +649,30 @@
     box-shadow: 0 10px 35px rgba(25, 118, 210, 0.4);
 }
 
+.footer-cta .additional-links {
+    margin-top: 2rem;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.footer-cta .additional-links a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border: 1px solid #4CAF50;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.footer-cta .additional-links a:hover {
+    background: #4CAF50;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
 /* ЭПИЧНЫЕ АНИМАЦИИ */
 
 /* Морфинг и вращение фигур */

@@ -1,0 +1,110 @@
+# Robots.txt для КП Генератор
+# https://example.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Главные страницы
+Allow: /$
+Allow: /products$
+Allow: /proposals$
+Allow: /#features$
+Allow: /#how-to-use$
+Allow: /#stats$
+Allow: /#get-started$
+
+# Разрешить индексацию статических файлов
+Allow: /css/
+Allow: /js/
+Allow: /favicon.ico
+Allow: /apple-touch-icon.png
+Allow: /favicon-32x32.png
+Allow: /favicon-16x16.png
+Allow: /site.webmanifest
+
+# Запретить индексацию административных страниц
+Disallow: /admin/
+Disallow: /user/
+
+# Запретить индексацию страниц аутентификации
+Disallow: /login
+Disallow: /register
+Disallow: /logout
+
+# Запретить индексацию AJAX и API
+Disallow: /health
+Disallow: /test
+Disallow: /test-login
+Disallow: /debug
+
+# Запретить индексацию индивидуальных предложений (они генерируются динамически)
+Disallow: /proposals/*/edit
+Disallow: /proposals/*/pdf
+
+# Запретить индексацию поиска и фильтров
+Disallow: /*?search=*
+Disallow: /*?category=*
+
+# Запретить индексацию временных и системных файлов
+Disallow: /temp/
+Disallow: /logs/
+Disallow: /uploads/
+
+# Карта сайта
+Sitemap: https://example.com/sitemap.xml
+
+# Специфические правила для популярных поисковиков
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Yandex
+User-agent: Yandex
+Allow: /
+Crawl-delay: 1
+
+# Яндекс картинки
+User-agent: YandexImages
+Allow: /css/
+Allow: /js/
+Allow: /favicon.ico
+Disallow: /
+
+# Мобильные поисковики
+User-agent: Googlebot-Mobile
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /css/placeholder-product.svg
+Disallow: /
+
+# Социальные сети
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Запретить всем остальным ботам
+User-agent: *
+Disallow: /admin/
+Disallow: /user/
+Disallow: /login
+Disallow: /register
+Disallow: /logout
+Disallow: /health
+Disallow: /test
+Disallow: /test-login
+Disallow: /debug
+Disallow: /*?search=*
+Disallow: /*?category=*

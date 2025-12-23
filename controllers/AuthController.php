@@ -29,7 +29,14 @@ class AuthController extends \Core\Controller {
         }
 
         $this->render('auth/login', [
-            'title' => 'Вход в систему'
+            'title' => 'Вход в систему - КП Генератор',
+            'description' => 'Авторизация в системе КП Генератор. Войдите в свой аккаунт для управления товарами и коммерческими предложениями.',
+            'keywords' => 'вход, авторизация, логин, вход в систему, КП генератор',
+            'robots' => 'noindex, nofollow', // Страницы авторизации не индексируем
+            'og_type' => 'website',
+            'og_title' => 'Вход в систему',
+            'og_description' => 'Авторизация в системе создания коммерческих предложений',
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
         ]);
     }
 
@@ -101,7 +108,14 @@ class AuthController extends \Core\Controller {
         }
 
         $this->render('auth/register', [
-            'title' => 'Регистрация'
+            'title' => 'Регистрация - КП Генератор',
+            'description' => 'Регистрация нового аккаунта в системе КП Генератор. Создайте аккаунт для управления товарами и создания коммерческих предложений.',
+            'keywords' => 'регистрация, создать аккаунт, новый пользователь, КП генератор',
+            'robots' => 'noindex, nofollow', // Страницы регистрации не индексируем
+            'og_type' => 'website',
+            'og_title' => 'Регистрация в системе',
+            'og_description' => 'Создайте аккаунт для работы с коммерческими предложениями',
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
         ]);
     }
 

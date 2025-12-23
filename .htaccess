@@ -1,4 +1,103 @@
+# Apache конфигурация для КП Генератор
+
+# Включаем перезапись URL
 RewriteEngine On
 
-# Перенаправление на public/index.php
-RewriteRule ^(.*)$ public/$1 [QSA,L]
+# Запрещаем доступ к скрытым файлам и папкам
+RewriteRule "^\.|^\_" - [F,L]
+
+# Запрещаем доступ к файлам конфигурации
+RewriteRule "^composer\.(json|lock)$" - [F,L]
+RewriteRule "^\.env" - [F,L]
+
+# Запрещаем доступ к PHP файлам вне public директории
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule "\.php$" - [F,L]
+
+# Запрещаем доступ к SQL файлам
+RewriteRule "\.sql$" - [F,L]
+
+# Запрещаем доступ к логам
+RewriteRule "\.log$" - [F,L]
+
+# Запрещаем доступ к бэкапам
+RewriteRule "backup_.*\.sql$" - [F,L]
+
+# Запрещаем доступ к архивам деплоя
+RewriteRule "kp-deploy-.*\.tar\.gz$" - [F,L]
+
+# Настраиваем обработку ошибок
+ErrorDocument 400 /public/index.php
+ErrorDocument 401 /public/index.php
+ErrorDocument 403 /public/index.php
+ErrorDocument 404 /public/index.php
+ErrorDocument 500 /public/index.php
+
+# Перенаправляем все запросы на public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /public/index.php [L]
+
+# Настройки безопасности
+<Files *.php>
+    Order Deny,Allow
+    Allow from all
+</Files>
+
+# Кэширование статических файлов
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # CSS и JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+
+    # Изображения
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
+
+    # Шрифты
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/eot "access plus 1 year"
+
+    # HTML
+    ExpiresByType text/html "access plus 1 hour"
+
+    # JSON
+    ExpiresByType application/json "access plus 1 hour"
+</IfModule>
+
+# Сжатие контента
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Защита от кликджекинга
+<IfModule mod_headers.c>
+    Header always append X-Frame-Options DENY
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# SEO: robots.txt
+RewriteRule ^robots\.txt$ /public/robots.txt [L]
+
+# SEO: sitemap.xml
+RewriteRule ^sitemap\.xml$ /public/sitemap.php [L]

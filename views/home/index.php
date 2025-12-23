@@ -1,3 +1,13 @@
+<!-- Якорное меню навигации -->
+<nav class="anchor-nav">
+    <div class="container">
+        <a href="#features" title="Возможности системы">Возможности</a>
+        <a href="#how-to-use" title="Как использовать">Инструкция</a>
+        <a href="#stats" title="Статистика">Статистика</a>
+        <a href="#get-started" title="Начать работу">Начать</a>
+    </div>
+</nav>
+
 <div class="hero">
     <div class="container">
         <h1>
@@ -12,23 +22,23 @@
         </p>
         <div class="hero-actions">
             <?php if ($user): ?>
-                <a href="/products" class="btn btn-primary">
+                <a href="/products" class="btn btn-primary" title="Перейти к управлению товарами">
                     Мои товары
                 </a>
-                <a href="/proposals/create" class="btn btn-secondary">
+                <a href="/proposals/create" class="btn btn-secondary" title="Создать новое коммерческое предложение">
                     Создать предложение
                 </a>
-                <a href="/user" class="btn btn-secondary">
+                <a href="/user" class="btn btn-secondary" title="Личный кабинет пользователя">
                     Личный кабинет
                 </a>
             <?php else: ?>
-                <a href="/products" class="btn btn-primary">
-                    Просмотреть товары
+                <a href="#features" class="btn btn-primary" title="Посмотреть возможности системы">
+                    Возможности системы
                 </a>
-                <a href="/register" class="btn btn-secondary">
+                <a href="/register" class="btn btn-secondary" title="Зарегистрировать новый аккаунт">
                     Регистрация
                 </a>
-                <a href="/login" class="btn btn-secondary">
+                <a href="/login" class="btn btn-secondary" title="Войти в существующий аккаунт">
                     <span class="btn-icon">🔑</span>
                     Вход
                 </a>
@@ -37,7 +47,7 @@
     </div>
 </div>
 
-<section class="features">
+<section id="features" class="features">
     <div class="container">
         <h2>Возможности системы</h2>
         <div class="features-grid">
@@ -69,7 +79,7 @@
     </div>
 </section>
 
-<section class="how-to-use">
+<section id="how-to-use" class="how-to-use">
     <div class="container">
         <h2>⚡ Как использовать систему</h2>
         <div class="steps">
@@ -97,7 +107,7 @@
     </div>
 </section>
 
-<section class="stats">
+<section id="stats" class="stats">
     <div class="container">
         <h2>📊 Статистика системы</h2>
         <div class="stats-grid">
@@ -117,14 +127,19 @@
     </div>
 </section>
 
-<section class="footer-cta">
+<section id="get-started" class="footer-cta">
     <div class="container">
         <h2>Готовы начать работу?</h2>
         <p>Создайте свое первое профессиональное коммерческое предложение прямо сейчас</p>
-        <a href="/proposals/create" class="btn btn-primary btn-large">
+        <a href="/proposals/create" class="btn btn-primary btn-large" title="Создать первое коммерческое предложение">
             <span class="btn-icon">⚡</span>
             Создать предложение
         </a>
+        <div class="additional-links">
+            <a href="/products" title="Посмотреть каталог товаров">Каталог товаров</a>
+            <a href="/register" title="Зарегистрировать аккаунт">Регистрация</a>
+            <a href="/login" title="Войти в систему">Вход</a>
+        </div>
     </div>
 </section>
 

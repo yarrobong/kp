@@ -104,3 +104,6 @@
         </div>
     </div>
 </div>
+
+<!-- Компонент поделиться -->
+<?php include __DIR__ . '/../components/share.php'; ?>

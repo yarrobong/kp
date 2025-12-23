@@ -3,25 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($title ?? 'КП Генератор'); ?></title>
+    <title><?php echo htmlspecialchars($title ?? 'КП Генератор - Создание коммерческих предложений'); ?></title>
+
+    <!-- SEO Мета-теги -->
+    <meta name="description" content="<?php echo htmlspecialchars($description ?? 'КП Генератор - современная система для автоматизации создания профессиональных коммерческих предложений. Управляйте товарами, формируйте КП и экспортируйте в PDF.'); ?>">
+    <meta name="keywords" content="<?php echo htmlspecialchars($keywords ?? 'КП, коммерческое предложение, генератор КП, автоматизация продаж, PDF предложения, управление товарами, CRM система'); ?>">
+    <meta name="robots" content="<?php echo htmlspecialchars($robots ?? 'index, follow'); ?>">
+    <meta name="author" content="КП Генератор">
+
+    <!-- Open Graph для социальных сетей -->
+    <meta property="og:type" content="<?php echo htmlspecialchars($og_type ?? 'website'); ?>">
+    <meta property="og:title" content="<?php echo htmlspecialchars($og_title ?? $title ?? 'КП Генератор - Создание коммерческих предложений'); ?>">
+    <meta property="og:description" content="<?php echo htmlspecialchars($og_description ?? $description ?? 'КП Генератор - современная система для автоматизации создания профессиональных коммерческих предложений.'); ?>">
+    <meta property="og:url" content="<?php echo htmlspecialchars($og_url ?? 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>">
+    <meta property="og:image" content="<?php echo htmlspecialchars($og_image ?? '/css/placeholder-product.svg'); ?>">
+    <meta property="og:site_name" content="КП Генератор">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($og_title ?? $title ?? 'КП Генератор - Создание коммерческих предложений'); ?>">
+    <meta name="twitter:description" content="<?php echo htmlspecialchars($og_description ?? $description ?? 'КП Генератор - современная система для автоматизации создания профессиональных коммерческих предложений.'); ?>">
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($og_image ?? '/css/placeholder-product.svg'); ?>">
+
+    <!-- Структурированные данные JSON-LD -->
+    <script type="application/ld+json">
+    <?php
+    $jsonLd = [
+        "@context" => "https://schema.org",
+        "@type" => "WebApplication",
+        "name" => "КП Генератор",
+        "description" => "Современная система для автоматизации создания профессиональных коммерческих предложений",
+        "url" => "https://example.com",
+        "applicationCategory" => "BusinessApplication",
+        "operatingSystem" => "Web Browser",
+        "offers" => [
+            "@type" => "Offer",
+            "price" => "0",
+            "priceCurrency" => "RUB",
+            "description" => "Бесплатное использование системы создания коммерческих предложений"
+        ],
+        "creator" => [
+            "@type" => "Organization",
+            "name" => "КП Генератор",
+            "url" => "https://example.com"
+        ],
+        "featureList" => [
+            "Управление каталогом товаров",
+            "Генерация коммерческих предложений",
+            "Экспорт в PDF формат",
+            "Отслеживание статусов предложений",
+            "Поиск и фильтрация"
+        ]
+    ];
+
+    // Если есть дополнительные данные (товар/предложение), добавляем их
+    if (isset($structured_data) && is_array($structured_data)) {
+        $jsonLd = array_merge($jsonLd, $structured_data);
+    }
+
+    echo json_encode($jsonLd, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    ?>
+    </script>
+
+    <!-- Дополнительные мета-теги -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="msapplication-TileColor" content="#1a1a1a">
+    <meta name="format-detection" content="telephone=no">
 
     <!-- Подключение стилей -->
     <link rel="stylesheet" href="/css/app.css">
 
     <!-- Иконки -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 </head>
 <body>
     <!-- Навигационное меню -->
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="navbar-brand">КП Генератор</a>
+            <a href="/" class="navbar-brand" title="Главная страница КП Генератор">КП Генератор</a>
             <div class="navbar-menu">
                 <?php
                 $user = \Controllers\AuthController::getCurrentUser();
                 if ($user) {
-                    echo '<a href="/products" class="' . isActivePage('/products') . '">Товары</a>';
-                    echo '<a href="/proposals" class="' . isActivePage('/proposals') . '">КП</a>';
+                    echo '<a href="/products" class="' . isActivePage('/products') . '" title="Управление товарами">Товары</a>';
+                    echo '<a href="/proposals" class="' . isActivePage('/proposals') . '" title="Коммерческие предложения">КП</a>';
 
                     // Выпадающее меню пользователя
                     echo '<div class="user-menu">';
@@ -80,8 +149,9 @@
                     echo '</div>';
                     echo '</div>';
                 } else {
-                    echo '<a href="/login" class="' . isActivePage('/login') . '">Вход</a>';
-                    echo '<a href="/register" class="' . isActivePage('/register') . '">Регистрация</a>';
+                    echo '<a href="/#features" title="Возможности системы">Возможности</a>';
+                    echo '<a href="/login" class="' . isActivePage('/login') . '" title="Войти в систему">Вход</a>';
+                    echo '<a href="/register" class="' . isActivePage('/register') . '" title="Зарегистрировать аккаунт">Регистрация</a>';
                 }
                 ?>
             </div>

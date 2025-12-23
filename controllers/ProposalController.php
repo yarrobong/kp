@@ -42,7 +42,14 @@ class ProposalController extends \Core\Controller {
         $proposals = Proposal::getAllWithFallback($user['id']);
 
         $this->render('proposals/index', [
-            'title' => 'Коммерческие предложения',
+            'title' => 'Коммерческие предложения - КП Генератор',
+            'description' => 'Управление коммерческими предложениями в системе КП Генератор. Создавайте, редактируйте и отслеживайте статус ваших КП.',
+            'keywords' => 'коммерческие предложения, КП, управление предложениями, создание КП, статус предложений, PDF экспорт',
+            'robots' => 'index, follow',
+            'og_type' => 'website',
+            'og_title' => 'Коммерческие предложения',
+            'og_description' => 'Управление коммерческими предложениями. Создавайте профессиональные КП с автоматическим расчетом сумм.',
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             'proposals' => $proposals,
             'user' => $user
         ]);
@@ -56,7 +63,14 @@ class ProposalController extends \Core\Controller {
         $products = Product::getAllWithFallback($user['id']);
 
         $this->render('proposals/create', [
-            'title' => 'Создать предложение',
+            'title' => 'Создать коммерческое предложение - КП Генератор',
+            'description' => 'Создайте профессиональное коммерческое предложение онлайн. Выберите товары из каталога, укажите количество и автоматически рассчитайте сумму.',
+            'keywords' => 'создать КП, новое предложение, коммерческое предложение, генератор КП, расчет суммы, выбор товаров',
+            'robots' => 'index, follow',
+            'og_type' => 'website',
+            'og_title' => 'Создать коммерческое предложение',
+            'og_description' => 'Создайте профессиональное коммерческое предложение с автоматическим расчетом суммы и экспортом в PDF.',
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             'products' => $products,
             'user' => $user
         ]);
@@ -134,8 +148,39 @@ class ProposalController extends \Core\Controller {
         // Декодируем информацию о клиенте
         $clientInfo = json_decode($proposal['client_info'], true);
 
+        // Структурированные данные для предложения
+        $structuredData = [
+            "@type" => "Quotation",
+            "name" => $proposal['title'],
+            "description" => 'Коммерческое предложение №' . $proposal['offer_number'],
+            "dateCreated" => $proposal['created_at'],
+            "dateModified" => $proposal['updated_at'],
+            "identifier" => $proposal['offer_number'],
+            "totalPaymentDue" => [
+                "@type" => "MonetaryAmount",
+                "value" => $proposal['total'],
+                "currency" => "RUB"
+            ],
+            "customer" => [
+                "@type" => "Person",
+                "name" => $clientInfo['client_name']
+            ],
+            "seller" => [
+                "@type" => "Organization",
+                "name" => "КП Генератор"
+            ]
+        ];
+
         $this->render('proposals/show', [
-            'title' => $proposal['title'],
+            'title' => $proposal['title'] . ' - КП Генератор',
+            'description' => 'Просмотр коммерческого предложения: ' . $proposal['title'] . '. Номер: ' . $proposal['offer_number'] . ', сумма: ' . number_format($proposal['total'], 0, ',', ' ') . ' ₽',
+            'keywords' => 'просмотр КП, коммерческое предложение, ' . $proposal['title'] . ', предложение номер ' . $proposal['offer_number'],
+            'robots' => 'noindex, nofollow', // Не индексируем индивидуальные предложения
+            'og_type' => 'article',
+            'og_title' => $proposal['title'],
+            'og_description' => 'Коммерческое предложение на сумму ' . number_format($proposal['total'], 0, ',', ' ') . ' ₽',
+            'og_url' => 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+            'structured_data' => $structuredData,
             'proposal' => $proposal,
             'clientInfo' => $clientInfo,
             'user' => $user

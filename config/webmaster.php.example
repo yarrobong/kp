@@ -1,0 +1,25 @@
+<?php
+/**
+ * Конфигурация верификационных кодов вебмастеров
+ * 
+ * ИНСТРУКЦИЯ:
+ * 1. Скопируйте этот файл в config/webmaster.php
+ * 2. Заполните верификационные коды
+ * 3. Файл config/webmaster.php уже добавлен в .gitignore и не будет закоммичен
+ * 
+ * ВАЖНО: Не коммитьте файл config/webmaster.php с реальными кодами!
+ */
+
+return [
+    // Яндекс.Вебмастер
+    // Получите код на: https://webmaster.yandex.ru/
+    'yandex' => 'YOUR_YANDEX_VERIFICATION_CODE',
+    
+    // Google Search Console
+    // Получите код на: https://search.google.com/search-console
+    'google' => 'YOUR_GOOGLE_VERIFICATION_CODE',
+    
+    // Bing Webmaster Tools
+    // Получите код на: https://www.bing.com/webmasters
+    'bing' => 'YOUR_BING_VERIFICATION_CODE',
+];

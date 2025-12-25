@@ -25,6 +25,47 @@
     <meta name="twitter:description" content="<?php echo htmlspecialchars($og_description ?? $description ?? 'КП Генератор - современная система для автоматизации создания профессиональных коммерческих предложений.'); ?>">
     <meta name="twitter:image" content="<?php echo htmlspecialchars($og_image ?? '/css/placeholder-product.svg'); ?>">
 
+    <!-- Верификация вебмастеров -->
+    <?php
+    // Загрузка верификационных кодов из конфигурационного файла (если существует)
+    $webmasterConfig = [];
+    $webmasterConfigPath = __DIR__ . '/../config/webmaster.php';
+    if (file_exists($webmasterConfigPath)) {
+        $webmasterConfig = require $webmasterConfigPath;
+    }
+    
+    // Яндекс.Вебмастер верификация
+    // Инструкция: Получите код верификации на https://webmaster.yandex.ru/
+    // Вариант 1: Создайте config/webmaster.php и добавьте код туда
+    // Вариант 2: Замените 'YOUR_YANDEX_VERIFICATION_CODE' ниже на ваш код верификации
+    $yandexVerificationCode = $webmasterConfig['yandex'] ?? 'YOUR_YANDEX_VERIFICATION_CODE';
+    if ($yandexVerificationCode !== 'YOUR_YANDEX_VERIFICATION_CODE' && !empty($yandexVerificationCode)) {
+        echo '    <meta name="yandex-verification" content="' . htmlspecialchars($yandexVerificationCode) . '">' . "\n";
+    }
+    ?>
+    
+    <?php
+    // Google Search Console верификация (для будущего использования)
+    // Инструкция: Получите код верификации на https://search.google.com/search-console
+    // Вариант 1: Создайте config/webmaster.php и добавьте код туда
+    // Вариант 2: Замените 'YOUR_GOOGLE_VERIFICATION_CODE' ниже на ваш код верификации
+    $googleVerificationCode = $webmasterConfig['google'] ?? 'YOUR_GOOGLE_VERIFICATION_CODE';
+    if ($googleVerificationCode !== 'YOUR_GOOGLE_VERIFICATION_CODE' && !empty($googleVerificationCode)) {
+        echo '    <meta name="google-site-verification" content="' . htmlspecialchars($googleVerificationCode) . '">' . "\n";
+    }
+    ?>
+    
+    <?php
+    // Bing Webmaster Tools верификация (опционально)
+    // Инструкция: Получите код верификации на https://www.bing.com/webmasters
+    // Вариант 1: Создайте config/webmaster.php и добавьте код туда
+    // Вариант 2: Замените 'YOUR_BING_VERIFICATION_CODE' ниже на ваш код верификации
+    $bingVerificationCode = $webmasterConfig['bing'] ?? 'YOUR_BING_VERIFICATION_CODE';
+    if ($bingVerificationCode !== 'YOUR_BING_VERIFICATION_CODE' && !empty($bingVerificationCode)) {
+        echo '    <meta name="msvalidate.01" content="' . htmlspecialchars($bingVerificationCode) . '">' . "\n";
+    }
+    ?>
+
     <!-- Структурированные данные JSON-LD -->
     <script type="application/ld+json">
     <?php

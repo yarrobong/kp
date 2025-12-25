@@ -15,6 +15,7 @@ uploads/
 # Файлы конфигурации
 .deploy_config.local
 .env.local
+config/webmaster.php
 
 # Node.js (если используется)
 node_modules/
@@ -37,3 +38,15 @@ backup_*.sql
 
 # Архивы деплоя
 kp-deploy-*.tar.gz
+
+# Верификационные файлы вебмастеров (не коммитить файлы с реальными кодами)
+# Примеры файлов оставляем в репозитории
+yandex_*.html
+!yandex_verification.html.example
+google*.html
+!google_verification.html.example
+bing*.html
+!bing_verification.html.example
+BingSiteAuth.xml
+*_verification.html
+!*_verification.html.example

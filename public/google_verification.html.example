@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Google Search Console - Верификация сайта</title>
+</head>
+<body>
+    <!-- 
+        ВЕРИФИКАЦИОННЫЙ ФАЙЛ ДЛЯ GOOGLE SEARCH CONSOLE
+        
+        ИНСТРУКЦИЯ ПО ИСПОЛЬЗОВАНИЮ:
+        1. Получите код верификации на https://search.google.com/search-console
+        2. Скопируйте этот файл и переименуйте его так, как указано в Google Search Console
+           (обычно это что-то вроде: googleXXXXX.html где XXXXX - ваш код)
+        3. Замените содержимое файла на код, который предоставил Google
+        4. Загрузите файл в корень сайта (папку public/)
+        5. Проверьте доступность файла по URL: https://yourdomain.com/googleXXXXX.html
+        6. Вернитесь в Google Search Console и нажмите "Проверить"
+        
+        ПРИМЕЧАНИЕ: 
+        - Файл должен содержать ТОЧНО то, что указал Google (обычно это просто текст)
+        - Файл должен быть доступен по HTTP без редиректов
+        - Убедитесь, что .htaccess не блокирует доступ к этому файлу
+        - После верификации файл можно удалить (но лучше оставить)
+    -->
+    
+    <!-- Замените эту строку на содержимое, предоставленное Google -->
+    google-site-verification: googleXXXXX.html
+    
+</body>
+</html>

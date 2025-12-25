@@ -101,3 +101,22 @@ RewriteRule ^robots\.txt$ /public/robots.txt [L]
 
 # SEO: sitemap.xml
 RewriteRule ^sitemap\.xml$ /public/sitemap.php [L]
+
+# Верификационные файлы вебмастеров
+# Разрешаем прямой доступ к верификационным файлам (без редиректа через index.php)
+RewriteRule ^yandex.*\.html$ - [L]
+RewriteRule ^google.*\.html$ - [L]
+RewriteRule ^bing.*\.html$ - [L]
+RewriteRule ^BingSiteAuth\.xml$ - [L]
+RewriteRule ^.*_verification\.html$ - [L]
+
+# Защита верификационных файлов от случайного удаления (разрешаем только чтение)
+<FilesMatch "^(yandex|google|bing|.*_verification|BingSiteAuth)">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Allow from all
+    </IfModule>
+</FilesMatch>

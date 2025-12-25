@@ -152,7 +152,33 @@ class Router {
      */
     private function error404($message = 'Страница не найдена') {
         http_response_code(404);
-        echo '<h1>404 - ' . $message . '</h1>';
+        
+        try {
+            // Убеждаемся, что Controller загружен
+            $controllerBaseFile = __DIR__ . '/Controller.php';
+            if (!class_exists('Core\\Controller') && file_exists($controllerBaseFile)) {
+                require_once $controllerBaseFile;
+            }
+            
+            // Используем ErrorController для рендеринга страницы 404
+            $controllerFile = __DIR__ . '/../controllers/ErrorController.php';
+            if (file_exists($controllerFile)) {
+                require_once $controllerFile;
+                $controller = new \Controllers\ErrorController();
+                $controller->error404($message);
+                exit;
+            }
+        } catch (\Exception $e) {
+            error_log("Error rendering 404 page: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+        } catch (\Error $e) {
+            error_log("Fatal error rendering 404 page: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+        }
+        
+        // Fallback на простой вывод
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>404 - Страница не найдена</title></head><body><h1>404 - ' . htmlspecialchars($message) . '</h1></body></html>';
+        exit;
     }
 
     /**
@@ -160,6 +186,32 @@ class Router {
      */
     private function error500($message = 'Внутренняя ошибка сервера') {
         http_response_code(500);
-        echo '<h1>500 - ' . $message . '</h1>';
+        
+        try {
+            // Убеждаемся, что Controller загружен
+            $controllerBaseFile = __DIR__ . '/Controller.php';
+            if (!class_exists('Core\\Controller') && file_exists($controllerBaseFile)) {
+                require_once $controllerBaseFile;
+            }
+            
+            // Используем ErrorController для рендеринга страницы 500
+            $controllerFile = __DIR__ . '/../controllers/ErrorController.php';
+            if (file_exists($controllerFile)) {
+                require_once $controllerFile;
+                $controller = new \Controllers\ErrorController();
+                $controller->error500($message);
+                exit;
+            }
+        } catch (\Exception $e) {
+            error_log("Error rendering 500 page: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+        } catch (\Error $e) {
+            error_log("Fatal error rendering 500 page: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+        }
+        
+        // Fallback на простой вывод
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>500 - Ошибка сервера</title></head><body><h1>500 - ' . htmlspecialchars($message) . '</h1></body></html>';
+        exit;
     }
 }

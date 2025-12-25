@@ -16,6 +16,7 @@ uploads/
 .deploy_config.local
 .env.local
 config/webmaster.php
+config/metrika.php
 
 # Node.js (если используется)
 node_modules/

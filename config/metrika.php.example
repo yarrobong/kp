@@ -1,0 +1,48 @@
+<?php
+/**
+ * Конфигурация Яндекс.Метрики
+ * 
+ * ИНСТРУКЦИЯ:
+ * 1. Скопируйте этот файл в config/metrika.php
+ * 2. Заполните ID счетчика (если нужно изменить)
+ * 3. Настройте параметры метрики
+ * 4. Файл config/metrika.php уже добавлен в .gitignore и не будет закоммичен
+ * 
+ * ВАЖНО: Не коммитьте файл config/metrika.php с реальными настройками!
+ */
+
+return [
+    // ID счетчика Яндекс.Метрики
+    // Получите ID на: https://metrika.yandex.ru/
+    'counter_id' => '106018547',
+    
+    // Настройки счетчика
+    'settings' => [
+        // Поддержка SSR (Server-Side Rendering)
+        'ssr' => true,
+        
+        // Вебвизор (запись сессий пользователей)
+        'webvisor' => true,
+        
+        // Карта кликов
+        'clickmap' => true,
+        
+        // Ecommerce через dataLayer
+        'ecommerce' => 'dataLayer',
+        
+        // Точный отскок
+        'accurateTrackBounce' => true,
+        
+        // Отслеживание ссылок
+        'trackLinks' => true,
+        
+        // Отслеживание хеша в URL
+        'trackHash' => false,
+        
+        // Отслеживание файлов
+        'trackFiles' => true,
+        
+        // Детальная статистика по индексации
+        'defer' => false,
+    ],
+];

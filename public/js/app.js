@@ -1,5 +1,44 @@
 // Основной JavaScript файл для приложения
 
+// Инициализация dataLayer для Яндекс.Метрики ecommerce (если не инициализирован в layout)
+if (typeof window.dataLayer === 'undefined') {
+    window.dataLayer = window.dataLayer || [];
+}
+
+// Функции для отслеживания ecommerce событий в Яндекс.Метрике
+function trackEcommercePurchase(transactionId, total, items) {
+    if (typeof ym !== 'undefined' && typeof dataLayer !== 'undefined') {
+        dataLayer.push({
+            'ecommerce': {
+                'purchase': {
+                    'actionField': {
+                        'id': transactionId,
+                        'revenue': total
+                    },
+                    'products': items
+                }
+            }
+        });
+    }
+}
+
+function trackEcommerceAddToCart(productId, productName, price, quantity = 1) {
+    if (typeof ym !== 'undefined' && typeof dataLayer !== 'undefined') {
+        dataLayer.push({
+            'ecommerce': {
+                'add': {
+                    'products': [{
+                        'id': productId,
+                        'name': productName,
+                        'price': price,
+                        'quantity': quantity
+                    }]
+                }
+            }
+        });
+    }
+}
+
 // Функция для закрытия flash сообщений
 function closeFlashMessage() {
     const flashMessage = document.getElementById('flash-message');

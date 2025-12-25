@@ -45,11 +45,11 @@
     ?>
     
     <?php
-    // Google Search Console верификация (для будущего использования)
+    // Google Search Console верификация
     // Инструкция: Получите код верификации на https://search.google.com/search-console
     // Вариант 1: Создайте config/webmaster.php и добавьте код туда
     // Вариант 2: Замените 'YOUR_GOOGLE_VERIFICATION_CODE' ниже на ваш код верификации
-    $googleVerificationCode = $webmasterConfig['google'] ?? 'YOUR_GOOGLE_VERIFICATION_CODE';
+    $googleVerificationCode = $webmasterConfig['google'] ?? '266e2486b25c8ba7';
     if ($googleVerificationCode !== 'YOUR_GOOGLE_VERIFICATION_CODE' && !empty($googleVerificationCode)) {
         echo '    <meta name="google-site-verification" content="' . htmlspecialchars($googleVerificationCode) . '">' . "\n";
     }

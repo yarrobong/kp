@@ -45,6 +45,7 @@ yandex_*.html
 !yandex_verification.html.example
 google*.html
 !google_verification.html.example
+!google266e2486b25c8ba7.html
 bing*.html
 !bing_verification.html.example
 BingSiteAuth.xml
